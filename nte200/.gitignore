@@ -1,0 +1,4 @@
+__pycache__/
+*.pyc
+tools/_catalog_source.pdf
+tools/_catalog_combined.zip

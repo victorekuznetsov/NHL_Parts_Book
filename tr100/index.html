@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>TR100A — Интерактивный каталог запчастей</title>
+<link rel="icon" href="favicon.svg">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<div id="contactbar">
+  <span class="cb-brand">ГОРНАЯ ЕВРАЗИЯ</span>
+  <span class="cb-sep">·</span>
+  <span>Каталог запасных частей TR100A</span>
+  <span class="cb-spacer"></span>
+  <span class="cb-contact">Заказ и подбор: <a href="mailto:KuznetsovVE@industrservice.ru">KuznetsovVE@industrservice.ru</a></span>
+</div>
+
+<header id="topbar">
+  <button id="menuToggle" aria-label="Меню">☰</button>
+  <div class="brand">
+    <div class="brand-mark">TR100A</div>
+    <div class="brand-text">
+      <div class="brand-title">Самосвал карьерный — Каталог запчастей</div>
+      <div class="brand-sub">Inner Mongolia North Hauler (NHL) · серия T9031-1</div>
+    </div>
+  </div>
+  <div class="search-wrap">
+    <input id="search" type="search" placeholder="Поиск: номер детали, наименование, раздел…" autocomplete="off">
+    <div id="searchResults" class="search-results" hidden></div>
+  </div>
+  <button id="cartBtn" class="cart-btn">
+    Корзина <span id="cartCount" class="cart-count">0</span>
+  </button>
+</header>
+
+<div id="layout">
+  <nav id="sidebar" aria-label="Разделы каталога">
+    <div class="nav-head">Оглавление</div>
+    <div id="chapterNav"></div>
+  </nav>
+
+  <main id="content" tabindex="-1">
+    <section id="home" class="home">
+      <h1>Интерактивный каталог запчастей TR100A</h1>
+      <p class="lede">Карьерный самосвал NHL TR100A. Выберите раздел слева или воспользуйтесь
+        поиском, чтобы найти деталь по номеру или названию. Каждый чертёж показан вместе со
+        своим списком позиций; нужное количество можно добавить в корзину заказа.</p>
+      <div class="stat-row" id="statRow"></div>
+      <div class="home-tools">
+        <button id="exportAll" class="btn">Скачать все артикулы (CSV)</button>
+        <span class="home-tools-note">Полный список уникальных номеров со всеми аналитиками: цена, группа, взаимозаменяемый артикул, разделы.</span>
+      </div>
+      <div class="home-chapters" id="homeChapters"></div>
+    </section>
+
+    <section id="section-view" hidden></section>
+  </main>
+</div>
+
+<!-- Cart drawer -->
+<div id="cartOverlay" hidden></div>
+<aside id="cartDrawer" hidden aria-label="Корзина заказа">
+  <div class="cart-head">
+    <strong>Корзина заказа</strong>
+    <button id="cartClose" aria-label="Закрыть">✕</button>
+  </div>
+  <div class="cart-meta">
+    <label>Серийный № машины
+      <input id="machineSerial" type="text" placeholder="напр. T9031-1-XXXX">
+    </label>
+  </div>
+  <div id="cartLines" class="cart-lines"></div>
+  <div class="cart-foot">
+    <div class="cart-total-row">
+      <span>Итого (CNY, без НДС):</span>
+      <strong id="cartTotal">0.00</strong>
+    </div>
+    <p class="cart-note" id="cartNote"></p>
+    <div class="cart-actions">
+      <button id="exportCsv" class="btn">Экспорт CSV</button>
+      <button id="printOrder" class="btn">Печать / PDF</button>
+      <button id="clearCart" class="btn btn-ghost">Очистить</button>
+    </div>
+  </div>
+</aside>
+
+<script src="data/parts.js"></script>
+<script src="data/prices.js"></script>
+<script src="data/engine.js"></script>
+<script src="data/service.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

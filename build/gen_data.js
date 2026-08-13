@@ -1,0 +1,151 @@
+/* Build the unified catalog data files from the three per-machine sandboxes,
+   pricing ALL machines from the single central price list in the repo root
+   ("*.xlsx"). Emits:
+     data/catalogs.js       -> window.MACHINES, window.CATALOGS
+     data/prices.js         -> window.PRICES_BY   (unified app)
+     <machine>/data/prices.js -> window.PRICES    (native subfolder apps)
+   Run from the repo root:  node build/gen_data.js
+*/
+"use strict";
+var fs = require("fs");
+var vm = require("vm");
+var path = require("path");
+var readXlsx = require("./read_xlsx.js").readXlsx;
+
+var ROOT = path.resolve(__dirname, "..");
+
+var MACHINES = [
+  { id: "nte240", name: "NTE240", subtitle: "электромеханический самосвал NHL (Cummins QSK60)",
+    currency: "CNY", hashPrefix: "#/s/", hasEngine: true, hasService: true },
+  { id: "nte200", name: "NTE200", subtitle: "электромеханический самосвал NHL",
+    currency: "CNY", hashPrefix: "#", hasEngine: false, hasService: false },
+  { id: "tr100", name: "TR100A", subtitle: "механический самосвал NHL (Cummins QST30)",
+    currency: "CNY", hashPrefix: "#", hasEngine: true, hasService: true }
+];
+
+function loadGlobal(file, name) {
+  var ctx = { window: {} };
+  vm.createContext(ctx);
+  vm.runInContext(fs.readFileSync(file, "utf8"), ctx, { filename: file });
+  return ctx.window[name];
+}
+
+// ---- central price list -------------------------------------------------
+function normArt(x) {
+  if (x == null) return "";
+  var s = String(x).replace(/ /g, " ").trim();
+  if (/\.0$/.test(s)) s = s.slice(0, -2);
+  return s;
+}
+function toPrice(x) {
+  if (x == null || x === "") return null;
+  var s = String(x).replace(/ /g, "").replace(/\s/g, "").replace(",", ".");
+  var v = parseFloat(s);
+  return isNaN(v) ? null : Math.round(v * 100) / 100;
+}
+// Mirrors app.js rowsToPrices: keyed by Артикул and by Взаимозаменяемый артикул.
+function buildPriceMap(rows) {
+  var hr = -1, col = { art: 0, xref: 1, name: 2, price: 3, group: 4 };
+  for (var i = 0; i < rows.length && hr < 0; i++) {
+    var row = rows[i] || [];
+    for (var c = 0; c < row.length; c++) {
+      if (typeof row[c] === "string" && row[c].trim() === "Артикул") { hr = i; break; }
+    }
+    if (hr === i) {
+      row.forEach(function (cell, c) {
+        var v = (typeof cell === "string" ? cell : "").trim().toLowerCase();
+        if (v === "артикул") col.art = c;
+        else if (v.indexOf("заменя") >= 0) col.xref = c;
+        else if (v.indexOf("наимен") >= 0) col.name = c;
+        else if (v.indexOf("цена") >= 0) col.price = c;
+        else if (v.indexOf("группа") >= 0) col.group = c;
+      });
+    }
+  }
+  if (hr < 0) throw new Error("не найден столбец «Артикул» в прайсе");
+  var out = {};
+  for (var r = hr + 1; r < rows.length; r++) {
+    var rw = rows[r] || [], art = normArt(rw[col.art]);
+    if (!art) continue;
+    var rec = {
+      p: toPrice(rw[col.price]),
+      g: rw[col.group] != null ? String(rw[col.group]).replace(/ /g, " ").trim() : "",
+      x: normArt(rw[col.xref]),
+      n: rw[col.name] != null ? String(rw[col.name]).replace(/ /g, " ").trim() : ""
+    };
+    if (!(art in out)) out[art] = rec;
+    if (rec.x && !(rec.x in out)) out[rec.x] = { p: rec.p, g: rec.g, x: rec.x, n: rec.n };
+  }
+  return out;
+}
+
+var priceFile = fs.readdirSync(ROOT).filter(function (n) { return /\.xlsx$/i.test(n); }).sort()[0];
+if (!priceFile) throw new Error("не найден файл прайса (*.xlsx) в корне репозитория");
+var PRICE_MAP = buildPriceMap(readXlsx(path.join(ROOT, priceFile)));
+console.log("Прайс: " + priceFile + " — записей в карте цен: " + Object.keys(PRICE_MAP).length);
+
+// ---- catalogs + per-machine prices -------------------------------------
+function rewriteImages(catalog, base) {
+  (catalog.sections || []).forEach(function (s) {
+    (s.figures || []).forEach(function (f) {
+      f.images = (f.images || []).map(function (img) {
+        if (!img) return img;
+        if (/^(https?:)?\/\//.test(img) || img.indexOf(base + "/") === 0) return img;
+        return base + "/" + img;
+      });
+    });
+  });
+  return catalog;
+}
+
+var CATALOGS = {};
+var PRICES_BY = {};
+var stats = [];
+
+MACHINES.forEach(function (m) {
+  var dir = path.join(ROOT, m.id, "data");
+  var cat = loadGlobal(path.join(dir, "parts.js"), "CATALOG");
+  rewriteImages(cat, m.id);
+  m.title_en = cat.title_en || m.name;
+  m.title_zh = cat.title_zh || "";
+  CATALOGS[m.id] = { chapters: cat.chapters || [], sections: cat.sections || [] };
+
+  // catalog part numbers -> price from the central list (keep map small)
+  var prices = {}, total = 0, priced = 0;
+  var seen = {};
+  (cat.sections || []).forEach(function (s) {
+    (s.figures || []).forEach(function (f) {
+      (f.parts || []).forEach(function (p) {
+        if (!p.pn || seen[p.pn]) return;
+        seen[p.pn] = 1; total++;
+        var rec = PRICE_MAP[normArt(p.pn)];
+        if (rec) { prices[p.pn] = rec; if (rec.p != null) priced++; }
+      });
+    });
+  });
+  PRICES_BY[m.id] = prices;
+  // write the native subfolder prices.js too, so those catalogs match
+  fs.writeFileSync(path.join(dir, "prices.js"),
+    "window.PRICES = " + JSON.stringify(prices) + ";\n");
+
+  stats.push(m.id + ": уник. номеров " + total + ", с ценой из прайса " + priced +
+    " (" + Math.round(priced / total * 100) + "%), всего сматчено " + Object.keys(prices).length);
+});
+
+var machinesOut = MACHINES.map(function (m) {
+  return {
+    id: m.id, name: m.name, subtitle: m.subtitle, currency: m.currency,
+    hashPrefix: m.hashPrefix, hasEngine: m.hasEngine, hasService: m.hasService,
+    title_en: m.title_en, title_zh: m.title_zh
+  };
+});
+
+fs.mkdirSync(path.join(ROOT, "data"), { recursive: true });
+fs.writeFileSync(path.join(ROOT, "data", "catalogs.js"),
+  "window.MACHINES = " + JSON.stringify(machinesOut) + ";\n" +
+  "window.CATALOGS = " + JSON.stringify(CATALOGS) + ";\n");
+fs.writeFileSync(path.join(ROOT, "data", "prices.js"),
+  "window.PRICES_BY = " + JSON.stringify(PRICES_BY) + ";\n");
+
+console.log("Записано: data/catalogs.js, data/prices.js и <машина>/data/prices.js");
+stats.forEach(function (s) { console.log("  " + s); });

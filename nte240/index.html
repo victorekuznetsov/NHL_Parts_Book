@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>NTE240 — Интерактивный каталог запасных частей</title>
+<link rel="stylesheet" href="styles.css?v=2">
+<script src="gate.js?v=2"></script>
+</head>
+<body>
+
+<div class="contact-bar">
+  <span class="ctext">По вопросам работы каталога запасных частей, ошибок и замечаний обращаться к&nbsp;Кузнецову&nbsp;В.Е.</span>
+  <a class="cmail" href="mailto:KuznetsovVE@industrservice.ru">KuznetsovVE@industrservice.ru</a>
+</div>
+
+<header class="app">
+  <button class="menu-btn" id="menuBtn" aria-label="Меню">☰</button>
+  <div class="logo">
+    <span class="mark" aria-hidden="true">
+      <svg viewBox="0 0 196 196" width="30" height="30"><path d="M63.5941 165.078 114.786 64.5721 99.6758 31 83.5127 31 16 165.078 63.5941 165.078Z"/><path d="M107.608 118.291 152.342 118.291 179.684 64.5721 164.574 31 119.559 31 134.669 64.5721 107.608 118.291Z"/></svg>
+    </span>
+    <div class="title">
+      <div class="t1">Развитие · Каталог запчастей</div>
+      <div class="t2">NTE240 · электромеханический самосвал NHL</div>
+    </div>
+  </div>
+  <div class="search">
+    <input id="search" type="search" placeholder="Поиск по номеру детали или названию…" autocomplete="off">
+    <span class="ico">⌕</span>
+  </div>
+  <span class="spacer"></span>
+  <a class="manual-btn engine-btn" href="engine/index.html">🛠 Каталог двигателя QSK60 (Cummins)</a>
+  <a class="manual-btn" href="service.html">🔧 Ремонт и обслуживание</a>
+  <a class="manual-btn" href="manual.html">📘 Руководство по эксплуатации</a>
+  <button class="price-btn" id="checkBtn" type="button" title="Проверить список номеров на наличие в каталоге">🔎 Проверить список</button>
+  <button class="price-btn" id="pricesBtn" type="button" title="Обновить цены из файла прайса">💲 Обновить цены</button>
+  <button class="cart-btn" id="cartBtn">
+    <span>Заказ</span>
+    <span class="count" id="cartCount">0</span>
+  </button>
+</header>
+
+<div class="layout">
+  <nav class="sidebar" id="sidebar">
+    <div class="sidebar-tools">
+      <button id="exportAll">⬇ Экспорт всех номеров (Excel)</button>
+    </div>
+    <div id="chapters"></div>
+  </nav>
+  <main class="content" id="content"></main>
+</div>
+
+<!-- cart -->
+<div class="overlay" id="overlay"></div>
+<aside class="cart" id="cart">
+  <div class="cart-h">
+    <h2>Заказ-спецификация</h2>
+    <button class="close" id="cartClose" aria-label="Закрыть">×</button>
+  </div>
+  <div class="cart-serial">
+    <label for="serial">Заводской / серийный номер машины</label>
+    <input id="serial" type="text" placeholder="напр. NTE240A001">
+  </div>
+  <div class="cart-lines" id="cartLines"></div>
+  <div class="cart-foot">
+    <div class="total"><span>Итого</span><span id="cartTotal">0.00 CNY</span></div>
+    <div class="note" id="cartNote"></div>
+    <div class="acts">
+      <button class="btn primary" id="exportCsv">Экспорт Excel</button>
+      <button class="btn" id="printOrder">Печать</button>
+      <button class="btn ghost" id="clearCart">Очистить</button>
+    </div>
+  </div>
+</aside>
+
+<!-- price update -->
+<div class="overlay" id="pmOverlay"></div>
+<div class="price-modal" id="priceModal" role="dialog" aria-modal="true" aria-labelledby="pmTitle">
+  <div class="pm-h">
+    <h2 id="pmTitle">Обновление цен</h2>
+    <button class="close" id="pmClose" aria-label="Закрыть">×</button>
+  </div>
+  <div class="pm-body">
+    <p class="pm-note">Загрузите файл прайс-листа (<b>.xlsx</b> или <b>.csv</b>) со столбцами
+      «Артикул», «Взаимозаменяемый артикул», «Наименование», «Цена CNY без НДС», «Группа».
+      Цены применятся сразу и сохранятся в этом браузере.</p>
+    <label class="pm-file" for="priceFile">
+      <span class="pm-file-ico">⬆</span>
+      <span id="pmFileLabel">Выбрать файл прайса…</span>
+      <input type="file" id="priceFile" accept=".xlsx,.csv,text/csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet">
+    </label>
+    <div class="pm-status" id="priceStatus"></div>
+    <p class="pm-note pm-hint">Чтобы обновление стало <b>постоянным</b> и перешло вместе с каталогом
+      другим пользователям — скачайте <code>prices.js</code> и положите его в папку
+      <code>catalog/data/</code> вместо старого файла.</p>
+    <div class="pm-acts">
+      <button class="btn primary" id="priceDownload" type="button">⬇ Скачать prices.js</button>
+      <button class="btn ghost" id="priceReset" type="button">Сбросить к заводским</button>
+    </div>
+  </div>
+</div>
+
+<!-- check list of part numbers -->
+<div class="overlay" id="chkOverlay"></div>
+<div class="check-modal" id="checkModal" role="dialog" aria-modal="true" aria-labelledby="chkTitle">
+  <div class="pm-h">
+    <h2 id="chkTitle">Проверка списка номеров</h2>
+    <button class="close" id="chkClose" aria-label="Закрыть">×</button>
+  </div>
+  <div class="chk-body">
+    <p class="pm-note">Вставьте номера деталей (по одному в строке, можно через запятую, пробел или
+      точку с запятой) или загрузите файл <b>.xlsx</b>/<b>.csv</b>/<b>.txt</b> (номера берутся из
+      первого столбца). Проверка идёт по всему каталогу; номер находится и как
+      <b>взаимозаменяемый</b> (старый) артикул.</p>
+    <textarea id="chkInput" rows="5" placeholder="20083750&#10;3655668&#10;4327201&#10;…"></textarea>
+    <div class="chk-actions">
+      <button class="btn primary" id="chkRun" type="button">Проверить</button>
+      <label class="btn ghost chk-filelbl" for="chkFile">Загрузить файл…</label>
+      <input type="file" id="chkFile" accept=".xlsx,.csv,.txt,text/csv,text/plain,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet">
+      <button class="btn ghost" id="chkExport" type="button" disabled>⬇ Выгрузить результат (Excel)</button>
+      <button class="btn ghost" id="chkClear" type="button">Очистить</button>
+    </div>
+    <div class="chk-status" id="chkStatus"></div>
+    <div class="chk-results" id="chkResults"></div>
+  </div>
+</div>
+
+<!-- lightbox -->
+<div class="lightbox" id="lightbox"><span class="x" id="lbClose">×</span><img id="lbImg" alt=""></div>
+<div class="toast" id="toast"></div>
+
+<script src="data/parts.js?v=2"></script>
+<script src="data/prices.js?v=2"></script>
+<script src="data/service.js?v=2"></script>
+<script src="app.js?v=2"></script>
+</body>
+</html>
