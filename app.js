@@ -580,31 +580,45 @@
     downloadBlob(name, xlsx("Заказ", headers, rows, types));
   }
 
+  function baseName(p) { var s = String(p || ""); var i = s.lastIndexOf("/"); return i >= 0 ? s.slice(i + 1) : s; }
+
+  // Global export of every catalog part number across ALL machines, with every
+  // available attribute: one row per occurrence (a number that appears in
+  // several figures/sections yields several rows, keeping its distinct position,
+  // quantity, level and drawing). No attribute is dropped.
   function exportAllNumbers() {
-    var headers = ["Машина", "Артикул (Part No.)", "Наименование (RU)", "Description (EN)",
-      "Описание (ZH)", "Цена", "Валюта", "Группа", "Взаимозаменяемый артикул", "Разделы"];
-    var types = ["s", "s", "s", "s", "s", "n", "s", "s", "s", "s"];
+    var headers = ["Машина", "Глава (код)", "Глава", "Раздел (код)", "Раздел",
+      "Рисунок", "№ позиции", "Артикул (Part No.)", "Взаимозаменяемый артикул",
+      "Наименование (RU)", "Description (EN)", "Описание (ZH)",
+      "Кол-во на схеме", "Уровень", "Цена", "Валюта", "Группа", "Чертёж (файлы)"];
+    var types = ["s", "s", "s", "s", "s", "s", "s", "s", "s", "s", "s", "s",
+      "s", "s", "n", "s", "s", "s"];
     var rows = [];
     MACHINES.forEach(function (mm) {
-      var id = mm.id, prices = pricesFor(id), uniq = {};
+      var id = mm.id, prices = pricesFor(id);
+      var chById = {};
+      (CATALOGS[id].chapters || []).forEach(function (c) { chById[c.code] = c; });
       (CATALOGS[id].sections || []).forEach(function (s) {
-        (s.figures || []).forEach(function (f) {
+        var ch = chById[s.chapter] || { code: s.chapter, en: "", zh: "" };
+        var chName = ch.en && /\s/.test(ch.en) ? ch.en : (ch.zh || ch.en || "");
+        var figs = s.figures || [];
+        figs.forEach(function (f, fi) {
+          var drawing = (f.images || []).map(baseName).join(" ");
           (f.parts || []).forEach(function (p) {
             if (!p.pn) return;
-            var u = uniq[p.pn] || (uniq[p.pn] = { en: p.en || "", zh: p.zh || "", secs: {} });
-            u.secs[s.code] = 1;
-            if (!u.en && p.en) u.en = p.en;
-            if (!u.zh && p.zh) u.zh = p.zh;
+            var pr = prices[p.pn] || {};
+            rows.push([mm.name, s.chapter, chName, s.code, secName(s),
+              figs.length > 1 ? (fi + 1) + " / " + figs.length : "",
+              pad(p.ref), p.pn, pr.x || "",
+              pr.n || "", p.en || "", p.zh || "",
+              p.qty || "", p.lvl != null ? p.lvl : "",
+              pr.p != null ? pr.p : "", currencyOf(id), pr.g || "", drawing]);
           });
         });
       });
-      Object.keys(uniq).sort().forEach(function (pn) {
-        var u = uniq[pn], pr = prices[pn] || {};
-        rows.push([mm.name, pn, pr.n || "", u.en, u.zh, pr.p != null ? pr.p : "",
-          currencyOf(id), pr.g || "", pr.x || "", Object.keys(u.secs).sort().join(" ")]);
-      });
     });
-    downloadBlob("NHL_все_номера_по_оборудованию.xlsx", xlsx("Все номера", headers, rows, types));
+    downloadBlob("NHL_все_номера_со_всеми_атрибутами.xlsx",
+      xlsx("Все номера", headers, rows, types));
     toast("Экспортировано строк: " + rows.length);
   }
 
