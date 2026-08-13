@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>QST30 (с сайта Cummins) — TR100A</title>
+<link rel="icon" href="brand/razvitie-mark.svg">
+<link rel="stylesheet" href="styles.css">
+<script>
+  /* тема применяется до отрисовки, чтобы не мигало */
+  (function(){try{
+    var t=localStorage.getItem("cummins_theme");
+    if(!t)t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light";
+    document.documentElement.setAttribute("data-theme",t);
+  }catch(e){document.documentElement.setAttribute("data-theme","light");}})();
+</script>
+</head>
+<body>
+
+<div class="contacts">
+  По вопросам работы каталога запасных частей, ошибок и замечаний обращаться к
+  Кузнецову&nbsp;В.Е. <a href="mailto:KuznetsovVE@industrservice.ru">KuznetsovVE@industrservice.ru</a>
+</div>
+
+<header class="topbar">
+  <div class="brand">
+    <span class="brand-logo" aria-label="Развитие">
+      <img class="logo-light" src="brand/razvitie-light.svg" alt="Развитие" width="82" height="34">
+      <img class="logo-dark"  src="brand/razvitie-dark.svg"  alt="Развитие" width="82" height="34">
+    </span>
+    <div class="brand-text">
+      <div class="brand-title">QST30 CM552 — данные с сайта Cummins</div>
+      <div class="brand-sub">
+        <select id="engine-select" title="Выбрать двигатель"></select>
+      </div>
+    </div>
+  </div>
+  <div class="search-box">
+    <input id="search" type="search" autocomplete="off"
+           placeholder="Поиск по номеру детали или наименованию…">
+    <button id="search-clear" class="btn-plain" title="Очистить">✕</button>
+  </div>
+  <div class="topbar-tools">
+    <button id="theme-toggle" class="btn-icon" title="Светлая / тёмная тема" aria-label="Переключить тему">
+      <svg class="ico-sun" viewBox="0 0 24 24" width="18" height="18" fill="none"
+           stroke="currentColor" stroke-width="2" stroke-linecap="round">
+        <circle cx="12" cy="12" r="4.2"/>
+        <path d="M12 2.5v2.5M12 19v2.5M2.5 12h2.5M19 12h2.5M5 5l1.8 1.8M17.2 17.2 19 19M19 5l-1.8 1.8M6.8 17.2 5 19"/>
+      </svg>
+      <svg class="ico-moon" viewBox="0 0 24 24" width="18" height="18" fill="currentColor">
+        <path d="M21 13.2A8.5 8.5 0 1 1 10.8 3 6.8 6.8 0 0 0 21 13.2Z"/>
+      </svg>
+    </button>
+    <button id="check-list" class="btn-tool"
+            title="Проверить свой список номеров на наличие в каталоге">Проверить список</button>
+    <button id="update-prices" class="btn-tool"
+            title="Загрузить прайс-лист (CSV) и подставить цены в каталог">Обновить цены</button>
+    <input id="price-file" type="file" accept=".csv,.txt,.tsv" class="hidden">
+    <a id="pdf-link" class="btn-tool" href="../" title="Полный каталог машины TR100A">← Каталог машины TR100A</a>
+    <button id="cart-toggle" class="btn-cart">
+      Заказ <span id="cart-count" class="badge">0</span>
+    </button>
+  </div>
+</header>
+
+<div class="passport" id="passport"></div>
+
+<main class="layout">
+  <aside class="sidebar">
+    <div class="sidebar-export">
+      <button id="dl-model" class="btn-export"
+              title="Скачать все номера деталей текущего двигателя">↓ Все номера этой модели (Excel)</button>
+      <button id="dl-all" class="btn-export"
+              title="Скачать все номера деталей по всем двигателям каталога">↓ Все номера всех каталогов (Excel)</button>
+    </div>
+    <div class="sidebar-head">Системы двигателя</div>
+    <nav id="tree" class="tree"></nav>
+  </aside>
+
+  <section class="content">
+    <div id="view-welcome" class="welcome">
+      <h1>Выберите узел в списке слева</h1>
+      <p>Слева — системы двигателя, внутри каждой перечислены узлы (варианты
+         исполнения). Откройте узел: рядом с чертежом появится список позиций.
+         Номер на чертеже совпадает с номером позиции в таблице.</p>
+      <p>Через поиск вверху можно найти деталь по номеру или наименованию сразу
+         по всему каталогу.</p>
+    </div>
+
+    <div id="view-search" class="hidden">
+      <h2 class="view-title" id="search-title"></h2>
+      <div id="search-results"></div>
+    </div>
+
+    <div id="view-option" class="hidden">
+      <div class="option-head">
+        <div>
+          <h2 class="view-title" id="opt-name"></h2>
+          <div class="opt-meta" id="opt-meta"></div>
+        </div>
+      </div>
+      <div id="opt-remarks" class="remarks hidden"></div>
+
+      <div class="option-body">
+        <div class="drawing-pane" id="drawing-pane">
+          <div class="drawing-wrap">
+            <img id="drawing" alt="Чертёж узла">
+          </div>
+          <div class="carousel hidden" id="carousel">
+            <button class="btn-plain" id="sheet-prev">‹</button>
+            <span id="sheet-label"></span>
+            <button class="btn-plain" id="sheet-next">›</button>
+          </div>
+          <div class="drawing-hint" id="drawing-hint"></div>
+        </div>
+
+        <div class="table-pane">
+          <table class="parts">
+            <thead>
+              <tr>
+                <th class="c-pos">№</th>
+                <th class="c-no">Номер детали</th>
+                <th class="c-name">Наименование</th>
+                <th class="c-price">Цена, CNY</th>
+                <th class="c-qty">Кол-во<br><span class="th-sub">на схеме</span></th>
+                <th class="c-need">Нужно</th>
+                <th class="c-add"></th>
+              </tr>
+            </thead>
+            <tbody id="parts-body"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<!-- Карточка детали -->
+<div id="part-overlay" class="overlay hidden"></div>
+<aside id="part-card" class="part-card hidden">
+  <div class="cart-head">
+    <h2 id="pc-title">Деталь</h2>
+    <button class="btn-plain" id="pc-close">✕</button>
+  </div>
+  <div class="pc-body">
+    <div class="pc-gallery">
+      <div class="pc-main"><img id="pc-img" alt="Фото детали"></div>
+      <div class="pc-thumbs" id="pc-thumbs"></div>
+    </div>
+    <div class="pc-info">
+      <div id="pc-name" class="pc-name"></div>
+      <div id="pc-sup" class="pc-block hidden">
+        <h3>Замена номера</h3>
+        <div id="pc-sup-body"></div>
+      </div>
+      <div id="pc-attrs" class="pc-block hidden">
+        <h3>Характеристики</h3>
+        <table class="pc-table" id="pc-attrs-body"></table>
+      </div>
+      <div id="pc-used" class="pc-block hidden">
+        <h3>Где применяется</h3>
+        <div id="pc-used-body" class="pc-used"></div>
+      </div>
+    </div>
+  </div>
+</aside>
+
+<!-- Проверка списка номеров -->
+<div id="check-overlay" class="overlay hidden"></div>
+<aside id="check-panel" class="side-panel hidden">
+  <div class="cart-head">
+    <h2>Проверить список на наличие в каталоге</h2>
+    <button class="btn-plain" id="check-close">✕</button>
+  </div>
+  <div class="check-body">
+    <p class="check-hint">Вставьте номера деталей — по одному в строке (можно через запятую,
+       пробел или точку с запятой). Проверка идёт сразу по всем двигателям каталога и находит
+       номер в том числе как <b>заменённый</b> (старый).</p>
+    <textarea id="check-input" rows="6"
+      placeholder="3655668&#10;4327201&#10;3100292&#10;…"></textarea>
+    <div class="check-actions">
+      <button class="btn" id="check-run">Проверить</button>
+      <button class="btn" id="check-file-btn">Загрузить файл…</button>
+      <input id="check-file" type="file" accept=".csv,.txt,.tsv" class="hidden">
+      <button class="btn" id="check-dl" disabled>Скачать результат (Excel)</button>
+      <button class="btn btn-danger" id="check-reset">Очистить</button>
+    </div>
+    <div id="check-summary" class="check-summary"></div>
+    <div id="check-results" class="check-results"></div>
+  </div>
+</aside>
+
+<!-- Корзина заказа -->
+<div id="cart-overlay" class="overlay hidden"></div>
+<aside id="cart" class="cart hidden">
+  <div class="cart-head">
+    <h2>Заказ</h2>
+    <button class="btn-plain" id="cart-close">✕</button>
+  </div>
+  <div class="cart-serial">
+    <div class="cart-engine">Двигатель: <b id="cart-engine"></b></div>
+    <label for="serial">Серийный номер машины / ESN</label>
+    <input id="serial" type="text" placeholder="например, 37295879">
+  </div>
+  <div class="cart-body">
+    <table class="cart-table">
+      <thead>
+        <tr><th>Номер</th><th>Наименование</th><th>Кол-во</th><th>Сумма</th><th></th></tr>
+      </thead>
+      <tbody id="cart-body"></tbody>
+    </table>
+    <p id="cart-empty" class="cart-empty">Заказ пуст. Добавляйте позиции кнопкой «＋ в заказ».</p>
+  </div>
+  <div class="cart-foot">
+    <div class="cart-total">Итого: <b id="cart-total">0</b> <span id="cart-total-cur"></span></div>
+    <div class="cart-actions">
+      <button class="btn" id="cart-csv">Выгрузить CSV</button>
+      <button class="btn" id="cart-print">Печать</button>
+      <button class="btn btn-danger" id="cart-clear">Очистить</button>
+    </div>
+  </div>
+</aside>
+
+<script src="engines.js"></script>
+<script src="data/37295879.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

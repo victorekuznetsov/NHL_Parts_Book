@@ -1,0 +1,72 @@
+/* Additions for the unified multi-machine catalog (layered over styles.css). */
+
+/* --- machine switcher in the header --- */
+.machine-switch {
+  display: flex;
+  gap: 4px;
+  background: rgba(255, 255, 255, .10);
+  padding: 3px;
+  border-radius: 10px;
+  margin: 0 6px;
+  flex: 0 0 auto;
+}
+.machine-switch button {
+  border: 0;
+  background: transparent;
+  color: #e8ecee;
+  font: 600 13px/1 Calibri, "Segoe UI", Arial, sans-serif;
+  padding: 8px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background .15s, color .15s;
+}
+.machine-switch button:hover { background: rgba(255, 255, 255, .12); }
+.machine-switch button.active {
+  background: #3ef0af;
+  color: #06231a;
+}
+
+.manual-btn.machine-site { background: rgba(62, 240, 175, .14); }
+
+/* --- sidebar current-machine banner --- */
+.sidebar-machine {
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--line, #e4e7ea);
+  font: 13px/1.35 Calibri, "Segoe UI", Arial, sans-serif;
+  color: #5b636b;
+}
+.sidebar-machine b { color: #2a3138; font-size: 14px; }
+.sidebar-machine .sm-sub { color: #80868b; }
+
+/* --- machine chips used in cart / check results --- */
+.mchip {
+  display: inline-block;
+  font: 700 10px/1 Calibri, "Segoe UI", Arial, sans-serif;
+  letter-spacing: .4px;
+  padding: 3px 7px;
+  border-radius: 999px;
+  background: #eaf0f4;
+  color: #33607a;
+  vertical-align: middle;
+  margin-right: 6px;
+  text-transform: uppercase;
+}
+.mchip.nte240 { background: #e7f3ff; color: #1663a3; }
+.mchip.nte200 { background: #eef7ea; color: #3f7d2b; }
+.mchip.tr100  { background: #fdf0e6; color: #a55a1c; }
+
+.chk-scope {
+  margin: 4px 0 2px;
+  font: 12px/1.4 Calibri, "Segoe UI", Arial, sans-serif;
+  color: #80868b;
+}
+.chk-machinecell { white-space: nowrap; }
+
+/* section-view instruction links get an accent */
+.xref-link.tomachine { background: #eef7f2; border-color: #bfe6d4; color: #1a6e4d; }
+
+@media (max-width: 900px) {
+  .machine-switch { order: 5; width: 100%; margin: 6px 0 0; justify-content: stretch; }
+  .machine-switch button { flex: 1; }
+}

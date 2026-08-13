@@ -1,0 +1,13 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "cleanUrls": false,
+  "trailingSlash": false,
+  "headers": [
+    { "source": "/(qst30-cummins/)?(drawings|engine|service)/(.*)",
+      "headers": [ { "key": "Cache-Control", "value": "public, max-age=31536000, immutable" } ] },
+    { "source": "/qst30-cummins/brand/(.*)",
+      "headers": [ { "key": "Cache-Control", "value": "public, max-age=31536000, immutable" } ] },
+    { "source": "/(qst30-cummins/)?data/(.*)",
+      "headers": [ { "key": "Cache-Control", "value": "public, max-age=86400" } ] }
+  ]
+}
