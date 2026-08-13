@@ -16,12 +16,30 @@ var ROOT = path.resolve(__dirname, "..");
 
 var MACHINES = [
   { id: "nte240", name: "NTE240", subtitle: "электромеханический самосвал NHL (Cummins QSK60)",
-    currency: "CNY", hashPrefix: "#/s/", hasEngine: true, hasService: true },
+    currency: "CNY", hashPrefix: "#/s/", hasEngine: true, hasService: true,
+    engineSite: "nte240/engine/index.html", engineLabel: "Двигатель Cummins QSK60 (EPC, с сайта Cummins)" },
   { id: "nte200", name: "NTE200", subtitle: "электромеханический самосвал NHL",
-    currency: "CNY", hashPrefix: "#", hasEngine: false, hasService: false },
+    currency: "CNY", hashPrefix: "#", hasEngine: false, hasService: false,
+    engineSite: "", engineLabel: "Двигатель Cummins (EPC, с сайта Cummins)" },
   { id: "tr100", name: "TR100A", subtitle: "механический самосвал NHL (Cummins QST30)",
-    currency: "CNY", hashPrefix: "#", hasEngine: true, hasService: true }
+    currency: "CNY", hashPrefix: "#", hasEngine: true, hasService: true,
+    engineSite: "tr100/qst30-cummins/index.html", engineLabel: "Двигатель Cummins QST30 (EPC, с сайта Cummins)" }
 ];
+
+// Split a machine's chapters into categories: electric drive (600), the EPC
+// Cummins engine (QO*), and the superseded "из PDF" engine (Q\d / 700) which is
+// hidden from the Машина/Двигатель navigation.
+function classifyChapters(chapters) {
+  var drive = [], enginePdf = [], engineEpc = [];
+  chapters.forEach(function (c) {
+    var code = c.code;
+    if (code === "600") drive.push(code);
+    else if (/^QO/.test(code)) engineEpc.push(code);
+    else if (/^Q\d/.test(code)) enginePdf.push(code);
+    else if (code === "700") enginePdf.push(code);
+  });
+  return { drive: drive, enginePdf: enginePdf, engineEpc: engineEpc };
+}
 
 function loadGlobal(file, name) {
   var ctx = { window: {} };
@@ -108,6 +126,10 @@ MACHINES.forEach(function (m) {
   rewriteImages(cat, m.id);
   m.title_en = cat.title_en || m.name;
   m.title_zh = cat.title_zh || "";
+  var cls = classifyChapters(cat.chapters || []);
+  m.driveChapters = cls.drive;
+  m.enginePdfChapters = cls.enginePdf;
+  m.engineEpcChapters = cls.engineEpc;
   CATALOGS[m.id] = { chapters: cat.chapters || [], sections: cat.sections || [] };
 
   // catalog part numbers -> price from the central list (keep map small)
@@ -136,7 +158,9 @@ var machinesOut = MACHINES.map(function (m) {
   return {
     id: m.id, name: m.name, subtitle: m.subtitle, currency: m.currency,
     hashPrefix: m.hashPrefix, hasEngine: m.hasEngine, hasService: m.hasService,
-    title_en: m.title_en, title_zh: m.title_zh
+    title_en: m.title_en, title_zh: m.title_zh,
+    driveChapters: m.driveChapters, enginePdfChapters: m.enginePdfChapters,
+    engineEpcChapters: m.engineEpcChapters, engineSite: m.engineSite, engineLabel: m.engineLabel
   };
 });
 
