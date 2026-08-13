@@ -48,6 +48,47 @@ function loadGlobal(file, name) {
   return ctx.window[name];
 }
 
+// Remove duplicate engine numbers: when a machine carries BOTH the EPC Cummins
+// engine (QO*) and the superseded "из PDF" engine (Q\d), every part number that
+// the EPC already lists is stripped from the PDF sections. Numbers unique to the
+// PDF are kept (they are real parts EPC omits). PDF figures/sections that end up
+// with no numbered parts are dropped, and now-empty PDF chapters are pruned.
+// The EPC keeps every drawing (verified richer than the PDF), so no images are
+// borrowed. Returns {removed, keptUnique} for reporting.
+function dedupePdfEngine(cat, epcChapters, pdfChapters) {
+  if (!epcChapters.length || !pdfChapters.length) return { removed: 0, keptUnique: 0 };
+  var isPdf = {}; pdfChapters.forEach(function (c) { isPdf[c] = 1; });
+  var isEpc = {}; epcChapters.forEach(function (c) { isEpc[c] = 1; });
+  var epcPns = {};
+  cat.sections.forEach(function (s) {
+    if (!isEpc[s.chapter]) return;
+    (s.figures || []).forEach(function (f) {
+      (f.parts || []).forEach(function (p) { if (p.pn) epcPns[p.pn] = 1; });
+    });
+  });
+  var removed = 0, keptUnique = 0;
+  cat.sections.forEach(function (s) {
+    if (!isPdf[s.chapter]) return;
+    (s.figures || []).forEach(function (f) {
+      f.parts = (f.parts || []).filter(function (p) {
+        if (p.pn && epcPns[p.pn]) { removed++; return false; }
+        if (p.pn) keptUnique++;
+        return true;
+      });
+    });
+    // keep only figures that still hold a numbered part
+    s.figures = (s.figures || []).filter(function (f) {
+      return (f.parts || []).some(function (p) { return p.pn; });
+    });
+  });
+  cat.sections = cat.sections.filter(function (s) {
+    return !isPdf[s.chapter] || (s.figures || []).length > 0;
+  });
+  var used = {}; cat.sections.forEach(function (s) { used[s.chapter] = 1; });
+  cat.chapters = cat.chapters.filter(function (c) { return !isPdf[c.code] || used[c.code]; });
+  return { removed: removed, keptUnique: keptUnique };
+}
+
 // ---- central price list -------------------------------------------------
 function normArt(x) {
   if (x == null) return "";
@@ -130,6 +171,9 @@ MACHINES.forEach(function (m) {
   m.driveChapters = cls.drive;
   m.enginePdfChapters = cls.enginePdf;
   m.engineEpcChapters = cls.engineEpc;
+  var dd = dedupePdfEngine(cat, cls.engineEpc, cls.enginePdf);
+  if (dd.removed) console.log("  " + m.id + ": удалено дублей двигателя (PDF↔EPC): " + dd.removed +
+    ", сохранено уникальных PDF-номеров: " + dd.keptUnique);
   CATALOGS[m.id] = { chapters: cat.chapters || [], sections: cat.sections || [] };
 
   // catalog part numbers -> price from the central list (keep map small)
