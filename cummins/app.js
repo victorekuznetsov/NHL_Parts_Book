@@ -210,7 +210,7 @@ function highlightTree(no) {
 
 /* ---------- показ узла ---------- */
 function show(view) {
-  ["view-welcome", "view-search", "view-option"].forEach(function (v) {
+  ["view-welcome", "view-search", "view-option", "view-kits"].forEach(function (v) {
     $(v).classList.toggle("hidden", v !== view);
   });
 }
@@ -372,6 +372,7 @@ function findPart(pn) {
 function openPartCard(pn) {
   var card = CARDS[pn] || {};
   var part = findPart(pn) || {};
+  $("pc-components").classList.add("hidden");   // блок состава — только у карточки комплекта
   $("pc-title").textContent = "Деталь " + pn;
   $("pc-name").textContent = part.name || "";
 
@@ -444,7 +445,9 @@ function openPartCard(pn) {
       var cnt = (kit.parts || []).filter(function (x) { return x.no && x.no !== kit.no; }).length;
       var kitPrice = priceOf(kit.no);
       var line = el("div", "kit-line");
-      var info = el("div", "kit-info");
+      var info = el("div", "kit-info kit-link");
+      info.title = "Открыть состав комплекта";
+      info.onclick = (function (kno) { return function () { openKitCard(kno); }; })(kit.no);
       info.appendChild(el("span", "kit-no", kit.no));
       info.appendChild(document.createTextNode(" · "));
       info.appendChild(el("span", "kit-name", kit.name));
@@ -510,6 +513,122 @@ function closePartCard() {
 }
 $("pc-close").onclick = closePartCard;
 $("part-overlay").onclick = closePartCard;
+
+/* ---------- комплекты (kits) ---------- */
+function kitByNo(no) {
+  var ks = C.kits || [];
+  for (var i = 0; i < ks.length; i++) if (ks[i].no === no) return ks[i];
+  return null;
+}
+function kitComponents(kit) {
+  return (kit.parts || []).filter(function (x) { return x.no && x.no !== kit.no; });
+}
+// кнопка «＋ заказать комплектом»: подтягивает цену комплекта из прайса
+function makeKitOrderBtn(kit) {
+  var btn = el("button", "btn-add kit-add", "＋ заказать комплектом");
+  btn.onclick = function () {
+    addToCart({ no: kit.no, name: kit.name, price: priceOf(kit.no), group: "", alt: "", isKit: true },
+              { no: "KIT", name: "Комплект" }, 1);
+    btn.textContent = "✓ добавлено"; btn.classList.add("done");
+    setTimeout(function () { btn.textContent = "＋ заказать комплектом"; btn.classList.remove("done"); }, 1200);
+  };
+  return btn;
+}
+
+// карточка комплекта: цена комплекта + его составляющие (с ценами и ссылками)
+function openKitCard(no) {
+  var kit = kitByNo(no);
+  if (!kit) { openPartCard(no); return; }
+  var price = priceOf(kit.no);
+  $("pc-title").textContent = "Комплект " + kit.no;
+  $("pc-name").textContent = kit.name + (price != null ? "  ·  " + money(price) : "");
+  // прячем блоки, относящиеся только к детали
+  document.querySelector(".pc-gallery").style.display = "none";
+  $("pc-sup").classList.add("hidden");
+  $("pc-kits").classList.add("hidden");
+  $("pc-attrs").classList.add("hidden");
+  $("pc-used").classList.add("hidden");
+
+  var comps = kitComponents(kit);
+  var head = $("pc-comp-head"); head.innerHTML = "";
+  head.appendChild(el("span", "comp-count",
+    comps.length + " составляющих" + (price != null ? " · цена комплекта " + money(price) : " · цена уточняется")));
+  head.appendChild(makeKitOrderBtn(kit));
+
+  var tb = $("pc-comp-body"); tb.innerHTML = "";
+  var htr = el("tr");
+  ["№", "Номер", "Наименование", "Цена"].forEach(function (h) { htr.appendChild(el("th", null, h)); });
+  tb.appendChild(htr);
+  comps.forEach(function (cp, i) {
+    var tr = el("tr");
+    tr.appendChild(el("td", "comp-i", String(i + 1)));
+    var tdNo = el("td", "comp-no");
+    if (CARDS[cp.no] || findPart(cp.no)) {
+      var lnk = el("span", "pn pn-link", cp.no);
+      lnk.onclick = (function (n) { return function () { openPartCard(n); }; })(cp.no);
+      tdNo.appendChild(lnk);
+    } else tdNo.appendChild(el("span", null, cp.no));
+    tr.appendChild(tdNo);
+    tr.appendChild(el("td", null, cp.name || ""));
+    var cpP = priceOf(cp.no);
+    tr.appendChild(el("td", "comp-price", cpP != null ? money(cpP) : "—"));
+    tb.appendChild(tr);
+  });
+  $("pc-components").classList.remove("hidden");
+  $("part-card").classList.remove("hidden");
+  $("part-overlay").classList.remove("hidden");
+}
+
+// отдельная страница со всеми комплектами двигателя + ссылки
+function showKits() {
+  closePartCard();
+  var kits = (C.kits || []).slice().sort(function (a, b) {
+    return String(a.name || "").localeCompare(String(b.name || ""), "ru");
+  });
+  var e = engineOf(C.esn);
+  $("kits-hint").textContent = "Двигатель " + (e.machine ? e.machine + " · " : "") + C.model +
+    " · ESN " + C.esn + " — комплектов: " + kits.length;
+  var box = $("kits-list"); box.innerHTML = "";
+  kits.forEach(function (kit) {
+    var comps = kitComponents(kit), price = priceOf(kit.no);
+    var card = el("div", "kit-card");
+    var a = el("a", "kit-card-title", kit.no + " · " + kit.name);
+    a.href = "#kit-" + kit.no;
+    a.onclick = function (ev) { ev.preventDefault(); openKitCard(kit.no); };
+    card.appendChild(a);
+    card.appendChild(el("div", "kit-card-meta",
+      comps.length + " составляющих" + (price != null ? " · " + money(price) : " · цена уточняется")));
+    card.appendChild(makeKitOrderBtn(kit));
+    box.appendChild(card);
+  });
+  highlightTree(null);
+  show("view-kits");
+  if (window.innerWidth <= 900) { var sb = document.querySelector(".sidebar"); if (sb) sb.classList.remove("open"); }
+}
+
+// выгрузка комплектов: по строке на каждую составляющую (полный состав)
+function exportKits() {
+  var e = engineOf(C.esn);
+  var head = ["Машина", "Модель", "ESN", "Комплект №", "Комплект — наименование", "Цена комплекта",
+              "Составляющая №", "Составляющая — наименование", "Цена составляющей", "Продаётся отдельно"];
+  var rows = [head];
+  (C.kits || []).forEach(function (kit) {
+    var comps = kitComponents(kit), kp = priceOf(kit.no);
+    if (!comps.length) {
+      rows.push([e.machine || "", C.model, C.esn, kit.no, kit.name, priceCsv(kp), "", "", "", ""]);
+      return;
+    }
+    comps.forEach(function (cp) {
+      rows.push([e.machine || "", C.model, C.esn, kit.no, kit.name, priceCsv(kp),
+                 cp.no, cp.name || "", priceCsv(priceOf(cp.no)),
+                 sellableIn(C.cards, cp.no) ? "да" : "нет"]);
+    });
+  });
+  var tag = (e.machine ? e.machine + "_" : "") + C.model.replace(/[^\wА-Яа-я]+/g, "_") + "_" + C.esn;
+  downloadCsv("komplekty_" + tag + ".csv", rows);
+}
+$("show-kits").onclick = showKits;
+$("dl-kits").onclick = exportKits;
 
 /* ---------- поиск (по всем двигателям каталога) ---------- */
 function doSearch(q) {

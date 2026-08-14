@@ -419,3 +419,26 @@ mark{background:#ffe08a; color:#3a2c00; padding:0 1px; border-radius:2px}
 .btn-add.kit-add:hover { filter: brightness(.96); }
 .btn-add.kit-add.done { background: #2a3138; border-color: #2a3138; }
 .kit-price { color: #1a6e4d; font-weight: 700; }
+
+/* --- страница «Все комплекты» --- */
+.kits-hint { color: var(--muted); font-size: 13px; margin: 2px 0 14px; }
+.kits-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 12px; }
+.kit-card {
+  border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px;
+  background: var(--panel); color: var(--text);
+  display: flex; flex-direction: column; gap: 8px;
+}
+.kit-card-title { font-weight: 700; color: var(--accent); text-decoration: none; }
+.kit-card-title:hover { text-decoration: underline; }
+.kit-card-meta { color: var(--muted); font-size: 12.5px; }
+.kit-card .btn-add.kit-add { align-self: flex-start; }
+
+/* --- состав комплекта в карточке --- */
+.kit-order-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 8px; flex-wrap: wrap; }
+.comp-count { color: var(--muted); font-size: 13px; }
+.comp-table td.comp-i { color: var(--muted); width: 2em; }
+.comp-table td.comp-price { text-align: right; white-space: nowrap; }
+
+/* ссылка «заказать комплектом» -> состав */
+.kit-link { cursor: pointer; }
+.kit-link:hover .kit-name { text-decoration: underline; }
