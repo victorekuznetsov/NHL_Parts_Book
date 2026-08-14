@@ -192,3 +192,18 @@ body.on-landing .content { padding-top: 8px; }
   .home-btn { padding: 8px 10px; font-size: 12px; }
   .engine-frame { height: calc(100vh - 180px); }
 }
+
+/* --- logout button in the top contact bar --- */
+.contact-bar { position: relative; }
+.logout-btn {
+  margin-left: 14px;
+  border: 1px solid rgba(255,255,255,.35);
+  background: transparent;
+  color: inherit;
+  font: 600 12px/1 Calibri, "Segoe UI", Arial, sans-serif;
+  padding: 4px 10px;
+  border-radius: 7px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.logout-btn:hover { background: rgba(255,255,255,.15); }

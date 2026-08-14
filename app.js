@@ -1347,6 +1347,11 @@
     });
     $("#menuBtn").addEventListener("click", function () { $("#sidebar").classList.toggle("open"); });
     $("#homeBtn").addEventListener("click", function () { location.hash = "#/"; });
+    var logoutBtn = $("#logoutBtn");
+    if (logoutBtn) logoutBtn.addEventListener("click", function () {
+      fetch("/api/logout", { method: "POST" }).catch(function () {})
+        .then(function () { location.href = "/login.html"; });
+    });
 
     window.addEventListener("hashchange", route);
     route();
