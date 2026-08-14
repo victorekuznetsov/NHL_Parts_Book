@@ -320,6 +320,13 @@ function renderParts(o, focusPart) {
       }, 1200);
     };
     if (!p.no) btn.disabled = true;
+    else if (!isSellable(p.no)) {
+      btn.disabled = true;
+      btn.textContent = "не продаётся";
+      btn.classList.add("not-sold");
+      btn.title = "Деталь не продаётся отдельно (Sellable: N)";
+      tr.classList.add("row-not-sold");
+    }
     tdAdd.appendChild(btn);
     tr.appendChild(tdAdd);
 
@@ -556,8 +563,16 @@ $("search-clear").onclick = function () {
 };
 
 /* ---------- корзина ---------- */
+/* Продаётся ли деталь отдельно (attrs.Sellable === "N" => нет). */
+function sellableIn(cards, pn) {
+  var c = cards && cards[pn];
+  return !(c && c.attrs && c.attrs.Sellable === "N");
+}
+function isSellable(pn) { return sellableIn(CARDS, pn); }
+
 function addToCart(p, o, n) {
   var k = p.no;
+  if (!isSellable(p.no)) return;   // не продаётся отдельно — в заказ не кладём
   if (!state.cart[k]) {
     state.cart[k] = { no: p.no, name: p.name, price: (p.price != null ? p.price : null),
                       group: p.group || "", alt: p.alt || "",
@@ -716,11 +731,12 @@ function exportModel() {
   });
   var keys = Object.keys(map).sort(function (a, b) { return map[a].no.localeCompare(map[b].no); });
   var head = ["Машина", "Модель", "ESN", "Номер детали", "Наименование",
-              "Действующий номер", "Цена", "Узлов", "Узлы"];
+              "Продаётся отдельно", "Действующий номер", "Цена", "Узлов", "Узлы"];
   var rows = [head];
   keys.forEach(function (k) {
     var r = map[k], us = Object.keys(r.units);
-    rows.push([e.machine || "", C.model, C.esn, r.no, r.name, currentNo(r.no),
+    rows.push([e.machine || "", C.model, C.esn, r.no, r.name,
+               sellableIn(C.cards, r.no) ? "да" : "нет", currentNo(r.no),
                priceCsv(r.price), us.length,
                us.map(function (u) { return r.units[u] + " (" + u + ")"; }).join(" | ")]);
   });
@@ -731,7 +747,7 @@ function exportModel() {
 /* --- «Все номера всех каталогов» --- */
 function exportAll() {
   var head = ["Машина", "Модель", "ESN", "CPL", "Номер детали", "Наименование",
-              "Действующий номер", "Цена", "Узлов"];
+              "Продаётся отдельно", "Действующий номер", "Цена", "Узлов"];
   var rows = [head];
   ENGINES.forEach(function (eng) {
     var cat = ALL[eng.esn]; if (!cat) return;
@@ -750,6 +766,7 @@ function exportAll() {
       .forEach(function (k) {
         var r = map[k];
         rows.push([eng.machine || "", cat.model, eng.esn, cat.cpl || "", r.no, r.name,
+                   sellableIn(cat.cards, r.no) ? "да" : "нет",
                    curNoFor(cat, r.no), priceCsv(r.price), Object.keys(r.units).length]);
       });
   });
