@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Каталог запасных частей Cummins</title>
 <link rel="icon" href="brand/razvitie-mark.svg">
-<link rel="stylesheet" href="styles.css?v=p4">
+<link rel="stylesheet" href="styles.css?v=p5">
 <script>
   /* тема применяется до отрисовки, чтобы не мигало */
   (function(){try{
@@ -71,6 +71,10 @@
               title="Скачать все номера деталей текущего двигателя">↓ Все номера этой модели (Excel)</button>
       <button id="dl-all" class="btn-export"
               title="Скачать все номера деталей по всем двигателям каталога">↓ Все номера всех каталогов (Excel)</button>
+      <button id="show-kits" class="btn-export"
+              title="Показать все комплекты этого двигателя со ссылками">🧰 Все комплекты</button>
+      <button id="dl-kits" class="btn-export"
+              title="Скачать комплекты и их состав">↓ Комплекты и состав (Excel)</button>
     </div>
     <div class="sidebar-head">Системы двигателя</div>
     <nav id="tree" class="tree"></nav>
@@ -89,6 +93,12 @@
     <div id="view-search" class="hidden">
       <h2 class="view-title" id="search-title"></h2>
       <div id="search-results"></div>
+    </div>
+
+    <div id="view-kits" class="hidden">
+      <h2 class="view-title">Комплекты Cummins</h2>
+      <div class="kits-hint" id="kits-hint"></div>
+      <div id="kits-list" class="kits-list"></div>
     </div>
 
     <div id="view-option" class="hidden">
@@ -148,6 +158,11 @@
     </div>
     <div class="pc-info">
       <div id="pc-name" class="pc-name"></div>
+      <div id="pc-components" class="pc-block hidden">
+        <h3>Состав комплекта</h3>
+        <div id="pc-comp-head" class="kit-order-head"></div>
+        <table class="pc-table comp-table" id="pc-comp-body"></table>
+      </div>
       <div id="pc-kits" class="pc-block hidden">
         <h3>Заказать комплектом</h3>
         <div id="pc-kits-body" class="pc-kits"></div>
@@ -234,6 +249,6 @@
 <script src="data/37292556.js"></script>
 <script src="data/93058669.js"></script>
 <script src="data/37295879.js"></script>
-<script src="app.js?v=p4"></script>
+<script src="app.js?v=p5"></script>
 </body>
 </html>
