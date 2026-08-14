@@ -4,8 +4,17 @@
 (function () {
 "use strict";
 
-var ENGINES = window.ENGINES || [];
-var ALL = window.CATALOGS || {};
+/* Каталог обслуживает только двигатели самосвалов NHL: NTE240 (QSK60,
+   ESN 33239746), NTE200 (QSK50, ESN 33239899) и TR100A (QST30, ESN 37295879).
+   Остальные двигатели из общей базы EPC (SD32, SD90C-5, DH46C3 и т.п.) к NHL
+   отношения не имеют и в каталоге, поиске и выгрузках не участвуют. */
+var NHL_ESN = { "33239746": 1, "33239899": 1, "37295879": 1 };
+var ENGINES = (window.ENGINES || []).filter(function (e) { return NHL_ESN[e.esn]; });
+var ALL = {};
+(function () {
+  var src = window.CATALOGS || {};
+  ENGINES.forEach(function (e) { if (src[e.esn]) ALL[e.esn] = src[e.esn]; });
+})();
 if (!ENGINES.length || !Object.keys(ALL).length) {
   document.body.innerHTML = "<p style='padding:40px'>Не найдены файлы данных каталога</p>";
   return;
@@ -564,6 +573,24 @@ function kitByNo(no) {
 function kitComponents(kit) {
   return (kit.parts || []).filter(function (x) { return x.no && x.no !== kit.no; });
 }
+/* Обратный индекс «деталь -> номера комплектов» для ЛЮБОГО каталога (не только
+   текущего), с кэшом на объекте каталога — нужен в выгрузках, чтобы к каждому
+   номеру подтянуть комплекты, в которые он входит. */
+function kitsForNoIn(cat, no) {
+  if (!cat._kitsByPart) {
+    var idx = {};
+    (cat.kits || []).forEach(function (kit) {
+      (kit.parts || []).forEach(function (kp) {
+        if (kp.no && kp.no !== kit.no) {
+          var arr = idx[kp.no] || (idx[kp.no] = []);
+          if (arr.indexOf(kit.no) < 0) arr.push(kit.no);
+        }
+      });
+    });
+    cat._kitsByPart = idx;
+  }
+  return cat._kitsByPart[no] || [];
+}
 // файл фото детали (для миниатюр в составе комплекта)
 function partImgFile(pn) {
   var c = CARDS[pn];
@@ -959,13 +986,14 @@ function exportModel() {
   });
   var keys = Object.keys(map).sort(function (a, b) { return map[a].no.localeCompare(map[b].no); });
   var head = ["Машина", "Модель", "ESN", "Номер детали", "Наименование",
-              "Продаётся отдельно", "Действующий номер", "Цена", "Узлов", "Узлы"];
+              "Продаётся отдельно", "Действующий номер", "Цена", "Входит в комплекты",
+              "Узлов", "Узлы"];
   var rows = [head];
   keys.forEach(function (k) {
     var r = map[k], us = Object.keys(r.units);
     rows.push([e.machine || "", C.model, C.esn, r.no, r.name,
                sellableIn(C.cards, r.no) ? "да" : "нет", currentNo(r.no),
-               priceCsv(r.price), us.length,
+               priceCsv(r.price), kitsForNoIn(C, r.no).join(" | "), us.length,
                us.map(function (u) { return r.units[u] + " (" + u + ")"; }).join(" | ")]);
   });
   var tag = (e.machine ? e.machine + "_" : "") + C.model.replace(/[^\wА-Яа-я]+/g, "_") + "_" + C.esn;
@@ -975,7 +1003,7 @@ function exportModel() {
 /* --- «Все номера всех каталогов» --- */
 function exportAll() {
   var head = ["Машина", "Модель", "ESN", "CPL", "Номер детали", "Наименование",
-              "Продаётся отдельно", "Действующий номер", "Цена", "Узлов"];
+              "Продаётся отдельно", "Действующий номер", "Цена", "Входит в комплекты", "Узлов"];
   var rows = [head];
   ENGINES.forEach(function (eng) {
     var cat = ALL[eng.esn]; if (!cat) return;
@@ -995,7 +1023,8 @@ function exportAll() {
         var r = map[k];
         rows.push([eng.machine || "", cat.model, eng.esn, cat.cpl || "", r.no, r.name,
                    sellableIn(cat.cards, r.no) ? "да" : "нет",
-                   curNoFor(cat, r.no), priceCsv(r.price), Object.keys(r.units).length]);
+                   curNoFor(cat, r.no), priceCsv(r.price),
+                   kitsForNoIn(cat, r.no).join(" | "), Object.keys(r.units).length]);
       });
   });
   downloadCsv("nomera_vse_katalogi.csv", rows);
