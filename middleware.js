@@ -5,7 +5,7 @@
 import { verifyToken, getSecret } from "./auth/token.mjs";
 
 export const config = {
-  matcher: ["/((?!api/login|api/logout|login\\.html|favicon\\.svg|robots\\.txt).*)"]
+  matcher: ["/((?!api/login|api/logout|api/photo|login\\.html|favicon\\.svg|robots\\.txt).*)"]
 };
 
 function cont() {
