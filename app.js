@@ -344,10 +344,14 @@
 
   var focusPN = null;
   function focusRow(pn) {
+    // снять прошлую подсветку и подсветить выбранную деталь — стойко, пока
+    // пользователь не перейдёт в другой раздел (чтобы деталь не искать глазами)
+    var prev = document.querySelectorAll('#content tr.pn-selected');
+    for (var j = 0; j < prev.length; j++) prev[j].classList.remove("pn-selected");
     var rows = document.querySelectorAll('#content tr[data-pn]');
     for (var i = 0; i < rows.length; i++) {
       if (rows[i].getAttribute("data-pn") === pn) {
-        rows[i].classList.add("pn-flash");
+        rows[i].classList.add("pn-flash", "pn-selected");
         rows[i].scrollIntoView({ block: "center" });
         (function (r) { setTimeout(function () { r.classList.remove("pn-flash"); }, 2400); })(rows[i]);
         break;

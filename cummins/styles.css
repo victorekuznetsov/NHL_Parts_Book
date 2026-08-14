@@ -162,6 +162,12 @@ table.parts th{
 table.parts td{padding:7px 8px; border-bottom:1px solid var(--line-soft); vertical-align:middle}
 table.parts tr:last-child td{border-bottom:none}
 table.parts tr:hover td{background:var(--hover)}
+/* деталь, выбранная через поиск: стойкая подсветка + короткая вспышка, чтобы
+   её не искать глазами в списке */
+table.parts tr.pn-selected td{background:var(--accent-soft)}
+table.parts tr.pn-selected td.c-pos{box-shadow:inset 3px 0 0 0 var(--accent-2)}
+table.parts tr.pn-flash td{animation:pnflash 2.4s ease-out}
+@keyframes pnflash{0%,40%{background:var(--accent-2)}100%{background:var(--accent-soft)}}
 .c-pos{width:44px; text-align:center}
 .c-no{width:112px}
 .c-price{width:88px; text-align:right}
