@@ -17,13 +17,13 @@ var ROOT = path.resolve(__dirname, "..");
 var MACHINES = [
   { id: "nte240", name: "NTE240", subtitle: "электромеханический самосвал NHL (Cummins QSK60)",
     currency: "CNY", hashPrefix: "#/s/", hasEngine: true, hasService: true,
-    engineSite: "nte240/engine/index.html", engineLabel: "Двигатель Cummins QSK60 (EPC, с сайта Cummins)" },
+    engineSite: "cummins/index.html?esn=33239746", engineLabel: "Двигатель Cummins QSK60 CM2150 (EPC, parts.cummins.com · ESN 33239746)" },
   { id: "nte200", name: "NTE200", subtitle: "электромеханический самосвал NHL",
     currency: "CNY", hashPrefix: "#", hasEngine: false, hasService: false,
-    engineSite: "", engineLabel: "Двигатель Cummins (EPC, с сайта Cummins)" },
+    engineSite: "cummins/index.html?esn=33239899", engineLabel: "Двигатель Cummins QSK50 CM2150 (EPC, parts.cummins.com · ESN 33239899)" },
   { id: "tr100", name: "TR100A", subtitle: "механический самосвал NHL (Cummins QST30)",
     currency: "CNY", hashPrefix: "#", hasEngine: true, hasService: true,
-    engineSite: "tr100/qst30-cummins/index.html", engineLabel: "Двигатель Cummins QST30 (EPC, с сайта Cummins)" }
+    engineSite: "cummins/index.html?esn=37295879", engineLabel: "Двигатель Cummins QST30 CM552 (EPC, parts.cummins.com · ESN 37295879)" }
 ];
 
 // Split a machine's chapters into categories: electric drive (600), the EPC
