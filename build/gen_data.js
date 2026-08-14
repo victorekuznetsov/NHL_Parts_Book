@@ -143,6 +143,23 @@ if (!priceFile) throw new Error("не найден файл прайса (*.xlsx
 var PRICE_MAP = buildPriceMap(readXlsx(path.join(ROOT, priceFile)));
 console.log("Прайс: " + priceFile + " — записей в карте цен: " + Object.keys(PRICE_MAP).length);
 
+// Prices for the standalone Cummins engine catalog (cummins/), keyed by a
+// normalised part number (uppercase, no spaces/dashes) to match its normNo().
+// Loaded as the default price base there, so engine prices show without a manual
+// upload; a user-loaded price file still overlays on top.
+(function () {
+  var cum = {};
+  Object.keys(PRICE_MAP).forEach(function (art) {
+    var rec = PRICE_MAP[art];
+    if (!rec || rec.p == null) return;
+    var k = String(art).toUpperCase().replace(/[\s-]/g, "");
+    if (k) cum[k] = rec.p;
+  });
+  fs.writeFileSync(path.join(ROOT, "cummins", "data", "prices.js"),
+    "window.CUMMINS_PRICES = " + JSON.stringify(cum) + ";\n");
+  console.log("cummins/data/prices.js — цен для каталога двигателя: " + Object.keys(cum).length);
+})();
+
 // ---- catalogs + per-machine prices -------------------------------------
 function rewriteImages(catalog, base) {
   (catalog.sections || []).forEach(function (s) {

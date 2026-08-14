@@ -1155,8 +1155,17 @@ $("check-file").addEventListener("change", function () {
 
 /* --- цены из файла (клиентский прайс, сохраняется в браузере) --- */
 var LS_PRICES = "cummins_prices";
+// База цен — центральный прайс (data/prices.js). Загруженный пользователем
+// прайс сохраняется в localStorage и накладывается поверх базы.
+var BASE_PRICES = (typeof window !== "undefined" && window.CUMMINS_PRICES) ? window.CUMMINS_PRICES : {};
 var PRICES = {};
-try { PRICES = JSON.parse(localStorage.getItem(LS_PRICES)) || {}; } catch (e) { PRICES = {}; }
+function rebuildPrices() {
+  PRICES = {};
+  var k;
+  for (k in BASE_PRICES) PRICES[normNo(k)] = BASE_PRICES[k];
+  try { var ov = JSON.parse(localStorage.getItem(LS_PRICES)); if (ov) for (k in ov) PRICES[normNo(k)] = ov[k]; } catch (e) {}
+}
+rebuildPrices();
 function applyPrices() {
   var has = Object.keys(PRICES).length > 0;
   ENGINES.forEach(function (e) {
@@ -1229,8 +1238,8 @@ $("price-file").addEventListener("change", function () {
             "(через «;», табуляцию или запятую).");
       return;
     }
-    PRICES = res.map;
-    try { localStorage.setItem(LS_PRICES, JSON.stringify(PRICES)); } catch (e) {}
+    try { localStorage.setItem(LS_PRICES, JSON.stringify(res.map)); } catch (e) {}
+    rebuildPrices();
     applyPrices();
     var inCat = countPricedInCatalog();
     if (state.option) openOption(state.option.no); else renderTree();
