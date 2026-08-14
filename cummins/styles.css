@@ -442,3 +442,13 @@ mark{background:#ffe08a; color:#3a2c00; padding:0 1px; border-radius:2px}
 /* ссылка «заказать комплектом» -> состав */
 .kit-link { cursor: pointer; }
 .kit-link:hover .kit-name { text-decoration: underline; }
+
+/* «можно заказать комплектом» + выбор в строке списка деталей */
+.in-kit-note { font-size: 12px; color: var(--muted); margin-top: 3px; }
+.in-kit-link { color: var(--accent); cursor: pointer; }
+.in-kit-link:hover { text-decoration: underline; }
+.order-choice {
+  display: block; max-width: 210px; margin-bottom: 4px;
+  font-size: 12px; padding: 3px 4px; border: 1px solid var(--line);
+  border-radius: 6px; background: var(--field); color: var(--text);
+}
