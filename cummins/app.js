@@ -280,6 +280,7 @@ function renderParts(o, focusPart) {
   o.parts.forEach(function (p, i) {
     var tr = el("tr", p.lvl ? "lvl" + Math.min(p.lvl, 2) : "");
     tr.dataset.no = p.no;
+    var kitsForPart = (p.no && KITS_BY_PART[p.no]) ? KITS_BY_PART[p.no] : [];
 
     // «ASSEMBLY» у Cummins — строка узла в сборе, а не номер позиции на чертеже
     var isAsm = /^assembly$/i.test(p.pos || "");
@@ -314,6 +315,18 @@ function renderParts(o, focusPart) {
     if (p.dim) tdName.appendChild(el("span", "dim", p.dim));
     if (p.rem) tdName.appendChild(el("span", "dim", p.rem));
     if (p.alt) tdName.appendChild(el("span", "dim", "взаимозаменяемый: " + p.alt));
+    if (kitsForPart.length) {
+      var note = el("div", "in-kit-note");
+      note.appendChild(document.createTextNode("🧰 Можно заказать комплектом: "));
+      kitsForPart.forEach(function (kit, ki) {
+        if (ki) note.appendChild(document.createTextNode(", "));
+        var lk = el("span", "in-kit-link", kit.no + " · " + kit.name);
+        lk.title = "Открыть состав комплекта";
+        lk.onclick = (function (kn) { return function () { openKitCard(kn); }; })(kit.no);
+        note.appendChild(lk);
+      });
+      tdName.appendChild(note);
+    }
     tr.appendChild(tdName);
 
     tr.appendChild(el("td", "c-price", p.price != null ? money(p.price) : "—"));
@@ -327,26 +340,54 @@ function renderParts(o, focusPart) {
     tr.appendChild(tdNeed);
 
     var tdAdd = el("td", "c-add");
-    var btn = el("button", "btn-add", "＋ в заказ");
-    btn.onclick = function () {
-      var n = parseInt(inp.value, 10);
-      if (!p.no || !(n > 0)) return;
-      addToCart(p, o, n);
-      btn.textContent = "✓ добавлено";
-      btn.classList.add("done");
-      setTimeout(function () {
-        btn.textContent = "＋ в заказ"; btn.classList.remove("done");
-      }, 1200);
-    };
-    if (!p.no) btn.disabled = true;
-    else if (!isSellable(p.no)) {
-      btn.disabled = true;
-      btn.textContent = "не продаётся";
-      btn.classList.add("not-sold");
-      btn.title = "Деталь не продаётся отдельно (Sellable: N)";
-      tr.classList.add("row-not-sold");
+    // варианты заказа: сама деталь (если продаётся) и/или комплект(ы), в которые она входит
+    var choices = [];
+    if (p.no && isSellable(p.no)) choices.push({ v: "part", label: "Деталь " + p.no });
+    kitsForPart.forEach(function (kit) {
+      var kp = priceOf(kit.no);
+      choices.push({ v: "kit:" + kit.no, kit: kit,
+        label: "Комплект " + kit.no + " · " + kit.name + (kp != null ? " · " + money(kp) : "") });
+    });
+    function orderChoice(v, n) {
+      if (v === "part") { if (p.no && isSellable(p.no)) addToCart(p, o, n); return; }
+      var kit = kitByNo(v.slice(4));
+      if (kit) addToCart({ no: kit.no, name: kit.name, price: priceOf(kit.no), group: "", alt: "", isKit: true },
+                         { no: "KIT", name: "Комплект" }, n);
     }
-    tdAdd.appendChild(btn);
+    function flash(btn, label) {
+      btn.textContent = "✓ добавлено"; btn.classList.add("done");
+      setTimeout(function () { btn.textContent = label; btn.classList.remove("done"); }, 1200);
+    }
+    if (!p.no) {
+      var bd = el("button", "btn-add", "＋ в заказ"); bd.disabled = true; tdAdd.appendChild(bd);
+    } else if (choices.length === 0) {
+      // не продаётся и не входит ни в один комплект
+      var bns = el("button", "btn-add not-sold", "не продаётся");
+      bns.disabled = true; bns.title = "Деталь не продаётся отдельно (Sellable: N)";
+      tr.classList.add("row-not-sold");
+      tdAdd.appendChild(bns);
+    } else if (choices.length === 1) {
+      var single = choices[0];
+      var lbl = single.v === "part" ? "＋ в заказ" : "＋ комплектом";
+      var b1 = el("button", "btn-add" + (single.v === "part" ? "" : " kit-add"), lbl);
+      if (single.v !== "part") { tr.classList.add("row-not-sold"); b1.title = "Деталь не продаётся отдельно — заказывается комплектом"; }
+      b1.onclick = function () {
+        var n = parseInt(inp.value, 10); if (!(n > 0)) n = 1;
+        orderChoice(single.v, n); flash(b1, lbl);
+      };
+      tdAdd.appendChild(b1);
+    } else {
+      // выбор: деталь или комплект
+      var sel = el("select", "order-choice");
+      choices.forEach(function (c) { var op = el("option", null, c.label); op.value = c.v; sel.appendChild(op); });
+      var b2 = el("button", "btn-add", "＋ в заказ");
+      b2.onclick = function () {
+        var n = parseInt(inp.value, 10); if (!(n > 0)) n = 1;
+        orderChoice(sel.value, n); flash(b2, "＋ в заказ");
+      };
+      tdAdd.appendChild(sel);
+      tdAdd.appendChild(b2);
+    }
     tr.appendChild(tdAdd);
 
     tb.appendChild(tr);
