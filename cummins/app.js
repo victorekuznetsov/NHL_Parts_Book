@@ -16,6 +16,7 @@ var LS_ENG = "cummins_engine";
 var C = null;          // выбранный двигатель
 var byNo = {};         // номер узла -> узел
 var CARDS = {};        // номер детали -> карточка
+var KITS_BY_PART = {}; // номер детали -> [комплекты, в которые она входит]
 var SUP_INDEX = {};    // заменённый номер -> детали, которые его заменяют
 var state = { option: null, sheet: 0, cart: {}, zoom: false };
 
@@ -87,6 +88,18 @@ function selectEngine(esn) {
   byNo = {};
   C.options.forEach(function (o) { byNo[o.no] = o; });
   CARDS = C.cards || {};
+
+  // обратный индекс: деталь -> комплекты, в которые она входит (первый элемент
+  // parts у комплекта — сам комплект, его пропускаем)
+  KITS_BY_PART = {};
+  (C.kits || []).forEach(function (kit) {
+    (kit.parts || []).forEach(function (kp) {
+      if (kp.no && kp.no !== kit.no) {
+        var arr = KITS_BY_PART[kp.no] || (KITS_BY_PART[kp.no] = []);
+        if (arr.indexOf(kit) < 0) arr.push(kit);
+      }
+    });
+  });
 
   /* Индекс замен: любой номер из цепочки (в т.ч. снятый с производства)
      ведёт на деталь, которая есть в каталоге — так находится и «старый» номер. */
@@ -411,6 +424,38 @@ function openPartCard(pn) {
     supBox.classList.remove("hidden");
   } else supBox.classList.add("hidden");
 
+  // заказать комплектом: деталь входит в комплект(ы) — особенно важно, когда
+  // сама деталь не продаётся отдельно
+  var kitsBox = $("pc-kits"), kitsBody = $("pc-kits-body");
+  kitsBody.innerHTML = "";
+  var kits = KITS_BY_PART[pn] || [];
+  if (kits.length) {
+    var sellable = isSellable(pn);
+    kitsBody.appendChild(el("div", "kit-intro", sellable
+      ? "Деталь также поставляется в составе комплекта:"
+      : "Деталь не продаётся отдельно — заказывается в составе комплекта:"));
+    kits.forEach(function (kit) {
+      var cnt = (kit.parts || []).filter(function (x) { return x.no && x.no !== kit.no; }).length;
+      var line = el("div", "kit-line");
+      var info = el("div", "kit-info");
+      info.appendChild(el("span", "kit-no", kit.no));
+      info.appendChild(document.createTextNode(" · "));
+      info.appendChild(el("span", "kit-name", kit.name));
+      if (cnt) info.appendChild(el("span", "kit-cnt", " · " + cnt + " поз."));
+      line.appendChild(info);
+      var kbtn = el("button", "btn-add kit-add", "＋ заказать комплектом");
+      kbtn.onclick = function () {
+        addToCart({ no: kit.no, name: kit.name, price: null, group: "", alt: "", isKit: true },
+                  { no: "KIT", name: "Комплект" }, 1);
+        kbtn.textContent = "✓ добавлено"; kbtn.classList.add("done");
+        setTimeout(function () { kbtn.textContent = "＋ заказать комплектом"; kbtn.classList.remove("done"); }, 1200);
+      };
+      line.appendChild(kbtn);
+      kitsBody.appendChild(line);
+    });
+    kitsBox.classList.remove("hidden");
+  } else kitsBox.classList.add("hidden");
+
   // характеристики
   var attrs = card.attrs || {};
   var at = $("pc-attrs"), atb = $("pc-attrs-body");
@@ -572,7 +617,7 @@ function isSellable(pn) { return sellableIn(CARDS, pn); }
 
 function addToCart(p, o, n) {
   var k = p.no;
-  if (!isSellable(p.no)) return;   // не продаётся отдельно — в заказ не кладём
+  if (!p.isKit && !isSellable(p.no)) return;   // не продаётся отдельно — в заказ не кладём
   if (!state.cart[k]) {
     state.cart[k] = { no: p.no, name: p.name, price: (p.price != null ? p.price : null),
                       group: p.group || "", alt: p.alt || "",
