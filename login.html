@@ -77,6 +77,7 @@
       btn.disabled = true; btn.textContent = "Проверяем…";
       fetch("/api/login", {
         method: "POST",
+        credentials: "same-origin",
         headers: { "content-type": "application/json" },
         body: JSON.stringify({
           login: document.getElementById("login").value,
