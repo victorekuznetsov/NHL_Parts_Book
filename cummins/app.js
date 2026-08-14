@@ -33,6 +33,12 @@ function money(v) {
   return v.toLocaleString("ru-RU", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 }
 function normNo(s) { return String(s || "").toUpperCase().replace(/[\s-]/g, ""); }
+/* цена по номеру из загруженного прайса (тот же источник, что у деталей) —
+   используется, в т.ч. чтобы подтянуть цену комплекта при заказе комплектом */
+function priceOf(no) {
+  var v = PRICES[normNo(no)];
+  return (v != null && !isNaN(v)) ? v : null;
+}
 function escapeRe(s) { return s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"); }
 
 function engineOf(esn) {
@@ -436,16 +442,18 @@ function openPartCard(pn) {
       : "Деталь не продаётся отдельно — заказывается в составе комплекта:"));
     kits.forEach(function (kit) {
       var cnt = (kit.parts || []).filter(function (x) { return x.no && x.no !== kit.no; }).length;
+      var kitPrice = priceOf(kit.no);
       var line = el("div", "kit-line");
       var info = el("div", "kit-info");
       info.appendChild(el("span", "kit-no", kit.no));
       info.appendChild(document.createTextNode(" · "));
       info.appendChild(el("span", "kit-name", kit.name));
       if (cnt) info.appendChild(el("span", "kit-cnt", " · " + cnt + " поз."));
+      if (kitPrice != null) info.appendChild(el("span", "kit-price", " · " + money(kitPrice)));
       line.appendChild(info);
       var kbtn = el("button", "btn-add kit-add", "＋ заказать комплектом");
       kbtn.onclick = function () {
-        addToCart({ no: kit.no, name: kit.name, price: null, group: "", alt: "", isKit: true },
+        addToCart({ no: kit.no, name: kit.name, price: priceOf(kit.no), group: "", alt: "", isKit: true },
                   { no: "KIT", name: "Комплект" }, 1);
         kbtn.textContent = "✓ добавлено"; kbtn.classList.add("done");
         setTimeout(function () { kbtn.textContent = "＋ заказать комплектом"; kbtn.classList.remove("done"); }, 1200);

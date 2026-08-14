@@ -418,3 +418,4 @@ mark{background:#ffe08a; color:#3a2c00; padding:0 1px; border-radius:2px}
 .btn-add.kit-add { background: #2f8f6a; color: #fff; border-color: #2f8f6a; cursor: pointer; flex: 0 0 auto; }
 .btn-add.kit-add:hover { filter: brightness(.96); }
 .btn-add.kit-add.done { background: #2a3138; border-color: #2a3138; }
+.kit-price { color: #1a6e4d; font-weight: 700; }
