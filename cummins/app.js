@@ -564,6 +564,14 @@ function kitByNo(no) {
 function kitComponents(kit) {
   return (kit.parts || []).filter(function (x) { return x.no && x.no !== kit.no; });
 }
+// файл фото детали (для миниатюр в составе комплекта)
+function partImgFile(pn) {
+  var c = CARDS[pn];
+  if (c && c.views && c.views.length) return c.views[0];
+  var pt = findPart(pn);
+  if (pt && pt.img) return pt.img;
+  return null;
+}
 // кнопка «＋ заказать комплектом»: подтягивает цену комплекта из прайса
 function makeKitOrderBtn(kit) {
   var btn = el("button", "btn-add kit-add", "＋ заказать комплектом");
@@ -604,6 +612,13 @@ function openKitCard(no) {
     var tr = el("tr");
     tr.appendChild(el("td", "comp-i", String(i + 1)));
     var tdNo = el("td", "comp-no");
+    var cimg = partImgFile(cp.no);
+    if (cimg) {
+      var cim = document.createElement("img");
+      cim.className = "pn-photo"; cim.src = photoSrc(C.esn, cimg); cim.alt = "";
+      cim.onerror = function () { this.style.display = "none"; };
+      tdNo.appendChild(cim);
+    }
     if (CARDS[cp.no] || findPart(cp.no)) {
       var lnk = el("span", "pn pn-link", cp.no);
       lnk.onclick = (function (n) { return function () { openPartCard(n); }; })(cp.no);
