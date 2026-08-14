@@ -404,3 +404,17 @@ mark{background:#ffe08a; color:#3a2c00; padding:0 1px; border-radius:2px}
   cursor: not-allowed; font-weight: 600;
 }
 .row-not-sold .c-no .pn { color: #8a9098; }
+
+/* «заказать комплектом» в карточке детали */
+#pc-kits .kit-intro { font-size: 13px; color: #5b636b; margin-bottom: 8px; }
+.kit-line {
+  display: flex; align-items: center; justify-content: space-between; gap: 10px;
+  padding: 8px 10px; margin-bottom: 6px; flex-wrap: wrap;
+  border: 1px solid #cfe6d9; border-radius: 8px; background: #f2fbf6;
+}
+.kit-no { font-weight: 700; color: #1a6e4d; }
+.kit-name { color: #2a3138; }
+.kit-cnt { color: #80868b; font-size: 12px; }
+.btn-add.kit-add { background: #2f8f6a; color: #fff; border-color: #2f8f6a; cursor: pointer; flex: 0 0 auto; }
+.btn-add.kit-add:hover { filter: brightness(.96); }
+.btn-add.kit-add.done { background: #2a3138; border-color: #2a3138; }
