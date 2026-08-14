@@ -416,9 +416,12 @@ aside.cart.open { transform: none; }
 .chk-sec:hover { border-color: var(--accent-strong); color: var(--accent-ink); background: var(--surface-2); }
 @media (max-width: 900px) { #checkBtn { font-size: 0; padding: 0 12px; } #checkBtn::before { content: "🔎"; font-size: 16px; } }
 
-/* row flash when arriving from the check-list results */
+/* row flash when arriving from the search / check-list results */
 tr.pn-flash > td { animation: pnflash 2.2s ease-out; }
 @keyframes pnflash {
   0%, 40% { background: rgba(62,240,175,.45); }
   100% { background: transparent; }
 }
+/* выбранная из поиска деталь остаётся подсвеченной, чтобы её не искать заново */
+tr.pn-selected > td { background: rgba(62,240,175,.16); }
+tr.pn-selected > td:first-child { box-shadow: inset 3px 0 0 0 var(--accent-strong); }

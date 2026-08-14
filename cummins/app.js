@@ -401,10 +401,13 @@ function renderParts(o, focusPart) {
 
     tb.appendChild(tr);
     if (focusPart && p.no === focusPart && i < 400) {
+      // подсветка держится, пока пользователь не откроет другой узел, —
+      // чтобы найденную через поиск деталь не искать глазами в списке
+      tr.classList.add("pn-selected");
       setTimeout(function () {
         tr.scrollIntoView({ block: "center", behavior: "smooth" });
-        tr.style.background = "#fff5cc";
-        setTimeout(function () { tr.style.background = ""; }, 2500);
+        tr.classList.add("pn-flash");
+        setTimeout(function () { tr.classList.remove("pn-flash"); }, 2500);
       }, 150);
     }
   });
