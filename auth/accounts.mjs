@@ -7,8 +7,8 @@ export default {
       "name": "Кузнецов В.Е. (владелец)",
       "role": "permanent",
       "expires": null,
-      "salt": "MHNI5DrD2QOk8x1tz2ljNA",
-      "hash": "3yDrtvs_TARva9x3UbFl5W1VyXWM3xq3SGeeZm4UPTo",
+      "salt": "YTf4TL7sK3Uj9IKXmOQS1g",
+      "hash": "wW_m41YTnos1gyyQfxY2ZFbFntLZ88xu-UMSFUFDjRk",
       "iters": 120000
     },
     {
