@@ -452,3 +452,5 @@ mark{background:#ffe08a; color:#3a2c00; padding:0 1px; border-radius:2px}
   font-size: 12px; padding: 3px 4px; border: 1px solid var(--line);
   border-radius: 6px; background: var(--field); color: var(--text);
 }
+.comp-table td.comp-no { white-space: nowrap; }
+.comp-table td.comp-no .pn-photo { vertical-align: middle; margin-right: 6px; }
