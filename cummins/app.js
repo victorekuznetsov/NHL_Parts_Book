@@ -49,8 +49,9 @@ function drawingSrc(esn, file) { return "drawings/" + esn + "/" + file; }
 function photoSrc(esn, file) {
   var num = String(file).split("_")[0];
   if (!num) return "";
-  return "https://parts.cummins.com/graphics/parts/" +
-         num.slice(0, 3) + "/" + num + "/" + file;
+  // Go through our own origin (/api/photo) so photos load even when the client
+  // network can't reach parts.cummins.com directly; the server fetches the CDN.
+  return "/api/photo?n=" + num + "&f=" + encodeURIComponent(file);
 }
 
 /* ---------- корзина (своя для каждого двигателя) ---------- */
@@ -354,6 +355,10 @@ function openPartCard(pn) {
   document.querySelector(".pc-gallery").style.display = views.length ? "" : "none";
   if (views.length) {
     main.style.display = "";
+    main.onerror = function () {
+      this.style.display = "none";
+      var g = document.querySelector(".pc-gallery"); if (g) g.style.display = "none";
+    };
     main.src = photoSrc(C.esn, views[0]);
     views.forEach(function (v, i) {
       var t = document.createElement("img");
