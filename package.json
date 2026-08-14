@@ -1,8 +1,0 @@
-{
-  "private": true,
-  "name": "nhl-parts-book",
-  "description": "Единый каталог запчастей самосвалов NHL (статический сайт + вход через Vercel Edge Middleware)",
-  "dependencies": {
-    "@vercel/edge": "^1.3.3"
-  }
-}
