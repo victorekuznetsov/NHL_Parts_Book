@@ -1,257 +1,257 @@
-Код;Тип;Двигатели;Деталей;Примеры деталей;Куда положить файл
-00T5-9;Service Topic (внутренний код Cummins);NTE240;2;"3901937, 3910959";cummins/bulletins/topics/00T5-9.pdf
-00T7-16;Service Topic (внутренний код Cummins);TR100A;1;3087969;cummins/bulletins/topics/00T7-16.pdf
-00T7-17;Service Topic (внутренний код Cummins);NTE200;2;"108707, S199B";cummins/bulletins/topics/00T7-17.pdf
-00T7-9;Service Topic (внутренний код Cummins);TR100A;1;3417474;cummins/bulletins/topics/00T7-9.pdf
-00T8-4;Service Topic (внутренний код Cummins);NTE240;1;3081695;cummins/bulletins/topics/00T8-4.pdf
-00T8-6;Service Topic (внутренний код Cummins);TR100A;1;3093411;cummins/bulletins/topics/00T8-6.pdf
-01T0-12;Service Topic (внутренний код Cummins);NTE200;1;3865312;cummins/bulletins/topics/01T0-12.pdf
-01T1-1;Service Topic (внутренний код Cummins);NTE200;1;3000082;cummins/bulletins/topics/01T1-1.pdf
-01T1-10;Service Topic (внутренний код Cummins);NTE240;1;4017292;cummins/bulletins/topics/01T1-10.pdf
-01T1-6;Service Topic (внутренний код Cummins);TR100A;3;"3092718, 3092932, 3092935";cummins/bulletins/topics/01T1-6.pdf
-01T11-4;Service Topic (внутренний код Cummins);TR100A;2;"3092324, 4067825";cummins/bulletins/topics/01T11-4.pdf
-01T11-5;Service Topic (внутренний код Cummins);NTE240;1;4065896;cummins/bulletins/topics/01T11-5.pdf
-01T11-6;Service Topic (внутренний код Cummins);"NTE240, NTE200";1;4080141;cummins/bulletins/topics/01T11-6.pdf
-01T13-2;Service Topic (внутренний код Cummins);TR100A;1;3821847;cummins/bulletins/topics/01T13-2.pdf
-01T13-4;Service Topic (внутренний код Cummins);"NTE240, NTE200";1;3050692;cummins/bulletins/topics/01T13-4.pdf
-01T15-1;Service Topic (внутренний код Cummins);"NTE240, NTE200";4;"3033800, 103009, 3175239, S155";cummins/bulletins/topics/01T15-1.pdf
-01T19-11;Service Topic (внутренний код Cummins);NTE200;1;S126;cummins/bulletins/topics/01T19-11.pdf
-01T19-13;Service Topic (внутренний код Cummins);TR100A;2;"3092154, 3092155";cummins/bulletins/topics/01T19-13.pdf
-01T19-24;Service Topic (внутренний код Cummins);TR100A;1;3615978;cummins/bulletins/topics/01T19-24.pdf
-01T2-2;Service Topic (внутренний код Cummins);NTE200;4;"67622, 205091, 205094, 3086362";cummins/bulletins/topics/01T2-2.pdf
-01T2-8;Service Topic (внутренний код Cummins);NTE240;1;3644387;cummins/bulletins/topics/01T2-8.pdf
-01T3-3;Service Topic (внутренний код Cummins);"NTE240, NTE200";1;4065627;cummins/bulletins/topics/01T3-3.pdf
-01T3-4;Service Topic (внутренний код Cummins);NTE240;1;4015924;cummins/bulletins/topics/01T3-4.pdf
-01T3-5;Service Topic (внутренний код Cummins);NTE200;1;3042890;cummins/bulletins/topics/01T3-5.pdf
-01T5-16;Service Topic (внутренний код Cummins);TR100A;17;"3092200, 3092628, 3092736, 3092738, 3092740";cummins/bulletins/topics/01T5-16.pdf
-01T6-5;Service Topic (внутренний код Cummins);TR100A;2;"3092543, 3093629";cummins/bulletins/topics/01T6-5.pdf
-01T7-3;Service Topic (внутренний код Cummins);"NTE240, NTE200";2;"3901865, S162A";cummins/bulletins/topics/01T7-3.pdf
-01T7-4;Service Topic (внутренний код Cummins);"NTE240, NTE200, TR100A";2;"3903990, 3925437";cummins/bulletins/topics/01T7-4.pdf
-01T7-6;Service Topic (внутренний код Cummins);"NTE240, TR100A";10;"3678924, 200819, 3090126, 3090127, 3092078";cummins/bulletins/topics/01T7-6.pdf
-01T8-16;Service Topic (внутренний код Cummins);NTE240;1;3903105;cummins/bulletins/topics/01T8-16.pdf
-01T8-4;Service Topic (внутренний код Cummins);"NTE200, TR100A";3;"3036900, S106, S113";cummins/bulletins/topics/01T8-4.pdf
-01T8-7;Service Topic (внутренний код Cummins);NTE200;1;S602;cummins/bulletins/topics/01T8-7.pdf
-01T9-1;Service Topic (внутренний код Cummins);TR100A;2;"3094826, 3094827";cummins/bulletins/topics/01T9-1.pdf
-01T9-4;Service Topic (внутренний код Cummins);NTE240;1;5580810;cummins/bulletins/topics/01T9-4.pdf
-02T0-4;Service Topic (внутренний код Cummins);"NTE240, NTE200, TR100A";3;"3082315, 3089240, 3331924";cummins/bulletins/topics/02T0-4.pdf
-02T0-8;Service Topic (внутренний код Cummins);"NTE240, NTE200, TR100A";40;"206457, 206808, 212161, 3014668, 3035083";cummins/bulletins/topics/02T0-8.pdf
-02T1-1;Service Topic (внутренний код Cummins);TR100A;5;"3092877, 3092878, 3092879, 3092880, 3092881";cummins/bulletins/topics/02T1-1.pdf
-02T1-10;Service Topic (внутренний код Cummins);NTE240;2;"3089251, 4001416";cummins/bulletins/topics/02T1-10.pdf
-02T1-17;Service Topic (внутренний код Cummins);NTE240;1;4007569;cummins/bulletins/topics/02T1-17.pdf
-02T10-3;Service Topic (внутренний код Cummins);"NTE240, NTE200";1;5540851;cummins/bulletins/topics/02T10-3.pdf
-02T10-5;Service Topic (внутренний код Cummins);"NTE200, TR100A";2;"3521225, 3522904";cummins/bulletins/topics/02T10-5.pdf
-02T13-1;Service Topic (внутренний код Cummins);NTE240;1;4066750;cummins/bulletins/topics/02T13-1.pdf
-02T19-3;Service Topic (внутренний код Cummins);"NTE240, NTE200";1;S224;cummins/bulletins/topics/02T19-3.pdf
-02T2-1;Service Topic (внутренний код Cummins);"NTE240, NTE200, TR100A";4;"203933, 205401, 3900257, 4080326";cummins/bulletins/topics/02T2-1.pdf
-02T4-1;Service Topic (внутренний код Cummins);TR100A;1;4067993;cummins/bulletins/topics/02T4-1.pdf
-02T6-3;Service Topic (внутренний код Cummins);TR100A;2;"3094188, 4067813";cummins/bulletins/topics/02T6-3.pdf
-02T7-3;Service Topic (внутренний код Cummins);"NTE240, NTE200, TR100A";11;"3021618, 3089238, 3628554, 3910495, 4007207";cummins/bulletins/topics/02T7-3.pdf
-02T7-6;Service Topic (внутренний код Cummins);NTE240;1;4066192;cummins/bulletins/topics/02T7-6.pdf
-02T7-8;Service Topic (внутренний код Cummins);NTE240;4;"3089891, 4016829, 4016842, 4065666";cummins/bulletins/topics/02T7-8.pdf
-02T9-1;Service Topic (внутренний код Cummins);TR100A;2;"3093744, 3896408";cummins/bulletins/topics/02T9-1.pdf
-03T0-16;Service Topic (внутренний код Cummins);TR100A;1;S500;cummins/bulletins/topics/03T0-16.pdf
-03T0-19;Service Topic (внутренний код Cummins);TR100A;2;"3617958, 3617959";cummins/bulletins/topics/03T0-19.pdf
-03T1-8;Service Topic (внутренний код Cummins);"NTE240, NTE200";1;3678610;cummins/bulletins/topics/03T1-8.pdf
-03T10-5;Service Topic (внутренний код Cummins);"NTE240, NTE200, TR100A";6;"4016444, 3040810, 3175058, 3348871, 3634662";cummins/bulletins/topics/03T10-5.pdf
-03T15-1;Service Topic (внутренний код Cummins);"NTE240, NTE200";1;3408250;cummins/bulletins/topics/03T15-1.pdf
-03T19-30;Service Topic (внутренний код Cummins);"NTE240, NTE200, TR100A";3;"3628585, 68152B, 3279244";cummins/bulletins/topics/03T19-30.pdf
-03T5-12;Service Topic (внутренний код Cummins);NTE200;1;S188C;cummins/bulletins/topics/03T5-12.pdf
-03T8-6;Service Topic (внутренний код Cummins);"NTE200, TR100A";1;3028409;cummins/bulletins/topics/03T8-6.pdf
-04T0-43;Service Topic (внутренний код Cummins);"NTE240, NTE200, TR100A";6;"70415, 216187, 3201585, 3028291, 3630742";cummins/bulletins/topics/04T0-43.pdf
-04T0-9;Service Topic (внутренний код Cummins);"NTE240, NTE200, TR100A";5;"67950, 3036460, S622, 3013786, 3066310";cummins/bulletins/topics/04T0-9.pdf
-04T1-22;Service Topic (внутренний код Cummins);NTE240;1;4007741;cummins/bulletins/topics/04T1-22.pdf
-04T10-7;Service Topic (внутренний код Cummins);"NTE240, TR100A";1;3902114;cummins/bulletins/topics/04T10-7.pdf
-04T13-3;Service Topic (внутренний код Cummins);NTE200;2;"S107, S605";cummins/bulletins/topics/04T13-3.pdf
-04T17-1;Service Topic (внутренний код Cummins);"NTE200, TR100A";2;"169195, 3035806";cummins/bulletins/topics/04T17-1.pdf
-04T19-11;Service Topic (внутренний код Cummins);TR100A;1;3094024;cummins/bulletins/topics/04T19-11.pdf
-04T19-2;Service Topic (внутренний код Cummins);"NTE240, NTE200, TR100A";12;"3075658, 3093956, 3332136, 3410392, 3628553";cummins/bulletins/topics/04T19-2.pdf
-04T2-1;Service Topic (внутренний код Cummins);NTE240;1;4086649;cummins/bulletins/topics/04T2-1.pdf
-04T4-2;Service Topic (внутренний код Cummins);TR100A;2;"4068548, 4068611";cummins/bulletins/topics/04T4-2.pdf
-04T5-2;Service Topic (внутренний код Cummins);NTE240;1;3900628;cummins/bulletins/topics/04T5-2.pdf
-04T5-7;Service Topic (внутренний код Cummins);"NTE240, NTE200";1;3900589;cummins/bulletins/topics/04T5-7.pdf
-04T6-1;Service Topic (внутренний код Cummins);TR100A;1;4095189;cummins/bulletins/topics/04T6-1.pdf
-04T7-11;Service Topic (внутренний код Cummins);TR100A;1;3092334;cummins/bulletins/topics/04T7-11.pdf
-04T7-18;Service Topic (внутренний код Cummins);NTE240;6;"3089234, 3089886, 3636362, 3920447, 4916874";cummins/bulletins/topics/04T7-18.pdf
-04T7-5;Service Topic (внутренний код Cummins);"NTE240, NTE200, TR100A";7;"3028552, 3171818, 3171883, 3678838, 4100474";cummins/bulletins/topics/04T7-5.pdf
-04T8-11;Service Topic (внутренний код Cummins);"NTE240, NTE200, TR100A";2;"S2268, 3076301";cummins/bulletins/topics/04T8-11.pdf
-04T8-2;Service Topic (внутренний код Cummins);"NTE240, NTE200";1;4101150;cummins/bulletins/topics/04T8-2.pdf
-05T0-26;Service Topic (внутренний код Cummins);"NTE240, NTE200, TR100A";4;"3629112, 3678791, 131026, 3030207";cummins/bulletins/topics/05T0-26.pdf
-05T0-3;Service Topic (внутренний код Cummins);"NTE240, NTE200";3;"3282081, 3900679, S600";cummins/bulletins/topics/05T0-3.pdf
-05T0-39;Service Topic (внутренний код Cummins);"NTE240, NTE200, TR100A";3;"3278093, 3937692, S962E";cummins/bulletins/topics/05T0-39.pdf
-05T1-2;Service Topic (внутренний код Cummins);NTE240;1;4100983;cummins/bulletins/topics/05T1-2.pdf
-05T1-21;Service Topic (внутренний код Cummins);NTE200;1;4924584;cummins/bulletins/topics/05T1-21.pdf
-05T1-34;Service Topic (внутренний код Cummins);TR100A;1;3909025;cummins/bulletins/topics/05T1-34.pdf
-05T10-1;Service Topic (внутренний код Cummins);"NTE240, NTE200, TR100A";2;"3089955, 3678786";cummins/bulletins/topics/05T10-1.pdf
-05T13-3;Service Topic (внутренний код Cummins);NTE240;1;3657721;cummins/bulletins/topics/05T13-3.pdf
-05T13-5;Service Topic (внутренний код Cummins);NTE240;1;3093807;cummins/bulletins/topics/05T13-5.pdf
-05T17-1;Service Topic (внутренний код Cummins);"NTE240, NTE200";1;3678603;cummins/bulletins/topics/05T17-1.pdf
-05T5-19;Service Topic (внутренний код Cummins);"NTE240, NTE200, TR100A";5;"70704, 3678921, 4010519, 129888, 4088274";cummins/bulletins/topics/05T5-19.pdf
-05T5-24;Service Topic (внутренний код Cummins);"NTE240, NTE200";1;3900633;cummins/bulletins/topics/05T5-24.pdf
-05T6-2;Service Topic (внутренний код Cummins);NTE200;1;S109;cummins/bulletins/topics/05T6-2.pdf
-05T6-6;Service Topic (внутренний код Cummins);"NTE240, NTE200";3;"180371, 3040721, 3628755";cummins/bulletins/topics/05T6-6.pdf
-05T6-8;Service Topic (внутренний код Cummins);TR100A;7;"3093624, 3093687, 3093734, 3093764, 3094813";cummins/bulletins/topics/05T6-8.pdf
-05T7-13;Service Topic (внутренний код Cummins);NTE240;1;68425;cummins/bulletins/topics/05T7-13.pdf
-06T0-36;Service Topic (внутренний код Cummins);TR100A;21;"3025458, 3092040, 3092922, 3092971, 3093031";cummins/bulletins/topics/06T0-36.pdf
-06T11-11;Service Topic (внутренний код Cummins);"NTE240, NTE200";1;4936174;cummins/bulletins/topics/06T11-11.pdf
-06T3-7;Service Topic (внутренний код Cummins);NTE240;2;"3085972, 3085973";cummins/bulletins/topics/06T3-7.pdf
-06T6-16;Service Topic (внутренний код Cummins);NTE200;1;S112;cummins/bulletins/topics/06T6-16.pdf
-06T7-4;Service Topic (внутренний код Cummins);NTE240;1;3637730;cummins/bulletins/topics/06T7-4.pdf
-06T7-6;Service Topic (внутренний код Cummins);TR100A;4;"4068307, 4068308, 4068309, 4068310";cummins/bulletins/topics/06T7-6.pdf
-06T8-2;Service Topic (внутренний код Cummins);"NTE240, TR100A";4;"205168, 3048625, 3636285, 3637487";cummins/bulletins/topics/06T8-2.pdf
-06T8-21;Service Topic (внутренний код Cummins);"NTE240, NTE200";1;3631471;cummins/bulletins/topics/06T8-21.pdf
-06T8-22;Service Topic (внутренний код Cummins);"NTE240, NTE200, TR100A";1;68152;cummins/bulletins/topics/06T8-22.pdf
-06T8-7;Service Topic (внутренний код Cummins);NTE200;1;S117;cummins/bulletins/topics/06T8-7.pdf
-07T0-16;Service Topic (внутренний код Cummins);TR100A;1;3100308;cummins/bulletins/topics/07T0-16.pdf
-07T1-26;Service Topic (внутренний код Cummins);"NTE240, NTE200";2;"3007635, 3008466";cummins/bulletins/topics/07T1-26.pdf
-07T1-34;Service Topic (внутренний код Cummins);NTE200;1;3177945;cummins/bulletins/topics/07T1-34.pdf
-07T1-4;Service Topic (внутренний код Cummins);NTE200;1;3042327;cummins/bulletins/topics/07T1-4.pdf
-07T10-14;Service Topic (внутренний код Cummins);"NTE240, NTE200, TR100A";1;3627695;cummins/bulletins/topics/07T10-14.pdf
-07T10-20;Service Topic (внутренний код Cummins);NTE200;2;"3042329, 3042330";cummins/bulletins/topics/07T10-20.pdf
-07T10-23;Service Topic (внутренний код Cummins);NTE200;1;3627095;cummins/bulletins/topics/07T10-23.pdf
-07T11-2;Service Topic (внутренний код Cummins);TR100A;4;"3092657, 3092658, 4295291, 4295293";cummins/bulletins/topics/07T11-2.pdf
-07T11-24;Service Topic (внутренний код Cummins);"NTE240, NTE200";1;68138;cummins/bulletins/topics/07T11-24.pdf
-07T16-1;Service Topic (внутренний код Cummins);NTE200;1;3638146;cummins/bulletins/topics/07T16-1.pdf
-07T19-129;Service Topic (внутренний код Cummins);"NTE240, TR100A";1;4088832;cummins/bulletins/topics/07T19-129.pdf
-07T19-142;Service Topic (внутренний код Cummins);TR100A;1;4954430;cummins/bulletins/topics/07T19-142.pdf
-07T19-58;Service Topic (внутренний код Cummins);"NTE240, NTE200, TR100A";8;"3037537, 3062329, 3102651, 4921574, 3046201";cummins/bulletins/topics/07T19-58.pdf
-07T2-10;Service Topic (внутренний код Cummins);NTE200;1;4986317;cummins/bulletins/topics/07T2-10.pdf
-07T5-13;Service Topic (внутренний код Cummins);TR100A;4;"129768, 129839, 196057, 3065944";cummins/bulletins/topics/07T5-13.pdf
-07T6-19;Service Topic (внутренний код Cummins);NTE240;1;69465;cummins/bulletins/topics/07T6-19.pdf
-07T7-14;Service Topic (внутренний код Cummins);NTE200;1;3629451;cummins/bulletins/topics/07T7-14.pdf
-07T7-15;Service Topic (внутренний код Cummins);NTE240;1;3089023;cummins/bulletins/topics/07T7-15.pdf
-07T7-19;Service Topic (внутренний код Cummins);NTE200;2;"3026312, 3026313";cummins/bulletins/topics/07T7-19.pdf
-07T8-3;Service Topic (внутренний код Cummins);TR100A;2;"4096426, 4096427";cummins/bulletins/topics/07T8-3.pdf
-08T0-17;Service Topic (внутренний код Cummins);TR100A;1;3888312;cummins/bulletins/topics/08T0-17.pdf
-08T1-33;Service Topic (внутренний код Cummins);NTE240;4;"3089016, 3640536, 3640543, 3651209";cummins/bulletins/topics/08T1-33.pdf
-08T10-7;Service Topic (внутренний код Cummins);"NTE240, NTE200, TR100A";2;"3678912, 3202117";cummins/bulletins/topics/08T10-7.pdf
-08T10-9;Service Topic (внутренний код Cummins);"NTE240, NTE200, TR100A";2;"3679139, 3922794";cummins/bulletins/topics/08T10-9.pdf
-08T11-4;Service Topic (внутренний код Cummins);"NTE240, NTE200, TR100A";6;"4000837, 4001226, 203760, S127, S217";cummins/bulletins/topics/08T11-4.pdf
-08T2-5;Service Topic (внутренний код Cummins);NTE200;1;3640315;cummins/bulletins/topics/08T2-5.pdf
-08T3-2;Service Topic (внутренний код Cummins);"NTE240, NTE200";3;"3901445, 3014766, 3201128";cummins/bulletins/topics/08T3-2.pdf
-08T5-9;Service Topic (внутренний код Cummins);NTE200;1;3903035;cummins/bulletins/topics/08T5-9.pdf
-08T7-2;Service Topic (внутренний код Cummins);NTE200;1;68171;cummins/bulletins/topics/08T7-2.pdf
-08T7-7;Service Topic (внутренний код Cummins);TR100A;1;3093010;cummins/bulletins/topics/08T7-7.pdf
-08T8-1;Service Topic (внутренний код Cummins);"NTE200, TR100A";2;"68189, 43828A";cummins/bulletins/topics/08T8-1.pdf
-08T8-6;Service Topic (внутренний код Cummins);"NTE240, TR100A";9;"206391, 206506, 3048626, 3636278, 3637488";cummins/bulletins/topics/08T8-6.pdf
-08T8-8;Service Topic (внутренний код Cummins);"NTE200, TR100A";16;"3027728, S121B, S603, S608, S610";cummins/bulletins/topics/08T8-8.pdf
-200;Service Topic (внутренний код Cummins);TR100A;1;3092514;cummins/bulletins/topics/200.pdf
-89T7-5;Service Topic (внутренний код Cummins);NTE200;1;3044413;cummins/bulletins/topics/89T7-5.pdf
-89T8-8;Service Topic (внутренний код Cummins);NTE200;1;3179565;cummins/bulletins/topics/89T8-8.pdf
-90T1-12;Service Topic (внутренний код Cummins);NTE200;1;3069779;cummins/bulletins/topics/90T1-12.pdf
-90T10-6;Service Topic (внутренний код Cummins);NTE200;1;S172B;cummins/bulletins/topics/90T10-6.pdf
-90T10-7;Service Topic (внутренний код Cummins);NTE200;1;3527937;cummins/bulletins/topics/90T10-7.pdf
-90T12-1;Service Topic (внутренний код Cummins);NTE200;1;3063556;cummins/bulletins/topics/90T12-1.pdf
-90T4-1;Service Topic (внутренний код Cummins);NTE200;1;213559;cummins/bulletins/topics/90T4-1.pdf
-90T5-1;Service Topic (внутренний код Cummins);TR100A;1;3906391;cummins/bulletins/topics/90T5-1.pdf
-90T5-6;Service Topic (внутренний код Cummins);NTE240;1;3056508;cummins/bulletins/topics/90T5-6.pdf
-90T7-1;Service Topic (внутренний код Cummins);"NTE240, NTE200";1;69519;cummins/bulletins/topics/90T7-1.pdf
-91T5-7;Service Topic (внутренний код Cummins);"NTE240, NTE200, TR100A";2;"S631, 69771";cummins/bulletins/topics/91T5-7.pdf
-92T1-3;Service Topic (внутренний код Cummins);NTE200;1;205375;cummins/bulletins/topics/92T1-3.pdf
-92T8-3;Service Topic (внутренний код Cummins);NTE200;1;3627808;cummins/bulletins/topics/92T8-3.pdf
-93T1-9;Service Topic (внутренний код Cummins);NTE200;1;3628452;cummins/bulletins/topics/93T1-9.pdf
-93T12-1;Service Topic (внутренний код Cummins);NTE200;1;127362;cummins/bulletins/topics/93T12-1.pdf
-93T3-1;Service Topic (внутренний код Cummins);NTE200;1;S169A;cummins/bulletins/topics/93T3-1.pdf
-95T7-10;Service Topic (внутренний код Cummins);NTE200;4;"102020, 135783, 3175027, 3631719";cummins/bulletins/topics/95T7-10.pdf
-96T11-3A;Service Topic (внутренний код Cummins);NTE200;1;S167B;cummins/bulletins/topics/96T11-3A.pdf
-96T12-3;Service Topic (внутренний код Cummins);"NTE240, NTE200";2;"108330, 103023";cummins/bulletins/topics/96T12-3.pdf
-96T13-1;Service Topic (внутренний код Cummins);NTE200;1;3202222;cummins/bulletins/topics/96T13-1.pdf
-96T2-11;Service Topic (внутренний код Cummins);NTE200;2;"206224, 3088389";cummins/bulletins/topics/96T2-11.pdf
-96T6-4;Service Topic (внутренний код Cummins);"NTE200, TR100A";1;3046943;cummins/bulletins/topics/96T6-4.pdf
-97T0-5;Service Topic (внутренний код Cummins);"NTE240, NTE200";4;"3630740, 3078218, 3627945, 3630739";cummins/bulletins/topics/97T0-5.pdf
-97T1-8;Service Topic (внутренний код Cummins);"NTE240, NTE200";4;"131584, 3033629, 3069776, 3069781";cummins/bulletins/topics/97T1-8.pdf
-97T1-9;Service Topic (внутренний код Cummins);TR100A;1;3093729;cummins/bulletins/topics/97T1-9.pdf
-97T6-6;Service Topic (внутренний код Cummins);"NTE240, NTE200, TR100A";4;"69911A, 3630738, S149A, S626";cummins/bulletins/topics/97T6-6.pdf
-97T6-7;Service Topic (внутренний код Cummins);"NTE200, TR100A";3;"3018920, 3095295, 3628522";cummins/bulletins/topics/97T6-7.pdf
-97T7-12;Service Topic (внутренний код Cummins);TR100A;1;214345;cummins/bulletins/topics/97T7-12.pdf
-97T9-1;Service Topic (внутренний код Cummins);"NTE200, TR100A";5;"170664, 3640773, 3640775, 3645841, S316";cummins/bulletins/topics/97T9-1.pdf
-97T9-3;Service Topic (внутренний код Cummins);NTE200;1;3200287;cummins/bulletins/topics/97T9-3.pdf
-99T0-4;Service Topic (внутренний код Cummins);NTE200;1;3410273;cummins/bulletins/topics/99T0-4.pdf
-99T0-8;Service Topic (внутренний код Cummins);"NTE200, TR100A";2;"S145, 70897";cummins/bulletins/topics/99T0-8.pdf
-99T1-10;Service Topic (внутренний код Cummins);TR100A;1;3016787;cummins/bulletins/topics/99T1-10.pdf
-99T11-1;Service Topic (внутренний код Cummins);"NTE240, NTE200";12;"205129, 3089321, 3052197, 3628969, 3630952";cummins/bulletins/topics/99T11-1.pdf
-99T11-2;Service Topic (внутренний код Cummins);NTE200;1;3035228;cummins/bulletins/topics/99T11-2.pdf
-99T13-3;Service Topic (внутренний код Cummins);TR100A;1;3400698;cummins/bulletins/topics/99T13-3.pdf
-99T19-8;Service Topic (внутренний код Cummins);NTE200;1;3628902;cummins/bulletins/topics/99T19-8.pdf
-99T5-3;Service Topic (внутренний код Cummins);TR100A;1;3021420;cummins/bulletins/topics/99T5-3.pdf
-99T5-5;Service Topic (внутренний код Cummins);"NTE240, TR100A";1;3678923;cummins/bulletins/topics/99T5-5.pdf
-99T6-8;Service Topic (внутренний код Cummins);TR100A;1;3092545;cummins/bulletins/topics/99T6-8.pdf
-99T8-9;Service Topic (внутренний код Cummins);NTE200;3;"5375708, 68152A, S118";cummins/bulletins/topics/99T8-9.pdf
-TSB100892;TSB (сервисный бюллетень);NTE240;2;"3641535, 3641537";cummins/bulletins/topics/TSB100892.pdf
-TSB101088;TSB (сервисный бюллетень);TR100A;2;"3092366, 3092821";cummins/bulletins/topics/TSB101088.pdf
-TSB110169;TSB (сервисный бюллетень);NTE240;1;3093946;cummins/bulletins/topics/TSB110169.pdf
-TSB110176;TSB (сервисный бюллетень);NTE240;1;3171713;cummins/bulletins/topics/TSB110176.pdf
-TSB120143;TSB (сервисный бюллетень);NTE240;2;"3646200, 4334007";cummins/bulletins/topics/TSB120143.pdf
-TSB140102;TSB (сервисный бюллетень);NTE200;1;4334080;cummins/bulletins/topics/TSB140102.pdf
-TSB160035;TSB (сервисный бюллетень);NTE240;1;3691281;cummins/bulletins/topics/TSB160035.pdf
-TSB180082;TSB (сервисный бюллетень);"NTE240, NTE200";2;"5375545, 5376264";cummins/bulletins/topics/TSB180082.pdf
-TSB190007;TSB (сервисный бюллетень);TR100A;1;3900625;cummins/bulletins/topics/TSB190007.pdf
-TSB190076;TSB (сервисный бюллетень);NTE240;1;3944593;cummins/bulletins/topics/TSB190076.pdf
-TSB190079;TSB (сервисный бюллетень);"NTE240, NTE200, TR100A";1;3963988;cummins/bulletins/topics/TSB190079.pdf
-TSB200026;TSB (сервисный бюллетень);"NTE240, TR100A";3;"3028349, 3963991, 4975432";cummins/bulletins/topics/TSB200026.pdf
-TSB200052;TSB (сервисный бюллетень);"NTE240, NTE200";3;"3902662, 4007735, 4086650";cummins/bulletins/topics/TSB200052.pdf
-TSB200101;TSB (сервисный бюллетень);NTE200;1;4910253;cummins/bulletins/topics/TSB200101.pdf
-TSB200219;TSB (сервисный бюллетень);NTE200;1;3963990;cummins/bulletins/topics/TSB200219.pdf
-TSB200223;TSB (сервисный бюллетень);"NTE240, NTE200";1;3035026;cummins/bulletins/topics/TSB200223.pdf
-TSB200225;TSB (сервисный бюллетень);NTE240;2;"5542204, 5542205";cummins/bulletins/topics/TSB200225.pdf
-TSB200234;TSB (сервисный бюллетень);"NTE200, TR100A";9;"3046202, 3093784, 3916284, 3925344, 4067902";cummins/bulletins/topics/TSB200234.pdf
-TSB200236;TSB (сервисный бюллетень);NTE200;2;"5559727, 5581146";cummins/bulletins/topics/TSB200236.pdf
-TSB210001;TSB (сервисный бюллетень);"NTE240, NTE200";19;"4924291, 5572259, 3015283, 3609817, 5372025";cummins/bulletins/topics/TSB210001.pdf
-TSB210002;TSB (сервисный бюллетень);NTE240;1;5374881;cummins/bulletins/topics/TSB210002.pdf
-TSB210046;TSB (сервисный бюллетень);NTE240;1;3905372;cummins/bulletins/topics/TSB210046.pdf
-TSB210083;TSB (сервисный бюллетень);NTE200;1;191772;cummins/bulletins/topics/TSB210083.pdf
-TSB210084;TSB (сервисный бюллетень);TR100A;1;3094527;cummins/bulletins/topics/TSB210084.pdf
-TSB210090;TSB (сервисный бюллетень);"NTE240, NTE200";1;5540246;cummins/bulletins/topics/TSB210090.pdf
-TSB210098;TSB (сервисный бюллетень);NTE240;1;5538007;cummins/bulletins/topics/TSB210098.pdf
-TSB210133;TSB (сервисный бюллетень);NTE200;1;3030990;cummins/bulletins/topics/TSB210133.pdf
-TSB210148;TSB (сервисный бюллетень);"NTE200, TR100A";2;"3009477, 4975421";cummins/bulletins/topics/TSB210148.pdf
-TSB210206;TSB (сервисный бюллетень);NTE200;2;"67946, 3055069";cummins/bulletins/topics/TSB210206.pdf
-TSB210209;TSB (сервисный бюллетень);"NTE240, NTE200";3;"3650106, 3818885, 4372912";cummins/bulletins/topics/TSB210209.pdf
-TSB210213;TSB (сервисный бюллетень);TR100A;1;3658780;cummins/bulletins/topics/TSB210213.pdf
-TSB210256;TSB (сервисный бюллетень);TR100A;1;3093755;cummins/bulletins/topics/TSB210256.pdf
-TSB210269;TSB (сервисный бюллетень);TR100A;1;3651893;cummins/bulletins/topics/TSB210269.pdf
-TSB220030;TSB (сервисный бюллетень);"NTE240, NTE200";2;"3393258, 3634686";cummins/bulletins/topics/TSB220030.pdf
-TSB220039;TSB (сервисный бюллетень);NTE240;1;5374098;cummins/bulletins/topics/TSB220039.pdf
-TSB220049;TSB (сервисный бюллетень);NTE200;3;"5541835, S103D, S604";cummins/bulletins/topics/TSB220049.pdf
-TSB220058;TSB (сервисный бюллетень);TR100A;1;4068673;cummins/bulletins/topics/TSB220058.pdf
-TSB220123;TSB (сервисный бюллетень);"NTE240, NTE200";1;4008037;cummins/bulletins/topics/TSB220123.pdf
-TSB220128;TSB (сервисный бюллетень);NTE240;1;4964044;cummins/bulletins/topics/TSB220128.pdf
-TSB220145;TSB (сервисный бюллетень);"NTE240, NTE200, TR100A";5;"3171722, 3331818, 3903112, 4323856, 4924925";cummins/bulletins/topics/TSB220145.pdf
-TSB220146;TSB (сервисный бюллетень);"NTE240, NTE200";10;"3087279, 3093923, 3328463, 3636638, 3900632";cummins/bulletins/topics/TSB220146.pdf
-TSB220153;TSB (сервисный бюллетень);"NTE240, NTE200";3;"3090450, 3645611, 4085917";cummins/bulletins/topics/TSB220153.pdf
-TSB220165;TSB (сервисный бюллетень);"NTE240, NTE200";1;3924725;cummins/bulletins/topics/TSB220165.pdf
-TSB220189;TSB (сервисный бюллетень);NTE240;1;3171181;cummins/bulletins/topics/TSB220189.pdf
-TSB220212;TSB (сервисный бюллетень);TR100A;2;"6388354, 6389213";cummins/bulletins/topics/TSB220212.pdf
-TSB220221;TSB (сервисный бюллетень);"NTE240, NTE200";1;4383933;cummins/bulletins/topics/TSB220221.pdf
-TSB220231;TSB (сервисный бюллетень);NTE240;1;5460104;cummins/bulletins/topics/TSB220231.pdf
-TSB220241;TSB (сервисный бюллетень);TR100A;4;"3092339, 3093898, 4975691, 4975692";cummins/bulletins/topics/TSB220241.pdf
-TSB230007;TSB (сервисный бюллетень);NTE240;1;5541365;cummins/bulletins/topics/TSB230007.pdf
-TSB230043;TSB (сервисный бюллетень);NTE240;1;5539888;cummins/bulletins/topics/TSB230043.pdf
-TSB230074;TSB (сервисный бюллетень);NTE200;1;3966349;cummins/bulletins/topics/TSB230074.pdf
-TSB230075;TSB (сервисный бюллетень);NTE240;1;3646766;cummins/bulletins/topics/TSB230075.pdf
-TSB230077;TSB (сервисный бюллетень);TR100A;1;4295331;cummins/bulletins/topics/TSB230077.pdf
-TSB230083;TSB (сервисный бюллетень);"NTE240, TR100A";1;3331873;cummins/bulletins/topics/TSB230083.pdf
-TSB230084;TSB (сервисный бюллетень);NTE240;2;"5286859, 6372680";cummins/bulletins/topics/TSB230084.pdf
-TSB230131;TSB (сервисный бюллетень);"NTE240, NTE200, TR100A";5;"3093957, 3678611, 3900626, 3903464, 3914407";cummins/bulletins/topics/TSB230131.pdf
-TSB230138;TSB (сервисный бюллетень);"NTE240, NTE200";1;5538724;cummins/bulletins/topics/TSB230138.pdf
-TSB230146;TSB (сервисный бюллетень);"NTE240, NTE200, TR100A";5;"5594382, 5594388, 5594378, 5594381, 5594387";cummins/bulletins/topics/TSB230146.pdf
-TSB230152;TSB (сервисный бюллетень);NTE240;2;"6319697, 6319710";cummins/bulletins/topics/TSB230152.pdf
-TSB230167;TSB (сервисный бюллетень);NTE200;2;"6377067, 6377069";cummins/bulletins/topics/TSB230167.pdf
-TSB230176;TSB (сервисный бюллетень);"NTE240, NTE200";3;"3647803, 3900630, 5539846";cummins/bulletins/topics/TSB230176.pdf
-TSB230183;TSB (сервисный бюллетень);NTE200;1;5374489;cummins/bulletins/topics/TSB230183.pdf
-TSB230213;TSB (сервисный бюллетень);"NTE240, NTE200";1;3900629;cummins/bulletins/topics/TSB230213.pdf
-TSB230242;TSB (сервисный бюллетень);"NTE240, TR100A";1;3093932;cummins/bulletins/topics/TSB230242.pdf
-TSB240001;TSB (сервисный бюллетень);"NTE240, NTE200, TR100A";16;"62279, 3085709, 3093828, 3331089, 3629454";cummins/bulletins/topics/TSB240001.pdf
-TSB240007;TSB (сервисный бюллетень);NTE240;1;3176133;cummins/bulletins/topics/TSB240007.pdf
-TSB240023;TSB (сервисный бюллетень);TR100A;1;4975411;cummins/bulletins/topics/TSB240023.pdf
-TSB240108;TSB (сервисный бюллетень);"NTE240, NTE200, TR100A";1;4951864;cummins/bulletins/topics/TSB240108.pdf
-TSB240130;TSB (сервисный бюллетень);NTE240;1;3900635;cummins/bulletins/topics/TSB240130.pdf
-TSB240188;TSB (сервисный бюллетень);TR100A;4;"4295451, 5483701, 5483705, 5483862";cummins/bulletins/topics/TSB240188.pdf
-TSB240204;TSB (сервисный бюллетень);"NTE240, NTE200";1;4964178;cummins/bulletins/topics/TSB240204.pdf
-TSB240204A;TSB (сервисный бюллетень);NTE240;1;3651892;cummins/bulletins/topics/TSB240204A.pdf
-TSB240217;TSB (сервисный бюллетень);NTE240;2;"3089232, 3902460";cummins/bulletins/topics/TSB240217.pdf
-TSB240233;TSB (сервисный бюллетень);NTE240;1;3093826;cummins/bulletins/topics/TSB240233.pdf
-TSB250017;TSB (сервисный бюллетень);NTE200;3;"3015321, 3628937, 5694571";cummins/bulletins/topics/TSB250017.pdf
-TSB250125;TSB (сервисный бюллетень);TR100A;2;"5483706, 5544940";cummins/bulletins/topics/TSB250125.pdf
-TSB250131;TSB (сервисный бюллетень);NTE200;2;"5374581, 5539807";cummins/bulletins/topics/TSB250131.pdf
-TSB250148;TSB (сервисный бюллетень);"NTE240, NTE200, TR100A";4;"3090400, 3638582, 3678873, 3335003";cummins/bulletins/topics/TSB250148.pdf
-TSB260032;TSB (сервисный бюллетень);TR100A;1;3092855;cummins/bulletins/topics/TSB260032.pdf
+Код;Тип;Двигатели;Деталей;Примеры деталей;Куда положить файл;Поиск в Google;QuickServe (войти и искать код вручную)
+00T5-9;Service Topic (внутренний код Cummins);NTE240;2;"3901937, 3910959";cummins/bulletins/topics/00T5-9.pdf;https://www.google.com/search?q=Cummins%2000T5-9%20bulletin%20filetype%3Apdf;https://quickserve.cummins.com/
+00T7-16;Service Topic (внутренний код Cummins);TR100A;1;3087969;cummins/bulletins/topics/00T7-16.pdf;https://www.google.com/search?q=Cummins%2000T7-16%20bulletin%20filetype%3Apdf;https://quickserve.cummins.com/
+00T7-17;Service Topic (внутренний код Cummins);NTE200;2;"108707, S199B";cummins/bulletins/topics/00T7-17.pdf;https://www.google.com/search?q=Cummins%2000T7-17%20bulletin%20filetype%3Apdf;https://quickserve.cummins.com/
+00T7-9;Service Topic (внутренний код Cummins);TR100A;1;3417474;cummins/bulletins/topics/00T7-9.pdf;https://www.google.com/search?q=Cummins%2000T7-9%20bulletin%20filetype%3Apdf;https://quickserve.cummins.com/
+00T8-4;Service Topic (внутренний код Cummins);NTE240;1;3081695;cummins/bulletins/topics/00T8-4.pdf;https://www.google.com/search?q=Cummins%2000T8-4%20bulletin%20filetype%3Apdf;https://quickserve.cummins.com/
+00T8-6;Service Topic (внутренний код Cummins);TR100A;1;3093411;cummins/bulletins/topics/00T8-6.pdf;https://www.google.com/search?q=Cummins%2000T8-6%20bulletin%20filetype%3Apdf;https://quickserve.cummins.com/
+01T0-12;Service Topic (внутренний код Cummins);NTE200;1;3865312;cummins/bulletins/topics/01T0-12.pdf;https://www.google.com/search?q=Cummins%2001T0-12%20bulletin%20filetype%3Apdf;https://quickserve.cummins.com/
+01T1-1;Service Topic (внутренний код Cummins);NTE200;1;3000082;cummins/bulletins/topics/01T1-1.pdf;https://www.google.com/search?q=Cummins%2001T1-1%20bulletin%20filetype%3Apdf;https://quickserve.cummins.com/
+01T1-10;Service Topic (внутренний код Cummins);NTE240;1;4017292;cummins/bulletins/topics/01T1-10.pdf;https://www.google.com/search?q=Cummins%2001T1-10%20bulletin%20filetype%3Apdf;https://quickserve.cummins.com/
+01T1-6;Service Topic (внутренний код Cummins);TR100A;3;"3092718, 3092932, 3092935";cummins/bulletins/topics/01T1-6.pdf;https://www.google.com/search?q=Cummins%2001T1-6%20bulletin%20filetype%3Apdf;https://quickserve.cummins.com/
+01T11-4;Service Topic (внутренний код Cummins);TR100A;2;"3092324, 4067825";cummins/bulletins/topics/01T11-4.pdf;https://www.google.com/search?q=Cummins%2001T11-4%20bulletin%20filetype%3Apdf;https://quickserve.cummins.com/
+01T11-5;Service Topic (внутренний код Cummins);NTE240;1;4065896;cummins/bulletins/topics/01T11-5.pdf;https://www.google.com/search?q=Cummins%2001T11-5%20bulletin%20filetype%3Apdf;https://quickserve.cummins.com/
+01T11-6;Service Topic (внутренний код Cummins);"NTE240, NTE200";1;4080141;cummins/bulletins/topics/01T11-6.pdf;https://www.google.com/search?q=Cummins%2001T11-6%20bulletin%20filetype%3Apdf;https://quickserve.cummins.com/
+01T13-2;Service Topic (внутренний код Cummins);TR100A;1;3821847;cummins/bulletins/topics/01T13-2.pdf;https://www.google.com/search?q=Cummins%2001T13-2%20bulletin%20filetype%3Apdf;https://quickserve.cummins.com/
+01T13-4;Service Topic (внутренний код Cummins);"NTE240, NTE200";1;3050692;cummins/bulletins/topics/01T13-4.pdf;https://www.google.com/search?q=Cummins%2001T13-4%20bulletin%20filetype%3Apdf;https://quickserve.cummins.com/
+01T15-1;Service Topic (внутренний код Cummins);"NTE240, NTE200";4;"3033800, 103009, 3175239, S155";cummins/bulletins/topics/01T15-1.pdf;https://www.google.com/search?q=Cummins%2001T15-1%20bulletin%20filetype%3Apdf;https://quickserve.cummins.com/
+01T19-11;Service Topic (внутренний код Cummins);NTE200;1;S126;cummins/bulletins/topics/01T19-11.pdf;https://www.google.com/search?q=Cummins%2001T19-11%20bulletin%20filetype%3Apdf;https://quickserve.cummins.com/
+01T19-13;Service Topic (внутренний код Cummins);TR100A;2;"3092154, 3092155";cummins/bulletins/topics/01T19-13.pdf;https://www.google.com/search?q=Cummins%2001T19-13%20bulletin%20filetype%3Apdf;https://quickserve.cummins.com/
+01T19-24;Service Topic (внутренний код Cummins);TR100A;1;3615978;cummins/bulletins/topics/01T19-24.pdf;https://www.google.com/search?q=Cummins%2001T19-24%20bulletin%20filetype%3Apdf;https://quickserve.cummins.com/
+01T2-2;Service Topic (внутренний код Cummins);NTE200;4;"67622, 205091, 205094, 3086362";cummins/bulletins/topics/01T2-2.pdf;https://www.google.com/search?q=Cummins%2001T2-2%20bulletin%20filetype%3Apdf;https://quickserve.cummins.com/
+01T2-8;Service Topic (внутренний код Cummins);NTE240;1;3644387;cummins/bulletins/topics/01T2-8.pdf;https://www.google.com/search?q=Cummins%2001T2-8%20bulletin%20filetype%3Apdf;https://quickserve.cummins.com/
+01T3-3;Service Topic (внутренний код Cummins);"NTE240, NTE200";1;4065627;cummins/bulletins/topics/01T3-3.pdf;https://www.google.com/search?q=Cummins%2001T3-3%20bulletin%20filetype%3Apdf;https://quickserve.cummins.com/
+01T3-4;Service Topic (внутренний код Cummins);NTE240;1;4015924;cummins/bulletins/topics/01T3-4.pdf;https://www.google.com/search?q=Cummins%2001T3-4%20bulletin%20filetype%3Apdf;https://quickserve.cummins.com/
+01T3-5;Service Topic (внутренний код Cummins);NTE200;1;3042890;cummins/bulletins/topics/01T3-5.pdf;https://www.google.com/search?q=Cummins%2001T3-5%20bulletin%20filetype%3Apdf;https://quickserve.cummins.com/
+01T5-16;Service Topic (внутренний код Cummins);TR100A;17;"3092200, 3092628, 3092736, 3092738, 3092740";cummins/bulletins/topics/01T5-16.pdf;https://www.google.com/search?q=Cummins%2001T5-16%20bulletin%20filetype%3Apdf;https://quickserve.cummins.com/
+01T6-5;Service Topic (внутренний код Cummins);TR100A;2;"3092543, 3093629";cummins/bulletins/topics/01T6-5.pdf;https://www.google.com/search?q=Cummins%2001T6-5%20bulletin%20filetype%3Apdf;https://quickserve.cummins.com/
+01T7-3;Service Topic (внутренний код Cummins);"NTE240, NTE200";2;"3901865, S162A";cummins/bulletins/topics/01T7-3.pdf;https://www.google.com/search?q=Cummins%2001T7-3%20bulletin%20filetype%3Apdf;https://quickserve.cummins.com/
+01T7-4;Service Topic (внутренний код Cummins);"NTE240, NTE200, TR100A";2;"3903990, 3925437";cummins/bulletins/topics/01T7-4.pdf;https://www.google.com/search?q=Cummins%2001T7-4%20bulletin%20filetype%3Apdf;https://quickserve.cummins.com/
+01T7-6;Service Topic (внутренний код Cummins);"NTE240, TR100A";10;"3678924, 200819, 3090126, 3090127, 3092078";cummins/bulletins/topics/01T7-6.pdf;https://www.google.com/search?q=Cummins%2001T7-6%20bulletin%20filetype%3Apdf;https://quickserve.cummins.com/
+01T8-16;Service Topic (внутренний код Cummins);NTE240;1;3903105;cummins/bulletins/topics/01T8-16.pdf;https://www.google.com/search?q=Cummins%2001T8-16%20bulletin%20filetype%3Apdf;https://quickserve.cummins.com/
+01T8-4;Service Topic (внутренний код Cummins);"NTE200, TR100A";3;"3036900, S106, S113";cummins/bulletins/topics/01T8-4.pdf;https://www.google.com/search?q=Cummins%2001T8-4%20bulletin%20filetype%3Apdf;https://quickserve.cummins.com/
+01T8-7;Service Topic (внутренний код Cummins);NTE200;1;S602;cummins/bulletins/topics/01T8-7.pdf;https://www.google.com/search?q=Cummins%2001T8-7%20bulletin%20filetype%3Apdf;https://quickserve.cummins.com/
+01T9-1;Service Topic (внутренний код Cummins);TR100A;2;"3094826, 3094827";cummins/bulletins/topics/01T9-1.pdf;https://www.google.com/search?q=Cummins%2001T9-1%20bulletin%20filetype%3Apdf;https://quickserve.cummins.com/
+01T9-4;Service Topic (внутренний код Cummins);NTE240;1;5580810;cummins/bulletins/topics/01T9-4.pdf;https://www.google.com/search?q=Cummins%2001T9-4%20bulletin%20filetype%3Apdf;https://quickserve.cummins.com/
+02T0-4;Service Topic (внутренний код Cummins);"NTE240, NTE200, TR100A";3;"3082315, 3089240, 3331924";cummins/bulletins/topics/02T0-4.pdf;https://www.google.com/search?q=Cummins%2002T0-4%20bulletin%20filetype%3Apdf;https://quickserve.cummins.com/
+02T0-8;Service Topic (внутренний код Cummins);"NTE240, NTE200, TR100A";40;"206457, 206808, 212161, 3014668, 3035083";cummins/bulletins/topics/02T0-8.pdf;https://www.google.com/search?q=Cummins%2002T0-8%20bulletin%20filetype%3Apdf;https://quickserve.cummins.com/
+02T1-1;Service Topic (внутренний код Cummins);TR100A;5;"3092877, 3092878, 3092879, 3092880, 3092881";cummins/bulletins/topics/02T1-1.pdf;https://www.google.com/search?q=Cummins%2002T1-1%20bulletin%20filetype%3Apdf;https://quickserve.cummins.com/
+02T1-10;Service Topic (внутренний код Cummins);NTE240;2;"3089251, 4001416";cummins/bulletins/topics/02T1-10.pdf;https://www.google.com/search?q=Cummins%2002T1-10%20bulletin%20filetype%3Apdf;https://quickserve.cummins.com/
+02T1-17;Service Topic (внутренний код Cummins);NTE240;1;4007569;cummins/bulletins/topics/02T1-17.pdf;https://www.google.com/search?q=Cummins%2002T1-17%20bulletin%20filetype%3Apdf;https://quickserve.cummins.com/
+02T10-3;Service Topic (внутренний код Cummins);"NTE240, NTE200";1;5540851;cummins/bulletins/topics/02T10-3.pdf;https://www.google.com/search?q=Cummins%2002T10-3%20bulletin%20filetype%3Apdf;https://quickserve.cummins.com/
+02T10-5;Service Topic (внутренний код Cummins);"NTE200, TR100A";2;"3521225, 3522904";cummins/bulletins/topics/02T10-5.pdf;https://www.google.com/search?q=Cummins%2002T10-5%20bulletin%20filetype%3Apdf;https://quickserve.cummins.com/
+02T13-1;Service Topic (внутренний код Cummins);NTE240;1;4066750;cummins/bulletins/topics/02T13-1.pdf;https://www.google.com/search?q=Cummins%2002T13-1%20bulletin%20filetype%3Apdf;https://quickserve.cummins.com/
+02T19-3;Service Topic (внутренний код Cummins);"NTE240, NTE200";1;S224;cummins/bulletins/topics/02T19-3.pdf;https://www.google.com/search?q=Cummins%2002T19-3%20bulletin%20filetype%3Apdf;https://quickserve.cummins.com/
+02T2-1;Service Topic (внутренний код Cummins);"NTE240, NTE200, TR100A";4;"203933, 205401, 3900257, 4080326";cummins/bulletins/topics/02T2-1.pdf;https://www.google.com/search?q=Cummins%2002T2-1%20bulletin%20filetype%3Apdf;https://quickserve.cummins.com/
+02T4-1;Service Topic (внутренний код Cummins);TR100A;1;4067993;cummins/bulletins/topics/02T4-1.pdf;https://www.google.com/search?q=Cummins%2002T4-1%20bulletin%20filetype%3Apdf;https://quickserve.cummins.com/
+02T6-3;Service Topic (внутренний код Cummins);TR100A;2;"3094188, 4067813";cummins/bulletins/topics/02T6-3.pdf;https://www.google.com/search?q=Cummins%2002T6-3%20bulletin%20filetype%3Apdf;https://quickserve.cummins.com/
+02T7-3;Service Topic (внутренний код Cummins);"NTE240, NTE200, TR100A";11;"3021618, 3089238, 3628554, 3910495, 4007207";cummins/bulletins/topics/02T7-3.pdf;https://www.google.com/search?q=Cummins%2002T7-3%20bulletin%20filetype%3Apdf;https://quickserve.cummins.com/
+02T7-6;Service Topic (внутренний код Cummins);NTE240;1;4066192;cummins/bulletins/topics/02T7-6.pdf;https://www.google.com/search?q=Cummins%2002T7-6%20bulletin%20filetype%3Apdf;https://quickserve.cummins.com/
+02T7-8;Service Topic (внутренний код Cummins);NTE240;4;"3089891, 4016829, 4016842, 4065666";cummins/bulletins/topics/02T7-8.pdf;https://www.google.com/search?q=Cummins%2002T7-8%20bulletin%20filetype%3Apdf;https://quickserve.cummins.com/
+02T9-1;Service Topic (внутренний код Cummins);TR100A;2;"3093744, 3896408";cummins/bulletins/topics/02T9-1.pdf;https://www.google.com/search?q=Cummins%2002T9-1%20bulletin%20filetype%3Apdf;https://quickserve.cummins.com/
+03T0-16;Service Topic (внутренний код Cummins);TR100A;1;S500;cummins/bulletins/topics/03T0-16.pdf;https://www.google.com/search?q=Cummins%2003T0-16%20bulletin%20filetype%3Apdf;https://quickserve.cummins.com/
+03T0-19;Service Topic (внутренний код Cummins);TR100A;2;"3617958, 3617959";cummins/bulletins/topics/03T0-19.pdf;https://www.google.com/search?q=Cummins%2003T0-19%20bulletin%20filetype%3Apdf;https://quickserve.cummins.com/
+03T1-8;Service Topic (внутренний код Cummins);"NTE240, NTE200";1;3678610;cummins/bulletins/topics/03T1-8.pdf;https://www.google.com/search?q=Cummins%2003T1-8%20bulletin%20filetype%3Apdf;https://quickserve.cummins.com/
+03T10-5;Service Topic (внутренний код Cummins);"NTE240, NTE200, TR100A";6;"4016444, 3040810, 3175058, 3348871, 3634662";cummins/bulletins/topics/03T10-5.pdf;https://www.google.com/search?q=Cummins%2003T10-5%20bulletin%20filetype%3Apdf;https://quickserve.cummins.com/
+03T15-1;Service Topic (внутренний код Cummins);"NTE240, NTE200";1;3408250;cummins/bulletins/topics/03T15-1.pdf;https://www.google.com/search?q=Cummins%2003T15-1%20bulletin%20filetype%3Apdf;https://quickserve.cummins.com/
+03T19-30;Service Topic (внутренний код Cummins);"NTE240, NTE200, TR100A";3;"3628585, 68152B, 3279244";cummins/bulletins/topics/03T19-30.pdf;https://www.google.com/search?q=Cummins%2003T19-30%20bulletin%20filetype%3Apdf;https://quickserve.cummins.com/
+03T5-12;Service Topic (внутренний код Cummins);NTE200;1;S188C;cummins/bulletins/topics/03T5-12.pdf;https://www.google.com/search?q=Cummins%2003T5-12%20bulletin%20filetype%3Apdf;https://quickserve.cummins.com/
+03T8-6;Service Topic (внутренний код Cummins);"NTE200, TR100A";1;3028409;cummins/bulletins/topics/03T8-6.pdf;https://www.google.com/search?q=Cummins%2003T8-6%20bulletin%20filetype%3Apdf;https://quickserve.cummins.com/
+04T0-43;Service Topic (внутренний код Cummins);"NTE240, NTE200, TR100A";6;"70415, 216187, 3201585, 3028291, 3630742";cummins/bulletins/topics/04T0-43.pdf;https://www.google.com/search?q=Cummins%2004T0-43%20bulletin%20filetype%3Apdf;https://quickserve.cummins.com/
+04T0-9;Service Topic (внутренний код Cummins);"NTE240, NTE200, TR100A";5;"67950, 3036460, S622, 3013786, 3066310";cummins/bulletins/topics/04T0-9.pdf;https://www.google.com/search?q=Cummins%2004T0-9%20bulletin%20filetype%3Apdf;https://quickserve.cummins.com/
+04T1-22;Service Topic (внутренний код Cummins);NTE240;1;4007741;cummins/bulletins/topics/04T1-22.pdf;https://www.google.com/search?q=Cummins%2004T1-22%20bulletin%20filetype%3Apdf;https://quickserve.cummins.com/
+04T10-7;Service Topic (внутренний код Cummins);"NTE240, TR100A";1;3902114;cummins/bulletins/topics/04T10-7.pdf;https://www.google.com/search?q=Cummins%2004T10-7%20bulletin%20filetype%3Apdf;https://quickserve.cummins.com/
+04T13-3;Service Topic (внутренний код Cummins);NTE200;2;"S107, S605";cummins/bulletins/topics/04T13-3.pdf;https://www.google.com/search?q=Cummins%2004T13-3%20bulletin%20filetype%3Apdf;https://quickserve.cummins.com/
+04T17-1;Service Topic (внутренний код Cummins);"NTE200, TR100A";2;"169195, 3035806";cummins/bulletins/topics/04T17-1.pdf;https://www.google.com/search?q=Cummins%2004T17-1%20bulletin%20filetype%3Apdf;https://quickserve.cummins.com/
+04T19-11;Service Topic (внутренний код Cummins);TR100A;1;3094024;cummins/bulletins/topics/04T19-11.pdf;https://www.google.com/search?q=Cummins%2004T19-11%20bulletin%20filetype%3Apdf;https://quickserve.cummins.com/
+04T19-2;Service Topic (внутренний код Cummins);"NTE240, NTE200, TR100A";12;"3075658, 3093956, 3332136, 3410392, 3628553";cummins/bulletins/topics/04T19-2.pdf;https://www.google.com/search?q=Cummins%2004T19-2%20bulletin%20filetype%3Apdf;https://quickserve.cummins.com/
+04T2-1;Service Topic (внутренний код Cummins);NTE240;1;4086649;cummins/bulletins/topics/04T2-1.pdf;https://www.google.com/search?q=Cummins%2004T2-1%20bulletin%20filetype%3Apdf;https://quickserve.cummins.com/
+04T4-2;Service Topic (внутренний код Cummins);TR100A;2;"4068548, 4068611";cummins/bulletins/topics/04T4-2.pdf;https://www.google.com/search?q=Cummins%2004T4-2%20bulletin%20filetype%3Apdf;https://quickserve.cummins.com/
+04T5-2;Service Topic (внутренний код Cummins);NTE240;1;3900628;cummins/bulletins/topics/04T5-2.pdf;https://www.google.com/search?q=Cummins%2004T5-2%20bulletin%20filetype%3Apdf;https://quickserve.cummins.com/
+04T5-7;Service Topic (внутренний код Cummins);"NTE240, NTE200";1;3900589;cummins/bulletins/topics/04T5-7.pdf;https://www.google.com/search?q=Cummins%2004T5-7%20bulletin%20filetype%3Apdf;https://quickserve.cummins.com/
+04T6-1;Service Topic (внутренний код Cummins);TR100A;1;4095189;cummins/bulletins/topics/04T6-1.pdf;https://www.google.com/search?q=Cummins%2004T6-1%20bulletin%20filetype%3Apdf;https://quickserve.cummins.com/
+04T7-11;Service Topic (внутренний код Cummins);TR100A;1;3092334;cummins/bulletins/topics/04T7-11.pdf;https://www.google.com/search?q=Cummins%2004T7-11%20bulletin%20filetype%3Apdf;https://quickserve.cummins.com/
+04T7-18;Service Topic (внутренний код Cummins);NTE240;6;"3089234, 3089886, 3636362, 3920447, 4916874";cummins/bulletins/topics/04T7-18.pdf;https://www.google.com/search?q=Cummins%2004T7-18%20bulletin%20filetype%3Apdf;https://quickserve.cummins.com/
+04T7-5;Service Topic (внутренний код Cummins);"NTE240, NTE200, TR100A";7;"3028552, 3171818, 3171883, 3678838, 4100474";cummins/bulletins/topics/04T7-5.pdf;https://www.google.com/search?q=Cummins%2004T7-5%20bulletin%20filetype%3Apdf;https://quickserve.cummins.com/
+04T8-11;Service Topic (внутренний код Cummins);"NTE240, NTE200, TR100A";2;"S2268, 3076301";cummins/bulletins/topics/04T8-11.pdf;https://www.google.com/search?q=Cummins%2004T8-11%20bulletin%20filetype%3Apdf;https://quickserve.cummins.com/
+04T8-2;Service Topic (внутренний код Cummins);"NTE240, NTE200";1;4101150;cummins/bulletins/topics/04T8-2.pdf;https://www.google.com/search?q=Cummins%2004T8-2%20bulletin%20filetype%3Apdf;https://quickserve.cummins.com/
+05T0-26;Service Topic (внутренний код Cummins);"NTE240, NTE200, TR100A";4;"3629112, 3678791, 131026, 3030207";cummins/bulletins/topics/05T0-26.pdf;https://www.google.com/search?q=Cummins%2005T0-26%20bulletin%20filetype%3Apdf;https://quickserve.cummins.com/
+05T0-3;Service Topic (внутренний код Cummins);"NTE240, NTE200";3;"3282081, 3900679, S600";cummins/bulletins/topics/05T0-3.pdf;https://www.google.com/search?q=Cummins%2005T0-3%20bulletin%20filetype%3Apdf;https://quickserve.cummins.com/
+05T0-39;Service Topic (внутренний код Cummins);"NTE240, NTE200, TR100A";3;"3278093, 3937692, S962E";cummins/bulletins/topics/05T0-39.pdf;https://www.google.com/search?q=Cummins%2005T0-39%20bulletin%20filetype%3Apdf;https://quickserve.cummins.com/
+05T1-2;Service Topic (внутренний код Cummins);NTE240;1;4100983;cummins/bulletins/topics/05T1-2.pdf;https://www.google.com/search?q=Cummins%2005T1-2%20bulletin%20filetype%3Apdf;https://quickserve.cummins.com/
+05T1-21;Service Topic (внутренний код Cummins);NTE200;1;4924584;cummins/bulletins/topics/05T1-21.pdf;https://www.google.com/search?q=Cummins%2005T1-21%20bulletin%20filetype%3Apdf;https://quickserve.cummins.com/
+05T1-34;Service Topic (внутренний код Cummins);TR100A;1;3909025;cummins/bulletins/topics/05T1-34.pdf;https://www.google.com/search?q=Cummins%2005T1-34%20bulletin%20filetype%3Apdf;https://quickserve.cummins.com/
+05T10-1;Service Topic (внутренний код Cummins);"NTE240, NTE200, TR100A";2;"3089955, 3678786";cummins/bulletins/topics/05T10-1.pdf;https://www.google.com/search?q=Cummins%2005T10-1%20bulletin%20filetype%3Apdf;https://quickserve.cummins.com/
+05T13-3;Service Topic (внутренний код Cummins);NTE240;1;3657721;cummins/bulletins/topics/05T13-3.pdf;https://www.google.com/search?q=Cummins%2005T13-3%20bulletin%20filetype%3Apdf;https://quickserve.cummins.com/
+05T13-5;Service Topic (внутренний код Cummins);NTE240;1;3093807;cummins/bulletins/topics/05T13-5.pdf;https://www.google.com/search?q=Cummins%2005T13-5%20bulletin%20filetype%3Apdf;https://quickserve.cummins.com/
+05T17-1;Service Topic (внутренний код Cummins);"NTE240, NTE200";1;3678603;cummins/bulletins/topics/05T17-1.pdf;https://www.google.com/search?q=Cummins%2005T17-1%20bulletin%20filetype%3Apdf;https://quickserve.cummins.com/
+05T5-19;Service Topic (внутренний код Cummins);"NTE240, NTE200, TR100A";5;"70704, 3678921, 4010519, 129888, 4088274";cummins/bulletins/topics/05T5-19.pdf;https://www.google.com/search?q=Cummins%2005T5-19%20bulletin%20filetype%3Apdf;https://quickserve.cummins.com/
+05T5-24;Service Topic (внутренний код Cummins);"NTE240, NTE200";1;3900633;cummins/bulletins/topics/05T5-24.pdf;https://www.google.com/search?q=Cummins%2005T5-24%20bulletin%20filetype%3Apdf;https://quickserve.cummins.com/
+05T6-2;Service Topic (внутренний код Cummins);NTE200;1;S109;cummins/bulletins/topics/05T6-2.pdf;https://www.google.com/search?q=Cummins%2005T6-2%20bulletin%20filetype%3Apdf;https://quickserve.cummins.com/
+05T6-6;Service Topic (внутренний код Cummins);"NTE240, NTE200";3;"180371, 3040721, 3628755";cummins/bulletins/topics/05T6-6.pdf;https://www.google.com/search?q=Cummins%2005T6-6%20bulletin%20filetype%3Apdf;https://quickserve.cummins.com/
+05T6-8;Service Topic (внутренний код Cummins);TR100A;7;"3093624, 3093687, 3093734, 3093764, 3094813";cummins/bulletins/topics/05T6-8.pdf;https://www.google.com/search?q=Cummins%2005T6-8%20bulletin%20filetype%3Apdf;https://quickserve.cummins.com/
+05T7-13;Service Topic (внутренний код Cummins);NTE240;1;68425;cummins/bulletins/topics/05T7-13.pdf;https://www.google.com/search?q=Cummins%2005T7-13%20bulletin%20filetype%3Apdf;https://quickserve.cummins.com/
+06T0-36;Service Topic (внутренний код Cummins);TR100A;21;"3025458, 3092040, 3092922, 3092971, 3093031";cummins/bulletins/topics/06T0-36.pdf;https://www.google.com/search?q=Cummins%2006T0-36%20bulletin%20filetype%3Apdf;https://quickserve.cummins.com/
+06T11-11;Service Topic (внутренний код Cummins);"NTE240, NTE200";1;4936174;cummins/bulletins/topics/06T11-11.pdf;https://www.google.com/search?q=Cummins%2006T11-11%20bulletin%20filetype%3Apdf;https://quickserve.cummins.com/
+06T3-7;Service Topic (внутренний код Cummins);NTE240;2;"3085972, 3085973";cummins/bulletins/topics/06T3-7.pdf;https://www.google.com/search?q=Cummins%2006T3-7%20bulletin%20filetype%3Apdf;https://quickserve.cummins.com/
+06T6-16;Service Topic (внутренний код Cummins);NTE200;1;S112;cummins/bulletins/topics/06T6-16.pdf;https://www.google.com/search?q=Cummins%2006T6-16%20bulletin%20filetype%3Apdf;https://quickserve.cummins.com/
+06T7-4;Service Topic (внутренний код Cummins);NTE240;1;3637730;cummins/bulletins/topics/06T7-4.pdf;https://www.google.com/search?q=Cummins%2006T7-4%20bulletin%20filetype%3Apdf;https://quickserve.cummins.com/
+06T7-6;Service Topic (внутренний код Cummins);TR100A;4;"4068307, 4068308, 4068309, 4068310";cummins/bulletins/topics/06T7-6.pdf;https://www.google.com/search?q=Cummins%2006T7-6%20bulletin%20filetype%3Apdf;https://quickserve.cummins.com/
+06T8-2;Service Topic (внутренний код Cummins);"NTE240, TR100A";4;"205168, 3048625, 3636285, 3637487";cummins/bulletins/topics/06T8-2.pdf;https://www.google.com/search?q=Cummins%2006T8-2%20bulletin%20filetype%3Apdf;https://quickserve.cummins.com/
+06T8-21;Service Topic (внутренний код Cummins);"NTE240, NTE200";1;3631471;cummins/bulletins/topics/06T8-21.pdf;https://www.google.com/search?q=Cummins%2006T8-21%20bulletin%20filetype%3Apdf;https://quickserve.cummins.com/
+06T8-22;Service Topic (внутренний код Cummins);"NTE240, NTE200, TR100A";1;68152;cummins/bulletins/topics/06T8-22.pdf;https://www.google.com/search?q=Cummins%2006T8-22%20bulletin%20filetype%3Apdf;https://quickserve.cummins.com/
+06T8-7;Service Topic (внутренний код Cummins);NTE200;1;S117;cummins/bulletins/topics/06T8-7.pdf;https://www.google.com/search?q=Cummins%2006T8-7%20bulletin%20filetype%3Apdf;https://quickserve.cummins.com/
+07T0-16;Service Topic (внутренний код Cummins);TR100A;1;3100308;cummins/bulletins/topics/07T0-16.pdf;https://www.google.com/search?q=Cummins%2007T0-16%20bulletin%20filetype%3Apdf;https://quickserve.cummins.com/
+07T1-26;Service Topic (внутренний код Cummins);"NTE240, NTE200";2;"3007635, 3008466";cummins/bulletins/topics/07T1-26.pdf;https://www.google.com/search?q=Cummins%2007T1-26%20bulletin%20filetype%3Apdf;https://quickserve.cummins.com/
+07T1-34;Service Topic (внутренний код Cummins);NTE200;1;3177945;cummins/bulletins/topics/07T1-34.pdf;https://www.google.com/search?q=Cummins%2007T1-34%20bulletin%20filetype%3Apdf;https://quickserve.cummins.com/
+07T1-4;Service Topic (внутренний код Cummins);NTE200;1;3042327;cummins/bulletins/topics/07T1-4.pdf;https://www.google.com/search?q=Cummins%2007T1-4%20bulletin%20filetype%3Apdf;https://quickserve.cummins.com/
+07T10-14;Service Topic (внутренний код Cummins);"NTE240, NTE200, TR100A";1;3627695;cummins/bulletins/topics/07T10-14.pdf;https://www.google.com/search?q=Cummins%2007T10-14%20bulletin%20filetype%3Apdf;https://quickserve.cummins.com/
+07T10-20;Service Topic (внутренний код Cummins);NTE200;2;"3042329, 3042330";cummins/bulletins/topics/07T10-20.pdf;https://www.google.com/search?q=Cummins%2007T10-20%20bulletin%20filetype%3Apdf;https://quickserve.cummins.com/
+07T10-23;Service Topic (внутренний код Cummins);NTE200;1;3627095;cummins/bulletins/topics/07T10-23.pdf;https://www.google.com/search?q=Cummins%2007T10-23%20bulletin%20filetype%3Apdf;https://quickserve.cummins.com/
+07T11-2;Service Topic (внутренний код Cummins);TR100A;4;"3092657, 3092658, 4295291, 4295293";cummins/bulletins/topics/07T11-2.pdf;https://www.google.com/search?q=Cummins%2007T11-2%20bulletin%20filetype%3Apdf;https://quickserve.cummins.com/
+07T11-24;Service Topic (внутренний код Cummins);"NTE240, NTE200";1;68138;cummins/bulletins/topics/07T11-24.pdf;https://www.google.com/search?q=Cummins%2007T11-24%20bulletin%20filetype%3Apdf;https://quickserve.cummins.com/
+07T16-1;Service Topic (внутренний код Cummins);NTE200;1;3638146;cummins/bulletins/topics/07T16-1.pdf;https://www.google.com/search?q=Cummins%2007T16-1%20bulletin%20filetype%3Apdf;https://quickserve.cummins.com/
+07T19-129;Service Topic (внутренний код Cummins);"NTE240, TR100A";1;4088832;cummins/bulletins/topics/07T19-129.pdf;https://www.google.com/search?q=Cummins%2007T19-129%20bulletin%20filetype%3Apdf;https://quickserve.cummins.com/
+07T19-142;Service Topic (внутренний код Cummins);TR100A;1;4954430;cummins/bulletins/topics/07T19-142.pdf;https://www.google.com/search?q=Cummins%2007T19-142%20bulletin%20filetype%3Apdf;https://quickserve.cummins.com/
+07T19-58;Service Topic (внутренний код Cummins);"NTE240, NTE200, TR100A";8;"3037537, 3062329, 3102651, 4921574, 3046201";cummins/bulletins/topics/07T19-58.pdf;https://www.google.com/search?q=Cummins%2007T19-58%20bulletin%20filetype%3Apdf;https://quickserve.cummins.com/
+07T2-10;Service Topic (внутренний код Cummins);NTE200;1;4986317;cummins/bulletins/topics/07T2-10.pdf;https://www.google.com/search?q=Cummins%2007T2-10%20bulletin%20filetype%3Apdf;https://quickserve.cummins.com/
+07T5-13;Service Topic (внутренний код Cummins);TR100A;4;"129768, 129839, 196057, 3065944";cummins/bulletins/topics/07T5-13.pdf;https://www.google.com/search?q=Cummins%2007T5-13%20bulletin%20filetype%3Apdf;https://quickserve.cummins.com/
+07T6-19;Service Topic (внутренний код Cummins);NTE240;1;69465;cummins/bulletins/topics/07T6-19.pdf;https://www.google.com/search?q=Cummins%2007T6-19%20bulletin%20filetype%3Apdf;https://quickserve.cummins.com/
+07T7-14;Service Topic (внутренний код Cummins);NTE200;1;3629451;cummins/bulletins/topics/07T7-14.pdf;https://www.google.com/search?q=Cummins%2007T7-14%20bulletin%20filetype%3Apdf;https://quickserve.cummins.com/
+07T7-15;Service Topic (внутренний код Cummins);NTE240;1;3089023;cummins/bulletins/topics/07T7-15.pdf;https://www.google.com/search?q=Cummins%2007T7-15%20bulletin%20filetype%3Apdf;https://quickserve.cummins.com/
+07T7-19;Service Topic (внутренний код Cummins);NTE200;2;"3026312, 3026313";cummins/bulletins/topics/07T7-19.pdf;https://www.google.com/search?q=Cummins%2007T7-19%20bulletin%20filetype%3Apdf;https://quickserve.cummins.com/
+07T8-3;Service Topic (внутренний код Cummins);TR100A;2;"4096426, 4096427";cummins/bulletins/topics/07T8-3.pdf;https://www.google.com/search?q=Cummins%2007T8-3%20bulletin%20filetype%3Apdf;https://quickserve.cummins.com/
+08T0-17;Service Topic (внутренний код Cummins);TR100A;1;3888312;cummins/bulletins/topics/08T0-17.pdf;https://www.google.com/search?q=Cummins%2008T0-17%20bulletin%20filetype%3Apdf;https://quickserve.cummins.com/
+08T1-33;Service Topic (внутренний код Cummins);NTE240;4;"3089016, 3640536, 3640543, 3651209";cummins/bulletins/topics/08T1-33.pdf;https://www.google.com/search?q=Cummins%2008T1-33%20bulletin%20filetype%3Apdf;https://quickserve.cummins.com/
+08T10-7;Service Topic (внутренний код Cummins);"NTE240, NTE200, TR100A";2;"3678912, 3202117";cummins/bulletins/topics/08T10-7.pdf;https://www.google.com/search?q=Cummins%2008T10-7%20bulletin%20filetype%3Apdf;https://quickserve.cummins.com/
+08T10-9;Service Topic (внутренний код Cummins);"NTE240, NTE200, TR100A";2;"3679139, 3922794";cummins/bulletins/topics/08T10-9.pdf;https://www.google.com/search?q=Cummins%2008T10-9%20bulletin%20filetype%3Apdf;https://quickserve.cummins.com/
+08T11-4;Service Topic (внутренний код Cummins);"NTE240, NTE200, TR100A";6;"4000837, 4001226, 203760, S127, S217";cummins/bulletins/topics/08T11-4.pdf;https://www.google.com/search?q=Cummins%2008T11-4%20bulletin%20filetype%3Apdf;https://quickserve.cummins.com/
+08T2-5;Service Topic (внутренний код Cummins);NTE200;1;3640315;cummins/bulletins/topics/08T2-5.pdf;https://www.google.com/search?q=Cummins%2008T2-5%20bulletin%20filetype%3Apdf;https://quickserve.cummins.com/
+08T3-2;Service Topic (внутренний код Cummins);"NTE240, NTE200";3;"3901445, 3014766, 3201128";cummins/bulletins/topics/08T3-2.pdf;https://www.google.com/search?q=Cummins%2008T3-2%20bulletin%20filetype%3Apdf;https://quickserve.cummins.com/
+08T5-9;Service Topic (внутренний код Cummins);NTE200;1;3903035;cummins/bulletins/topics/08T5-9.pdf;https://www.google.com/search?q=Cummins%2008T5-9%20bulletin%20filetype%3Apdf;https://quickserve.cummins.com/
+08T7-2;Service Topic (внутренний код Cummins);NTE200;1;68171;cummins/bulletins/topics/08T7-2.pdf;https://www.google.com/search?q=Cummins%2008T7-2%20bulletin%20filetype%3Apdf;https://quickserve.cummins.com/
+08T7-7;Service Topic (внутренний код Cummins);TR100A;1;3093010;cummins/bulletins/topics/08T7-7.pdf;https://www.google.com/search?q=Cummins%2008T7-7%20bulletin%20filetype%3Apdf;https://quickserve.cummins.com/
+08T8-1;Service Topic (внутренний код Cummins);"NTE200, TR100A";2;"68189, 43828A";cummins/bulletins/topics/08T8-1.pdf;https://www.google.com/search?q=Cummins%2008T8-1%20bulletin%20filetype%3Apdf;https://quickserve.cummins.com/
+08T8-6;Service Topic (внутренний код Cummins);"NTE240, TR100A";9;"206391, 206506, 3048626, 3636278, 3637488";cummins/bulletins/topics/08T8-6.pdf;https://www.google.com/search?q=Cummins%2008T8-6%20bulletin%20filetype%3Apdf;https://quickserve.cummins.com/
+08T8-8;Service Topic (внутренний код Cummins);"NTE200, TR100A";16;"3027728, S121B, S603, S608, S610";cummins/bulletins/topics/08T8-8.pdf;https://www.google.com/search?q=Cummins%2008T8-8%20bulletin%20filetype%3Apdf;https://quickserve.cummins.com/
+200;Service Topic (внутренний код Cummins);TR100A;1;3092514;cummins/bulletins/topics/200.pdf;https://www.google.com/search?q=Cummins%20200%20bulletin%20filetype%3Apdf;https://quickserve.cummins.com/
+89T7-5;Service Topic (внутренний код Cummins);NTE200;1;3044413;cummins/bulletins/topics/89T7-5.pdf;https://www.google.com/search?q=Cummins%2089T7-5%20bulletin%20filetype%3Apdf;https://quickserve.cummins.com/
+89T8-8;Service Topic (внутренний код Cummins);NTE200;1;3179565;cummins/bulletins/topics/89T8-8.pdf;https://www.google.com/search?q=Cummins%2089T8-8%20bulletin%20filetype%3Apdf;https://quickserve.cummins.com/
+90T1-12;Service Topic (внутренний код Cummins);NTE200;1;3069779;cummins/bulletins/topics/90T1-12.pdf;https://www.google.com/search?q=Cummins%2090T1-12%20bulletin%20filetype%3Apdf;https://quickserve.cummins.com/
+90T10-6;Service Topic (внутренний код Cummins);NTE200;1;S172B;cummins/bulletins/topics/90T10-6.pdf;https://www.google.com/search?q=Cummins%2090T10-6%20bulletin%20filetype%3Apdf;https://quickserve.cummins.com/
+90T10-7;Service Topic (внутренний код Cummins);NTE200;1;3527937;cummins/bulletins/topics/90T10-7.pdf;https://www.google.com/search?q=Cummins%2090T10-7%20bulletin%20filetype%3Apdf;https://quickserve.cummins.com/
+90T12-1;Service Topic (внутренний код Cummins);NTE200;1;3063556;cummins/bulletins/topics/90T12-1.pdf;https://www.google.com/search?q=Cummins%2090T12-1%20bulletin%20filetype%3Apdf;https://quickserve.cummins.com/
+90T4-1;Service Topic (внутренний код Cummins);NTE200;1;213559;cummins/bulletins/topics/90T4-1.pdf;https://www.google.com/search?q=Cummins%2090T4-1%20bulletin%20filetype%3Apdf;https://quickserve.cummins.com/
+90T5-1;Service Topic (внутренний код Cummins);TR100A;1;3906391;cummins/bulletins/topics/90T5-1.pdf;https://www.google.com/search?q=Cummins%2090T5-1%20bulletin%20filetype%3Apdf;https://quickserve.cummins.com/
+90T5-6;Service Topic (внутренний код Cummins);NTE240;1;3056508;cummins/bulletins/topics/90T5-6.pdf;https://www.google.com/search?q=Cummins%2090T5-6%20bulletin%20filetype%3Apdf;https://quickserve.cummins.com/
+90T7-1;Service Topic (внутренний код Cummins);"NTE240, NTE200";1;69519;cummins/bulletins/topics/90T7-1.pdf;https://www.google.com/search?q=Cummins%2090T7-1%20bulletin%20filetype%3Apdf;https://quickserve.cummins.com/
+91T5-7;Service Topic (внутренний код Cummins);"NTE240, NTE200, TR100A";2;"S631, 69771";cummins/bulletins/topics/91T5-7.pdf;https://www.google.com/search?q=Cummins%2091T5-7%20bulletin%20filetype%3Apdf;https://quickserve.cummins.com/
+92T1-3;Service Topic (внутренний код Cummins);NTE200;1;205375;cummins/bulletins/topics/92T1-3.pdf;https://www.google.com/search?q=Cummins%2092T1-3%20bulletin%20filetype%3Apdf;https://quickserve.cummins.com/
+92T8-3;Service Topic (внутренний код Cummins);NTE200;1;3627808;cummins/bulletins/topics/92T8-3.pdf;https://www.google.com/search?q=Cummins%2092T8-3%20bulletin%20filetype%3Apdf;https://quickserve.cummins.com/
+93T1-9;Service Topic (внутренний код Cummins);NTE200;1;3628452;cummins/bulletins/topics/93T1-9.pdf;https://www.google.com/search?q=Cummins%2093T1-9%20bulletin%20filetype%3Apdf;https://quickserve.cummins.com/
+93T12-1;Service Topic (внутренний код Cummins);NTE200;1;127362;cummins/bulletins/topics/93T12-1.pdf;https://www.google.com/search?q=Cummins%2093T12-1%20bulletin%20filetype%3Apdf;https://quickserve.cummins.com/
+93T3-1;Service Topic (внутренний код Cummins);NTE200;1;S169A;cummins/bulletins/topics/93T3-1.pdf;https://www.google.com/search?q=Cummins%2093T3-1%20bulletin%20filetype%3Apdf;https://quickserve.cummins.com/
+95T7-10;Service Topic (внутренний код Cummins);NTE200;4;"102020, 135783, 3175027, 3631719";cummins/bulletins/topics/95T7-10.pdf;https://www.google.com/search?q=Cummins%2095T7-10%20bulletin%20filetype%3Apdf;https://quickserve.cummins.com/
+96T11-3A;Service Topic (внутренний код Cummins);NTE200;1;S167B;cummins/bulletins/topics/96T11-3A.pdf;https://www.google.com/search?q=Cummins%2096T11-3A%20bulletin%20filetype%3Apdf;https://quickserve.cummins.com/
+96T12-3;Service Topic (внутренний код Cummins);"NTE240, NTE200";2;"108330, 103023";cummins/bulletins/topics/96T12-3.pdf;https://www.google.com/search?q=Cummins%2096T12-3%20bulletin%20filetype%3Apdf;https://quickserve.cummins.com/
+96T13-1;Service Topic (внутренний код Cummins);NTE200;1;3202222;cummins/bulletins/topics/96T13-1.pdf;https://www.google.com/search?q=Cummins%2096T13-1%20bulletin%20filetype%3Apdf;https://quickserve.cummins.com/
+96T2-11;Service Topic (внутренний код Cummins);NTE200;2;"206224, 3088389";cummins/bulletins/topics/96T2-11.pdf;https://www.google.com/search?q=Cummins%2096T2-11%20bulletin%20filetype%3Apdf;https://quickserve.cummins.com/
+96T6-4;Service Topic (внутренний код Cummins);"NTE200, TR100A";1;3046943;cummins/bulletins/topics/96T6-4.pdf;https://www.google.com/search?q=Cummins%2096T6-4%20bulletin%20filetype%3Apdf;https://quickserve.cummins.com/
+97T0-5;Service Topic (внутренний код Cummins);"NTE240, NTE200";4;"3630740, 3078218, 3627945, 3630739";cummins/bulletins/topics/97T0-5.pdf;https://www.google.com/search?q=Cummins%2097T0-5%20bulletin%20filetype%3Apdf;https://quickserve.cummins.com/
+97T1-8;Service Topic (внутренний код Cummins);"NTE240, NTE200";4;"131584, 3033629, 3069776, 3069781";cummins/bulletins/topics/97T1-8.pdf;https://www.google.com/search?q=Cummins%2097T1-8%20bulletin%20filetype%3Apdf;https://quickserve.cummins.com/
+97T1-9;Service Topic (внутренний код Cummins);TR100A;1;3093729;cummins/bulletins/topics/97T1-9.pdf;https://www.google.com/search?q=Cummins%2097T1-9%20bulletin%20filetype%3Apdf;https://quickserve.cummins.com/
+97T6-6;Service Topic (внутренний код Cummins);"NTE240, NTE200, TR100A";4;"69911A, 3630738, S149A, S626";cummins/bulletins/topics/97T6-6.pdf;https://www.google.com/search?q=Cummins%2097T6-6%20bulletin%20filetype%3Apdf;https://quickserve.cummins.com/
+97T6-7;Service Topic (внутренний код Cummins);"NTE200, TR100A";3;"3018920, 3095295, 3628522";cummins/bulletins/topics/97T6-7.pdf;https://www.google.com/search?q=Cummins%2097T6-7%20bulletin%20filetype%3Apdf;https://quickserve.cummins.com/
+97T7-12;Service Topic (внутренний код Cummins);TR100A;1;214345;cummins/bulletins/topics/97T7-12.pdf;https://www.google.com/search?q=Cummins%2097T7-12%20bulletin%20filetype%3Apdf;https://quickserve.cummins.com/
+97T9-1;Service Topic (внутренний код Cummins);"NTE200, TR100A";5;"170664, 3640773, 3640775, 3645841, S316";cummins/bulletins/topics/97T9-1.pdf;https://www.google.com/search?q=Cummins%2097T9-1%20bulletin%20filetype%3Apdf;https://quickserve.cummins.com/
+97T9-3;Service Topic (внутренний код Cummins);NTE200;1;3200287;cummins/bulletins/topics/97T9-3.pdf;https://www.google.com/search?q=Cummins%2097T9-3%20bulletin%20filetype%3Apdf;https://quickserve.cummins.com/
+99T0-4;Service Topic (внутренний код Cummins);NTE200;1;3410273;cummins/bulletins/topics/99T0-4.pdf;https://www.google.com/search?q=Cummins%2099T0-4%20bulletin%20filetype%3Apdf;https://quickserve.cummins.com/
+99T0-8;Service Topic (внутренний код Cummins);"NTE200, TR100A";2;"S145, 70897";cummins/bulletins/topics/99T0-8.pdf;https://www.google.com/search?q=Cummins%2099T0-8%20bulletin%20filetype%3Apdf;https://quickserve.cummins.com/
+99T1-10;Service Topic (внутренний код Cummins);TR100A;1;3016787;cummins/bulletins/topics/99T1-10.pdf;https://www.google.com/search?q=Cummins%2099T1-10%20bulletin%20filetype%3Apdf;https://quickserve.cummins.com/
+99T11-1;Service Topic (внутренний код Cummins);"NTE240, NTE200";12;"205129, 3089321, 3052197, 3628969, 3630952";cummins/bulletins/topics/99T11-1.pdf;https://www.google.com/search?q=Cummins%2099T11-1%20bulletin%20filetype%3Apdf;https://quickserve.cummins.com/
+99T11-2;Service Topic (внутренний код Cummins);NTE200;1;3035228;cummins/bulletins/topics/99T11-2.pdf;https://www.google.com/search?q=Cummins%2099T11-2%20bulletin%20filetype%3Apdf;https://quickserve.cummins.com/
+99T13-3;Service Topic (внутренний код Cummins);TR100A;1;3400698;cummins/bulletins/topics/99T13-3.pdf;https://www.google.com/search?q=Cummins%2099T13-3%20bulletin%20filetype%3Apdf;https://quickserve.cummins.com/
+99T19-8;Service Topic (внутренний код Cummins);NTE200;1;3628902;cummins/bulletins/topics/99T19-8.pdf;https://www.google.com/search?q=Cummins%2099T19-8%20bulletin%20filetype%3Apdf;https://quickserve.cummins.com/
+99T5-3;Service Topic (внутренний код Cummins);TR100A;1;3021420;cummins/bulletins/topics/99T5-3.pdf;https://www.google.com/search?q=Cummins%2099T5-3%20bulletin%20filetype%3Apdf;https://quickserve.cummins.com/
+99T5-5;Service Topic (внутренний код Cummins);"NTE240, TR100A";1;3678923;cummins/bulletins/topics/99T5-5.pdf;https://www.google.com/search?q=Cummins%2099T5-5%20bulletin%20filetype%3Apdf;https://quickserve.cummins.com/
+99T6-8;Service Topic (внутренний код Cummins);TR100A;1;3092545;cummins/bulletins/topics/99T6-8.pdf;https://www.google.com/search?q=Cummins%2099T6-8%20bulletin%20filetype%3Apdf;https://quickserve.cummins.com/
+99T8-9;Service Topic (внутренний код Cummins);NTE200;3;"5375708, 68152A, S118";cummins/bulletins/topics/99T8-9.pdf;https://www.google.com/search?q=Cummins%2099T8-9%20bulletin%20filetype%3Apdf;https://quickserve.cummins.com/
+TSB100892;TSB (сервисный бюллетень);NTE240;2;"3641535, 3641537";cummins/bulletins/topics/TSB100892.pdf;https://www.google.com/search?q=Cummins%20TSB100892%20bulletin%20filetype%3Apdf;https://quickserve.cummins.com/
+TSB101088;TSB (сервисный бюллетень);TR100A;2;"3092366, 3092821";cummins/bulletins/topics/TSB101088.pdf;https://www.google.com/search?q=Cummins%20TSB101088%20bulletin%20filetype%3Apdf;https://quickserve.cummins.com/
+TSB110169;TSB (сервисный бюллетень);NTE240;1;3093946;cummins/bulletins/topics/TSB110169.pdf;https://www.google.com/search?q=Cummins%20TSB110169%20bulletin%20filetype%3Apdf;https://quickserve.cummins.com/
+TSB110176;TSB (сервисный бюллетень);NTE240;1;3171713;cummins/bulletins/topics/TSB110176.pdf;https://www.google.com/search?q=Cummins%20TSB110176%20bulletin%20filetype%3Apdf;https://quickserve.cummins.com/
+TSB120143;TSB (сервисный бюллетень);NTE240;2;"3646200, 4334007";cummins/bulletins/topics/TSB120143.pdf;https://www.google.com/search?q=Cummins%20TSB120143%20bulletin%20filetype%3Apdf;https://quickserve.cummins.com/
+TSB140102;TSB (сервисный бюллетень);NTE200;1;4334080;cummins/bulletins/topics/TSB140102.pdf;https://www.google.com/search?q=Cummins%20TSB140102%20bulletin%20filetype%3Apdf;https://quickserve.cummins.com/
+TSB160035;TSB (сервисный бюллетень);NTE240;1;3691281;cummins/bulletins/topics/TSB160035.pdf;https://www.google.com/search?q=Cummins%20TSB160035%20bulletin%20filetype%3Apdf;https://quickserve.cummins.com/
+TSB180082;TSB (сервисный бюллетень);"NTE240, NTE200";2;"5375545, 5376264";cummins/bulletins/topics/TSB180082.pdf;https://www.google.com/search?q=Cummins%20TSB180082%20bulletin%20filetype%3Apdf;https://quickserve.cummins.com/
+TSB190007;TSB (сервисный бюллетень);TR100A;1;3900625;cummins/bulletins/topics/TSB190007.pdf;https://www.google.com/search?q=Cummins%20TSB190007%20bulletin%20filetype%3Apdf;https://quickserve.cummins.com/
+TSB190076;TSB (сервисный бюллетень);NTE240;1;3944593;cummins/bulletins/topics/TSB190076.pdf;https://www.google.com/search?q=Cummins%20TSB190076%20bulletin%20filetype%3Apdf;https://quickserve.cummins.com/
+TSB190079;TSB (сервисный бюллетень);"NTE240, NTE200, TR100A";1;3963988;cummins/bulletins/topics/TSB190079.pdf;https://www.google.com/search?q=Cummins%20TSB190079%20bulletin%20filetype%3Apdf;https://quickserve.cummins.com/
+TSB200026;TSB (сервисный бюллетень);"NTE240, TR100A";3;"3028349, 3963991, 4975432";cummins/bulletins/topics/TSB200026.pdf;https://www.google.com/search?q=Cummins%20TSB200026%20bulletin%20filetype%3Apdf;https://quickserve.cummins.com/
+TSB200052;TSB (сервисный бюллетень);"NTE240, NTE200";3;"3902662, 4007735, 4086650";cummins/bulletins/topics/TSB200052.pdf;https://www.google.com/search?q=Cummins%20TSB200052%20bulletin%20filetype%3Apdf;https://quickserve.cummins.com/
+TSB200101;TSB (сервисный бюллетень);NTE200;1;4910253;cummins/bulletins/topics/TSB200101.pdf;https://www.google.com/search?q=Cummins%20TSB200101%20bulletin%20filetype%3Apdf;https://quickserve.cummins.com/
+TSB200219;TSB (сервисный бюллетень);NTE200;1;3963990;cummins/bulletins/topics/TSB200219.pdf;https://www.google.com/search?q=Cummins%20TSB200219%20bulletin%20filetype%3Apdf;https://quickserve.cummins.com/
+TSB200223;TSB (сервисный бюллетень);"NTE240, NTE200";1;3035026;cummins/bulletins/topics/TSB200223.pdf;https://www.google.com/search?q=Cummins%20TSB200223%20bulletin%20filetype%3Apdf;https://quickserve.cummins.com/
+TSB200225;TSB (сервисный бюллетень);NTE240;2;"5542204, 5542205";cummins/bulletins/topics/TSB200225.pdf;https://www.google.com/search?q=Cummins%20TSB200225%20bulletin%20filetype%3Apdf;https://quickserve.cummins.com/
+TSB200234;TSB (сервисный бюллетень);"NTE200, TR100A";9;"3046202, 3093784, 3916284, 3925344, 4067902";cummins/bulletins/topics/TSB200234.pdf;https://www.google.com/search?q=Cummins%20TSB200234%20bulletin%20filetype%3Apdf;https://quickserve.cummins.com/
+TSB200236;TSB (сервисный бюллетень);NTE200;2;"5559727, 5581146";cummins/bulletins/topics/TSB200236.pdf;https://www.google.com/search?q=Cummins%20TSB200236%20bulletin%20filetype%3Apdf;https://quickserve.cummins.com/
+TSB210001;TSB (сервисный бюллетень);"NTE240, NTE200";19;"4924291, 5572259, 3015283, 3609817, 5372025";cummins/bulletins/topics/TSB210001.pdf;https://www.google.com/search?q=Cummins%20TSB210001%20bulletin%20filetype%3Apdf;https://quickserve.cummins.com/
+TSB210002;TSB (сервисный бюллетень);NTE240;1;5374881;cummins/bulletins/topics/TSB210002.pdf;https://www.google.com/search?q=Cummins%20TSB210002%20bulletin%20filetype%3Apdf;https://quickserve.cummins.com/
+TSB210046;TSB (сервисный бюллетень);NTE240;1;3905372;cummins/bulletins/topics/TSB210046.pdf;https://www.google.com/search?q=Cummins%20TSB210046%20bulletin%20filetype%3Apdf;https://quickserve.cummins.com/
+TSB210083;TSB (сервисный бюллетень);NTE200;1;191772;cummins/bulletins/topics/TSB210083.pdf;https://www.google.com/search?q=Cummins%20TSB210083%20bulletin%20filetype%3Apdf;https://quickserve.cummins.com/
+TSB210084;TSB (сервисный бюллетень);TR100A;1;3094527;cummins/bulletins/topics/TSB210084.pdf;https://www.google.com/search?q=Cummins%20TSB210084%20bulletin%20filetype%3Apdf;https://quickserve.cummins.com/
+TSB210090;TSB (сервисный бюллетень);"NTE240, NTE200";1;5540246;cummins/bulletins/topics/TSB210090.pdf;https://www.google.com/search?q=Cummins%20TSB210090%20bulletin%20filetype%3Apdf;https://quickserve.cummins.com/
+TSB210098;TSB (сервисный бюллетень);NTE240;1;5538007;cummins/bulletins/topics/TSB210098.pdf;https://www.google.com/search?q=Cummins%20TSB210098%20bulletin%20filetype%3Apdf;https://quickserve.cummins.com/
+TSB210133;TSB (сервисный бюллетень);NTE200;1;3030990;cummins/bulletins/topics/TSB210133.pdf;https://www.google.com/search?q=Cummins%20TSB210133%20bulletin%20filetype%3Apdf;https://quickserve.cummins.com/
+TSB210148;TSB (сервисный бюллетень);"NTE200, TR100A";2;"3009477, 4975421";cummins/bulletins/topics/TSB210148.pdf;https://www.google.com/search?q=Cummins%20TSB210148%20bulletin%20filetype%3Apdf;https://quickserve.cummins.com/
+TSB210206;TSB (сервисный бюллетень);NTE200;2;"67946, 3055069";cummins/bulletins/topics/TSB210206.pdf;https://www.google.com/search?q=Cummins%20TSB210206%20bulletin%20filetype%3Apdf;https://quickserve.cummins.com/
+TSB210209;TSB (сервисный бюллетень);"NTE240, NTE200";3;"3650106, 3818885, 4372912";cummins/bulletins/topics/TSB210209.pdf;https://www.google.com/search?q=Cummins%20TSB210209%20bulletin%20filetype%3Apdf;https://quickserve.cummins.com/
+TSB210213;TSB (сервисный бюллетень);TR100A;1;3658780;cummins/bulletins/topics/TSB210213.pdf;https://www.google.com/search?q=Cummins%20TSB210213%20bulletin%20filetype%3Apdf;https://quickserve.cummins.com/
+TSB210256;TSB (сервисный бюллетень);TR100A;1;3093755;cummins/bulletins/topics/TSB210256.pdf;https://www.google.com/search?q=Cummins%20TSB210256%20bulletin%20filetype%3Apdf;https://quickserve.cummins.com/
+TSB210269;TSB (сервисный бюллетень);TR100A;1;3651893;cummins/bulletins/topics/TSB210269.pdf;https://www.google.com/search?q=Cummins%20TSB210269%20bulletin%20filetype%3Apdf;https://quickserve.cummins.com/
+TSB220030;TSB (сервисный бюллетень);"NTE240, NTE200";2;"3393258, 3634686";cummins/bulletins/topics/TSB220030.pdf;https://www.google.com/search?q=Cummins%20TSB220030%20bulletin%20filetype%3Apdf;https://quickserve.cummins.com/
+TSB220039;TSB (сервисный бюллетень);NTE240;1;5374098;cummins/bulletins/topics/TSB220039.pdf;https://www.google.com/search?q=Cummins%20TSB220039%20bulletin%20filetype%3Apdf;https://quickserve.cummins.com/
+TSB220049;TSB (сервисный бюллетень);NTE200;3;"5541835, S103D, S604";cummins/bulletins/topics/TSB220049.pdf;https://www.google.com/search?q=Cummins%20TSB220049%20bulletin%20filetype%3Apdf;https://quickserve.cummins.com/
+TSB220058;TSB (сервисный бюллетень);TR100A;1;4068673;cummins/bulletins/topics/TSB220058.pdf;https://www.google.com/search?q=Cummins%20TSB220058%20bulletin%20filetype%3Apdf;https://quickserve.cummins.com/
+TSB220123;TSB (сервисный бюллетень);"NTE240, NTE200";1;4008037;cummins/bulletins/topics/TSB220123.pdf;https://www.google.com/search?q=Cummins%20TSB220123%20bulletin%20filetype%3Apdf;https://quickserve.cummins.com/
+TSB220128;TSB (сервисный бюллетень);NTE240;1;4964044;cummins/bulletins/topics/TSB220128.pdf;https://www.google.com/search?q=Cummins%20TSB220128%20bulletin%20filetype%3Apdf;https://quickserve.cummins.com/
+TSB220145;TSB (сервисный бюллетень);"NTE240, NTE200, TR100A";5;"3171722, 3331818, 3903112, 4323856, 4924925";cummins/bulletins/topics/TSB220145.pdf;https://www.google.com/search?q=Cummins%20TSB220145%20bulletin%20filetype%3Apdf;https://quickserve.cummins.com/
+TSB220146;TSB (сервисный бюллетень);"NTE240, NTE200";10;"3087279, 3093923, 3328463, 3636638, 3900632";cummins/bulletins/topics/TSB220146.pdf;https://www.google.com/search?q=Cummins%20TSB220146%20bulletin%20filetype%3Apdf;https://quickserve.cummins.com/
+TSB220153;TSB (сервисный бюллетень);"NTE240, NTE200";3;"3090450, 3645611, 4085917";cummins/bulletins/topics/TSB220153.pdf;https://www.google.com/search?q=Cummins%20TSB220153%20bulletin%20filetype%3Apdf;https://quickserve.cummins.com/
+TSB220165;TSB (сервисный бюллетень);"NTE240, NTE200";1;3924725;cummins/bulletins/topics/TSB220165.pdf;https://www.google.com/search?q=Cummins%20TSB220165%20bulletin%20filetype%3Apdf;https://quickserve.cummins.com/
+TSB220189;TSB (сервисный бюллетень);NTE240;1;3171181;cummins/bulletins/topics/TSB220189.pdf;https://www.google.com/search?q=Cummins%20TSB220189%20bulletin%20filetype%3Apdf;https://quickserve.cummins.com/
+TSB220212;TSB (сервисный бюллетень);TR100A;2;"6388354, 6389213";cummins/bulletins/topics/TSB220212.pdf;https://www.google.com/search?q=Cummins%20TSB220212%20bulletin%20filetype%3Apdf;https://quickserve.cummins.com/
+TSB220221;TSB (сервисный бюллетень);"NTE240, NTE200";1;4383933;cummins/bulletins/topics/TSB220221.pdf;https://www.google.com/search?q=Cummins%20TSB220221%20bulletin%20filetype%3Apdf;https://quickserve.cummins.com/
+TSB220231;TSB (сервисный бюллетень);NTE240;1;5460104;cummins/bulletins/topics/TSB220231.pdf;https://www.google.com/search?q=Cummins%20TSB220231%20bulletin%20filetype%3Apdf;https://quickserve.cummins.com/
+TSB220241;TSB (сервисный бюллетень);TR100A;4;"3092339, 3093898, 4975691, 4975692";cummins/bulletins/topics/TSB220241.pdf;https://www.google.com/search?q=Cummins%20TSB220241%20bulletin%20filetype%3Apdf;https://quickserve.cummins.com/
+TSB230007;TSB (сервисный бюллетень);NTE240;1;5541365;cummins/bulletins/topics/TSB230007.pdf;https://www.google.com/search?q=Cummins%20TSB230007%20bulletin%20filetype%3Apdf;https://quickserve.cummins.com/
+TSB230043;TSB (сервисный бюллетень);NTE240;1;5539888;cummins/bulletins/topics/TSB230043.pdf;https://www.google.com/search?q=Cummins%20TSB230043%20bulletin%20filetype%3Apdf;https://quickserve.cummins.com/
+TSB230074;TSB (сервисный бюллетень);NTE200;1;3966349;cummins/bulletins/topics/TSB230074.pdf;https://www.google.com/search?q=Cummins%20TSB230074%20bulletin%20filetype%3Apdf;https://quickserve.cummins.com/
+TSB230075;TSB (сервисный бюллетень);NTE240;1;3646766;cummins/bulletins/topics/TSB230075.pdf;https://www.google.com/search?q=Cummins%20TSB230075%20bulletin%20filetype%3Apdf;https://quickserve.cummins.com/
+TSB230077;TSB (сервисный бюллетень);TR100A;1;4295331;cummins/bulletins/topics/TSB230077.pdf;https://www.google.com/search?q=Cummins%20TSB230077%20bulletin%20filetype%3Apdf;https://quickserve.cummins.com/
+TSB230083;TSB (сервисный бюллетень);"NTE240, TR100A";1;3331873;cummins/bulletins/topics/TSB230083.pdf;https://www.google.com/search?q=Cummins%20TSB230083%20bulletin%20filetype%3Apdf;https://quickserve.cummins.com/
+TSB230084;TSB (сервисный бюллетень);NTE240;2;"5286859, 6372680";cummins/bulletins/topics/TSB230084.pdf;https://www.google.com/search?q=Cummins%20TSB230084%20bulletin%20filetype%3Apdf;https://quickserve.cummins.com/
+TSB230131;TSB (сервисный бюллетень);"NTE240, NTE200, TR100A";5;"3093957, 3678611, 3900626, 3903464, 3914407";cummins/bulletins/topics/TSB230131.pdf;https://www.google.com/search?q=Cummins%20TSB230131%20bulletin%20filetype%3Apdf;https://quickserve.cummins.com/
+TSB230138;TSB (сервисный бюллетень);"NTE240, NTE200";1;5538724;cummins/bulletins/topics/TSB230138.pdf;https://www.google.com/search?q=Cummins%20TSB230138%20bulletin%20filetype%3Apdf;https://quickserve.cummins.com/
+TSB230146;TSB (сервисный бюллетень);"NTE240, NTE200, TR100A";5;"5594382, 5594388, 5594378, 5594381, 5594387";cummins/bulletins/topics/TSB230146.pdf;https://www.google.com/search?q=Cummins%20TSB230146%20bulletin%20filetype%3Apdf;https://quickserve.cummins.com/
+TSB230152;TSB (сервисный бюллетень);NTE240;2;"6319697, 6319710";cummins/bulletins/topics/TSB230152.pdf;https://www.google.com/search?q=Cummins%20TSB230152%20bulletin%20filetype%3Apdf;https://quickserve.cummins.com/
+TSB230167;TSB (сервисный бюллетень);NTE200;2;"6377067, 6377069";cummins/bulletins/topics/TSB230167.pdf;https://www.google.com/search?q=Cummins%20TSB230167%20bulletin%20filetype%3Apdf;https://quickserve.cummins.com/
+TSB230176;TSB (сервисный бюллетень);"NTE240, NTE200";3;"3647803, 3900630, 5539846";cummins/bulletins/topics/TSB230176.pdf;https://www.google.com/search?q=Cummins%20TSB230176%20bulletin%20filetype%3Apdf;https://quickserve.cummins.com/
+TSB230183;TSB (сервисный бюллетень);NTE200;1;5374489;cummins/bulletins/topics/TSB230183.pdf;https://www.google.com/search?q=Cummins%20TSB230183%20bulletin%20filetype%3Apdf;https://quickserve.cummins.com/
+TSB230213;TSB (сервисный бюллетень);"NTE240, NTE200";1;3900629;cummins/bulletins/topics/TSB230213.pdf;https://www.google.com/search?q=Cummins%20TSB230213%20bulletin%20filetype%3Apdf;https://quickserve.cummins.com/
+TSB230242;TSB (сервисный бюллетень);"NTE240, TR100A";1;3093932;cummins/bulletins/topics/TSB230242.pdf;https://www.google.com/search?q=Cummins%20TSB230242%20bulletin%20filetype%3Apdf;https://quickserve.cummins.com/
+TSB240001;TSB (сервисный бюллетень);"NTE240, NTE200, TR100A";16;"62279, 3085709, 3093828, 3331089, 3629454";cummins/bulletins/topics/TSB240001.pdf;https://www.google.com/search?q=Cummins%20TSB240001%20bulletin%20filetype%3Apdf;https://quickserve.cummins.com/
+TSB240007;TSB (сервисный бюллетень);NTE240;1;3176133;cummins/bulletins/topics/TSB240007.pdf;https://www.google.com/search?q=Cummins%20TSB240007%20bulletin%20filetype%3Apdf;https://quickserve.cummins.com/
+TSB240023;TSB (сервисный бюллетень);TR100A;1;4975411;cummins/bulletins/topics/TSB240023.pdf;https://www.google.com/search?q=Cummins%20TSB240023%20bulletin%20filetype%3Apdf;https://quickserve.cummins.com/
+TSB240108;TSB (сервисный бюллетень);"NTE240, NTE200, TR100A";1;4951864;cummins/bulletins/topics/TSB240108.pdf;https://www.google.com/search?q=Cummins%20TSB240108%20bulletin%20filetype%3Apdf;https://quickserve.cummins.com/
+TSB240130;TSB (сервисный бюллетень);NTE240;1;3900635;cummins/bulletins/topics/TSB240130.pdf;https://www.google.com/search?q=Cummins%20TSB240130%20bulletin%20filetype%3Apdf;https://quickserve.cummins.com/
+TSB240188;TSB (сервисный бюллетень);TR100A;4;"4295451, 5483701, 5483705, 5483862";cummins/bulletins/topics/TSB240188.pdf;https://www.google.com/search?q=Cummins%20TSB240188%20bulletin%20filetype%3Apdf;https://quickserve.cummins.com/
+TSB240204;TSB (сервисный бюллетень);"NTE240, NTE200";1;4964178;cummins/bulletins/topics/TSB240204.pdf;https://www.google.com/search?q=Cummins%20TSB240204%20bulletin%20filetype%3Apdf;https://quickserve.cummins.com/
+TSB240204A;TSB (сервисный бюллетень);NTE240;1;3651892;cummins/bulletins/topics/TSB240204A.pdf;https://www.google.com/search?q=Cummins%20TSB240204A%20bulletin%20filetype%3Apdf;https://quickserve.cummins.com/
+TSB240217;TSB (сервисный бюллетень);NTE240;2;"3089232, 3902460";cummins/bulletins/topics/TSB240217.pdf;https://www.google.com/search?q=Cummins%20TSB240217%20bulletin%20filetype%3Apdf;https://quickserve.cummins.com/
+TSB240233;TSB (сервисный бюллетень);NTE240;1;3093826;cummins/bulletins/topics/TSB240233.pdf;https://www.google.com/search?q=Cummins%20TSB240233%20bulletin%20filetype%3Apdf;https://quickserve.cummins.com/
+TSB250017;TSB (сервисный бюллетень);NTE200;3;"3015321, 3628937, 5694571";cummins/bulletins/topics/TSB250017.pdf;https://www.google.com/search?q=Cummins%20TSB250017%20bulletin%20filetype%3Apdf;https://quickserve.cummins.com/
+TSB250125;TSB (сервисный бюллетень);TR100A;2;"5483706, 5544940";cummins/bulletins/topics/TSB250125.pdf;https://www.google.com/search?q=Cummins%20TSB250125%20bulletin%20filetype%3Apdf;https://quickserve.cummins.com/
+TSB250131;TSB (сервисный бюллетень);NTE200;2;"5374581, 5539807";cummins/bulletins/topics/TSB250131.pdf;https://www.google.com/search?q=Cummins%20TSB250131%20bulletin%20filetype%3Apdf;https://quickserve.cummins.com/
+TSB250148;TSB (сервисный бюллетень);"NTE240, NTE200, TR100A";4;"3090400, 3638582, 3678873, 3335003";cummins/bulletins/topics/TSB250148.pdf;https://www.google.com/search?q=Cummins%20TSB250148%20bulletin%20filetype%3Apdf;https://quickserve.cummins.com/
+TSB260032;TSB (сервисный бюллетень);TR100A;1;3092855;cummins/bulletins/topics/TSB260032.pdf;https://www.google.com/search?q=Cummins%20TSB260032%20bulletin%20filetype%3Apdf;https://quickserve.cummins.com/

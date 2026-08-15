@@ -54,20 +54,32 @@ Object.keys(ENGINES).forEach(function (esn) {
   });
 });
 
+// Прямых (deep-link) адресов на конкретный документ у QuickServe нет: сайт
+// отвечает редиректом на SAML-логин на ЛЮБОЙ путь/параметры, даже правдоподобно
+// выглядящие (проверено) — значит угадать рабочую ссылку на поиск внутри
+// QuickServe нельзя, только вести на голову сайта и просить искать вручную.
+// Единственная по-настоящему рабочая ссылка на позицию — поиск в Google.
+function googleSearchUrl(code) {
+  return "https://www.google.com/search?q=" + encodeURIComponent("Cummins " + code + " bulletin filetype:pdf");
+}
+var QUICKSERVE_HOME = "https://quickserve.cummins.com/";
+
 var codes = Object.keys(master).sort();
-var manifestRows = [csvRow(["Код", "Тип", "Двигатели", "Деталей", "Примеры деталей", "Куда положить файл"])];
+var manifestRows = [csvRow(["Код", "Тип", "Двигатели", "Деталей", "Примеры деталей", "Куда положить файл",
+                             "Поиск в Google", "QuickServe (войти и искать код вручную)"])];
 codes.forEach(function (code) {
   var rec = master[code];
   var engs = Object.keys(rec.engines).map(function (e) { return ENGINES[e]; }).join(", ");
   var type = /^TSB\d+/.test(code) ? "TSB (сервисный бюллетень)" : "Service Topic (внутренний код Cummins)";
   var dest = "cummins/bulletins/topics/" + code.replace(/[^\w-]/g, "_") + ".pdf";
-  manifestRows.push(csvRow([code, type, engs, rec.parts.length, rec.parts.slice(0, 5).join(", "), dest]));
+  manifestRows.push(csvRow([code, type, engs, rec.parts.length, rec.parts.slice(0, 5).join(", "), dest,
+                             googleSearchUrl(code), QUICKSERVE_HOME]));
 });
 fs.writeFileSync(path.join(ROOT, "cummins", "bulletins", "manifest.csv"), manifestRows.join("\n") + "\n", "utf8");
 
-var truncRows = [csvRow(["Двигатель", "Номер детали", "Исходное (обрезанное) значение", "Что делать"])];
+var truncRows = [csvRow(["Двигатель", "Номер детали", "Исходное (обрезанное) значение", "Поиск в Google", "Что делать"])];
 truncated.forEach(function (t) {
-  truncRows.push(csvRow([ENGINES[t.esn], t.pn, t.raw,
+  truncRows.push(csvRow([ENGINES[t.esn], t.pn, t.raw, googleSearchUrl(t.pn),
     "Открыть деталь " + t.pn + " на quickserve.cummins.com — там указан полный список тем/бюллетеней"]));
 });
 fs.writeFileSync(path.join(ROOT, "cummins", "bulletins", "truncated.csv"), truncRows.join("\n") + "\n", "utf8");
