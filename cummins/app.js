@@ -574,8 +574,19 @@ function kitByNo(no) {
   for (var i = 0; i < ks.length; i++) if (ks[i].no === no) return ks[i];
   return null;
 }
+/* Источник Cummins не даёт отдельного поля количества у составляющих
+   комплекта — деталь, нужная в нескольких экземплярах, просто повторяется
+   в списке parts несколько раз. Схлопываем повторы в одну строку с qty. */
 function kitComponents(kit) {
-  return (kit.parts || []).filter(function (x) { return x.no && x.no !== kit.no; });
+  var order = [], byNo = {};
+  (kit.parts || []).forEach(function (x) {
+    if (!x.no || x.no === kit.no) return;
+    var rec = byNo[x.no];
+    if (!rec) { rec = { no: x.no, name: x.name || "", qty: 0 }; byNo[x.no] = rec; order.push(rec); }
+    rec.qty++;
+    if (!rec.name && x.name) rec.name = x.name;
+  });
+  return order;
 }
 /* Обратный индекс «деталь -> номера комплектов» для ЛЮБОГО каталога (не только
    текущего), с кэшом на объекте каталога — нужен в выгрузках, чтобы к каждому
@@ -637,7 +648,7 @@ function openKitCard(no) {
 
   var tb = $("pc-comp-body"); tb.innerHTML = "";
   var htr = el("tr");
-  ["№", "Номер", "Наименование", "Цена"].forEach(function (h) { htr.appendChild(el("th", null, h)); });
+  ["№", "Номер", "Наименование", "Кол-во", "Цена"].forEach(function (h) { htr.appendChild(el("th", null, h)); });
   tb.appendChild(htr);
   comps.forEach(function (cp, i) {
     var tr = el("tr");
@@ -657,6 +668,7 @@ function openKitCard(no) {
     } else tdNo.appendChild(el("span", null, cp.no));
     tr.appendChild(tdNo);
     tr.appendChild(el("td", null, cp.name || ""));
+    tr.appendChild(el("td", "comp-qty", String(cp.qty)));
     var cpP = priceOf(cp.no);
     tr.appendChild(el("td", "comp-price", cpP != null ? money(cpP) : "—"));
     tb.appendChild(tr);
@@ -697,17 +709,17 @@ function showKits() {
 function exportKits() {
   var e = engineOf(C.esn);
   var head = ["Машина", "Модель", "ESN", "Комплект №", "Комплект — наименование", "Цена комплекта",
-              "Составляющая №", "Составляющая — наименование", "Цена составляющей", "Продаётся отдельно"];
+              "Составляющая №", "Составляющая — наименование", "Кол-во", "Цена составляющей", "Продаётся отдельно"];
   var rows = [head];
   (C.kits || []).forEach(function (kit) {
     var comps = kitComponents(kit), kp = priceOf(kit.no);
     if (!comps.length) {
-      rows.push([e.machine || "", C.model, C.esn, kit.no, kit.name, priceCsv(kp), "", "", "", ""]);
+      rows.push([e.machine || "", C.model, C.esn, kit.no, kit.name, priceCsv(kp), "", "", "", "", ""]);
       return;
     }
     comps.forEach(function (cp) {
       rows.push([e.machine || "", C.model, C.esn, kit.no, kit.name, priceCsv(kp),
-                 cp.no, cp.name || "", priceCsv(priceOf(cp.no)),
+                 cp.no, cp.name || "", cp.qty, priceCsv(priceOf(cp.no)),
                  sellableIn(C.cards, cp.no) ? "да" : "нет"]);
     });
   });

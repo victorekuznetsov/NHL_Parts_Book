@@ -443,6 +443,7 @@ mark{background:#ffe08a; color:#3a2c00; padding:0 1px; border-radius:2px}
 .kit-order-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 8px; flex-wrap: wrap; }
 .comp-count { color: var(--muted); font-size: 13px; }
 .comp-table td.comp-i { color: var(--muted); width: 2em; }
+.comp-table td.comp-qty { text-align: center; width: 4em; }
 .comp-table td.comp-price { text-align: right; white-space: nowrap; }
 
 /* ссылка «заказать комплектом» -> состав */
