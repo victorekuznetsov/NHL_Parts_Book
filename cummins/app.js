@@ -65,9 +65,10 @@ function drawingSrc(esn, file) { return "drawings/" + esn + "/" + file; }
 function photoSrc(esn, file) {
   var num = String(file).split("_")[0];
   if (!num) return "";
-  // Go through our own origin (/api/photo) so photos load even when the client
-  // network can't reach parts.cummins.com directly; the server fetches the CDN.
-  return "/api/photo?n=" + num + "&f=" + encodeURIComponent(file);
+  // Фото деталей вендорятся в репозиторий (cummins/photos/<num[0:3]>/<num>/<file>,
+  // см. build/fetch_part_photos.js) — так каталог открывается офлайн и не зависит
+  // от того, доступен ли клиенту parts.cummins.com напрямую.
+  return "photos/" + num.slice(0, 3) + "/" + num + "/" + file;
 }
 
 /* ---------- корзина (своя для каждого двигателя) ---------- */
