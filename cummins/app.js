@@ -763,12 +763,23 @@ function doSearch(q) {
         });
       });
     });
+
+    // комплекты (кит-номера сами по себе не значатся ни в одном узле — их
+    // нужно искать отдельно, иначе номер комплекта не находится вовсе)
+    (cat.kits || []).forEach(function (kit) {
+      var num = normNo(kit.no);
+      var hitNo = num && num.indexOf(norm) !== -1;
+      var hitNm = kit.name && re.test(kit.name);
+      if (!hitNo && !hitNm) return;
+      hits.push({ isKit: true, kit: kit, eng: eng, exact: num === norm });
+    });
   });
 
   hits.sort(function (a, b) {
     if (a.exact !== b.exact) return a.exact ? -1 : 1;
     if (a.eng.esn !== b.eng.esn) return a.eng.esn === C.esn ? -1 : 1;
-    return (a.p.no || "").localeCompare(b.p.no || "");
+    var an = a.isKit ? a.kit.no : a.p.no, bn = b.isKit ? b.kit.no : b.p.no;
+    return (an || "").localeCompare(bn || "");
   });
 
   show("view-search");
@@ -778,6 +789,23 @@ function doSearch(q) {
   box.innerHTML = "";
   hits.slice(0, 400).forEach(function (h) {
     var d = el("div", "search-hit");
+    if (h.isKit) {
+      var kno = el("span", "hit-no", h.kit.no || "—");
+      kno.appendChild(el("span", "chip-sup", "комплект"));
+      d.appendChild(kno);
+      var knm = el("span", "hit-name");
+      knm.innerHTML = highlight(h.kit.name || "", q);
+      d.appendChild(knm);
+      var kwhere = "комплект · составляющих: " + kitComponents(h.kit).length;
+      if (h.eng.esn !== C.esn) kwhere = (h.eng.machine || h.eng.model) + " → " + kwhere;
+      d.appendChild(el("span", "hit-where", kwhere));
+      d.onclick = function () {
+        if (h.eng.esn !== C.esn) selectEngine(h.eng.esn);
+        openKitCard(h.kit.no);
+      };
+      box.appendChild(d);
+      return;
+    }
     var no = el("span", "hit-no", h.p.no || "—");
     if (h.via) no.appendChild(el("span", "chip-sup", "вместо " + h.via));
     d.appendChild(no);
