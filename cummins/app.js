@@ -48,6 +48,12 @@ function priceOf(no) {
   var v = PRICES[normNo(no)];
   return (v != null && !isNaN(v)) ? v : null;
 }
+/* текущая цена (второй прайс, для сравнения рядом с согласованной) —
+   справочная, пользовательская загрузка прайса на неё не влияет */
+function curPriceOf(no) {
+  var v = PRICES_CUR[normNo(no)];
+  return (v != null && !isNaN(v)) ? v : null;
+}
 function escapeRe(s) { return s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"); }
 
 function engineOf(esn) {
@@ -339,6 +345,7 @@ function renderParts(o, focusPart) {
     }
     tr.appendChild(tdName);
 
+    tr.appendChild(el("td", "c-price", p.curPrice != null ? money(p.curPrice) : "—"));
     tr.appendChild(el("td", "c-price", p.price != null ? money(p.price) : "—"));
     tr.appendChild(el("td", "c-qty", p.qty || ""));
 
@@ -630,9 +637,10 @@ function makeKitOrderBtn(kit) {
 function openKitCard(no) {
   var kit = kitByNo(no);
   if (!kit) { openPartCard(no); return; }
-  var price = priceOf(kit.no);
+  var price = priceOf(kit.no), curPrice = curPriceOf(kit.no);
   $("pc-title").textContent = "Комплект " + kit.no;
-  $("pc-name").textContent = kit.name + (price != null ? "  ·  " + money(price) : "");
+  $("pc-name").textContent = kit.name + (price != null ? "  ·  согласованная " + money(price) : "") +
+    (curPrice != null ? "  ·  текущая " + money(curPrice) : "");
   // прячем блоки, относящиеся только к детали
   document.querySelector(".pc-gallery").style.display = "none";
   $("pc-sup").classList.add("hidden");
@@ -643,12 +651,12 @@ function openKitCard(no) {
   var comps = kitComponents(kit);
   var head = $("pc-comp-head"); head.innerHTML = "";
   head.appendChild(el("span", "comp-count",
-    comps.length + " составляющих" + (price != null ? " · цена комплекта " + money(price) : " · цена уточняется")));
+    comps.length + " составляющих" + (price != null ? " · согласованная цена комплекта " + money(price) : " · цена уточняется")));
   head.appendChild(makeKitOrderBtn(kit));
 
   var tb = $("pc-comp-body"); tb.innerHTML = "";
   var htr = el("tr");
-  ["№", "Номер", "Наименование", "Кол-во", "Цена"].forEach(function (h) { htr.appendChild(el("th", null, h)); });
+  ["№", "Номер", "Наименование", "Кол-во", "Текущая", "Согласованная"].forEach(function (h) { htr.appendChild(el("th", null, h)); });
   tb.appendChild(htr);
   comps.forEach(function (cp, i) {
     var tr = el("tr");
@@ -669,6 +677,8 @@ function openKitCard(no) {
     tr.appendChild(tdNo);
     tr.appendChild(el("td", null, cp.name || ""));
     tr.appendChild(el("td", "comp-qty", String(cp.qty)));
+    var cpCurP = curPriceOf(cp.no);
+    tr.appendChild(el("td", "comp-price", cpCurP != null ? money(cpCurP) : "—"));
     var cpP = priceOf(cp.no);
     tr.appendChild(el("td", "comp-price", cpP != null ? money(cpP) : "—"));
     tb.appendChild(tr);
@@ -689,14 +699,17 @@ function showKits() {
     " · ESN " + C.esn + " — комплектов: " + kits.length;
   var box = $("kits-list"); box.innerHTML = "";
   kits.forEach(function (kit) {
-    var comps = kitComponents(kit), price = priceOf(kit.no);
+    var comps = kitComponents(kit), price = priceOf(kit.no), curPrice = curPriceOf(kit.no);
     var card = el("div", "kit-card");
     var a = el("a", "kit-card-title", kit.no + " · " + kit.name);
     a.href = "#kit-" + kit.no;
     a.onclick = function (ev) { ev.preventDefault(); openKitCard(kit.no); };
     card.appendChild(a);
-    card.appendChild(el("div", "kit-card-meta",
-      comps.length + " составляющих" + (price != null ? " · " + money(price) : " · цена уточняется")));
+    var metaTxt = comps.length + " составляющих";
+    if (curPrice != null) metaTxt += " · текущая " + money(curPrice);
+    if (price != null) metaTxt += " · согласованная " + money(price);
+    if (price == null && curPrice == null) metaTxt += " · цена уточняется";
+    card.appendChild(el("div", "kit-card-meta", metaTxt));
     card.appendChild(makeKitOrderBtn(kit));
     box.appendChild(card);
   });
@@ -708,18 +721,21 @@ function showKits() {
 // выгрузка комплектов: по строке на каждую составляющую (полный состав)
 function exportKits() {
   var e = engineOf(C.esn);
-  var head = ["Машина", "Модель", "ESN", "Комплект №", "Комплект — наименование", "Цена комплекта",
-              "Составляющая №", "Составляющая — наименование", "Кол-во", "Цена составляющей", "Продаётся отдельно"];
+  var head = ["Машина", "Модель", "ESN", "Комплект №", "Комплект — наименование",
+              "Текущая цена комплекта", "Согласованная цена комплекта",
+              "Составляющая №", "Составляющая — наименование", "Кол-во",
+              "Текущая цена составляющей", "Согласованная цена составляющей", "Продаётся отдельно"];
   var rows = [head];
   (C.kits || []).forEach(function (kit) {
-    var comps = kitComponents(kit), kp = priceOf(kit.no);
+    var comps = kitComponents(kit), kp = priceOf(kit.no), kcp = curPriceOf(kit.no);
     if (!comps.length) {
-      rows.push([e.machine || "", C.model, C.esn, kit.no, kit.name, priceCsv(kp), "", "", "", "", ""]);
+      rows.push([e.machine || "", C.model, C.esn, kit.no, kit.name, priceCsv(kcp), priceCsv(kp),
+                 "", "", "", "", "", ""]);
       return;
     }
     comps.forEach(function (cp) {
-      rows.push([e.machine || "", C.model, C.esn, kit.no, kit.name, priceCsv(kp),
-                 cp.no, cp.name || "", cp.qty, priceCsv(priceOf(cp.no)),
+      rows.push([e.machine || "", C.model, C.esn, kit.no, kit.name, priceCsv(kcp), priceCsv(kp),
+                 cp.no, cp.name || "", cp.qty, priceCsv(curPriceOf(cp.no)), priceCsv(priceOf(cp.no)),
                  sellableIn(C.cards, cp.no) ? "да" : "нет"]);
     });
   });
@@ -1022,22 +1038,23 @@ function exportModel() {
     o.parts.forEach(function (p) {
       if (!p.no) return;
       var k = normNo(p.no);
-      var rec = map[k] || (map[k] = { no: p.no, name: p.name || "", price: p.price, units: {} });
+      var rec = map[k] || (map[k] = { no: p.no, name: p.name || "", price: p.price, curPrice: p.curPrice, units: {} });
       if (rec.price == null && p.price != null) rec.price = p.price;
+      if (rec.curPrice == null && p.curPrice != null) rec.curPrice = p.curPrice;
       if (!rec.name && p.name) rec.name = p.name;
       rec.units[o.no] = o.name;
     });
   });
   var keys = Object.keys(map).sort(function (a, b) { return map[a].no.localeCompare(map[b].no); });
   var head = ["Машина", "Модель", "ESN", "Номер детали", "Наименование",
-              "Продаётся отдельно", "Действующий номер", "Цена", "Входит в комплекты",
-              "Узлов", "Узлы"];
+              "Продаётся отдельно", "Действующий номер", "Текущая цена", "Согласованная цена",
+              "Входит в комплекты", "Узлов", "Узлы"];
   var rows = [head];
   keys.forEach(function (k) {
     var r = map[k], us = Object.keys(r.units);
     rows.push([e.machine || "", C.model, C.esn, r.no, r.name,
                sellableIn(C.cards, r.no) ? "да" : "нет", currentNo(r.no),
-               priceCsv(r.price), kitsForNoIn(C, r.no).join(" | "), us.length,
+               priceCsv(r.curPrice), priceCsv(r.price), kitsForNoIn(C, r.no).join(" | "), us.length,
                us.map(function (u) { return r.units[u] + " (" + u + ")"; }).join(" | ")]);
   });
   var tag = (e.machine ? e.machine + "_" : "") + C.model.replace(/[^\wА-Яа-я]+/g, "_") + "_" + C.esn;
@@ -1047,7 +1064,8 @@ function exportModel() {
 /* --- «Все номера всех каталогов» --- */
 function exportAll() {
   var head = ["Машина", "Модель", "ESN", "CPL", "Номер детали", "Наименование",
-              "Продаётся отдельно", "Действующий номер", "Цена", "Входит в комплекты", "Узлов"];
+              "Продаётся отдельно", "Действующий номер", "Текущая цена", "Согласованная цена",
+              "Входит в комплекты", "Узлов"];
   var rows = [head];
   ENGINES.forEach(function (eng) {
     var cat = ALL[eng.esn]; if (!cat) return;
@@ -1056,8 +1074,9 @@ function exportAll() {
       o.parts.forEach(function (p) {
         if (!p.no) return;
         var k = normNo(p.no);
-        var rec = map[k] || (map[k] = { no: p.no, name: p.name || "", price: p.price, units: {} });
+        var rec = map[k] || (map[k] = { no: p.no, name: p.name || "", price: p.price, curPrice: p.curPrice, units: {} });
         if (rec.price == null && p.price != null) rec.price = p.price;
+        if (rec.curPrice == null && p.curPrice != null) rec.curPrice = p.curPrice;
         if (!rec.name && p.name) rec.name = p.name;
         rec.units[o.no] = 1;
       });
@@ -1067,7 +1086,7 @@ function exportAll() {
         var r = map[k];
         rows.push([eng.machine || "", cat.model, eng.esn, cat.cpl || "", r.no, r.name,
                    sellableIn(cat.cards, r.no) ? "да" : "нет",
-                   curNoFor(cat, r.no), priceCsv(r.price),
+                   curNoFor(cat, r.no), priceCsv(r.curPrice), priceCsv(r.price),
                    kitsForNoIn(cat, r.no).join(" | "), Object.keys(r.units).length]);
       });
   });
@@ -1254,6 +1273,10 @@ function rebuildPrices() {
   try { var ov = JSON.parse(localStorage.getItem(LS_PRICES)); if (ov) for (k in ov) PRICES[normNo(k)] = ov[k]; } catch (e) {}
 }
 rebuildPrices();
+// текущий прайс — второй, справочный источник (не перекрывается загрузкой пользователя)
+var BASE_PRICES_CUR = (typeof window !== "undefined" && window.CUMMINS_PRICES_CUR) ? window.CUMMINS_PRICES_CUR : {};
+var PRICES_CUR = {};
+(function () { var k; for (k in BASE_PRICES_CUR) PRICES_CUR[normNo(k)] = BASE_PRICES_CUR[k]; })();
 function applyPrices() {
   var has = Object.keys(PRICES).length > 0;
   ENGINES.forEach(function (e) {
@@ -1263,6 +1286,8 @@ function applyPrices() {
         if (!p.no) return;
         var v = PRICES[normNo(p.no)];
         if (v != null) p.price = v;
+        var cv = PRICES_CUR[normNo(p.no)];
+        if (cv != null) p.curPrice = cv;
       });
     });
     if (has) cat.hasPrices = true;
