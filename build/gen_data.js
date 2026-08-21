@@ -138,26 +138,43 @@ function buildPriceMap(rows) {
   return out;
 }
 
-var priceFile = fs.readdirSync(ROOT).filter(function (n) { return /\.xlsx$/i.test(n); }).sort()[0];
-if (!priceFile) throw new Error("не найден файл прайса (*.xlsx) в корне репозитория");
-var PRICE_MAP = buildPriceMap(readXlsx(path.join(ROOT, priceFile)));
-console.log("Прайс: " + priceFile + " — записей в карте цен: " + Object.keys(PRICE_MAP).length);
+// Два прайс-листа лежат в корне репозитория одновременно: "...на согласование..."
+// — согласованный прайс (основной, по нему считаются заказы и остальная логика
+// сайта не меняется), и второй файл (без "на согласование" в имени) — текущий
+// прайс, который показывается рядом только для сравнения.
+var xlsxFiles = fs.readdirSync(ROOT).filter(function (n) { return /\.xlsx$/i.test(n); });
+var agreedFile = xlsxFiles.filter(function (n) { return /на\s*согласовани/i.test(n); })[0];
+var curFile = xlsxFiles.filter(function (n) { return n !== agreedFile; })[0];
+if (!agreedFile) throw new Error("не найден файл согласованного прайса («...на согласование...») в корне репозитория");
+if (!curFile) throw new Error("не найден файл текущего прайса (без «на согласование» в названии) в корне репозитория");
+var PRICE_MAP = buildPriceMap(readXlsx(path.join(ROOT, agreedFile)));
+var CUR_MAP = buildPriceMap(readXlsx(path.join(ROOT, curFile)));
+console.log("Согласованный прайс: " + agreedFile + " — записей: " + Object.keys(PRICE_MAP).length);
+console.log("Текущий прайс: " + curFile + " — записей: " + Object.keys(CUR_MAP).length);
 
 // Prices for the standalone Cummins engine catalog (cummins/), keyed by a
 // normalised part number (uppercase, no spaces/dashes) to match its normNo().
 // Loaded as the default price base there, so engine prices show without a manual
 // upload; a user-loaded price file still overlays on top.
 (function () {
-  var cum = {};
+  var cum = {}, cumCur = {};
   Object.keys(PRICE_MAP).forEach(function (art) {
     var rec = PRICE_MAP[art];
     if (!rec || rec.p == null) return;
     var k = String(art).toUpperCase().replace(/[\s-]/g, "");
     if (k) cum[k] = rec.p;
   });
+  Object.keys(CUR_MAP).forEach(function (art) {
+    var rec = CUR_MAP[art];
+    if (!rec || rec.p == null) return;
+    var k = String(art).toUpperCase().replace(/[\s-]/g, "");
+    if (k) cumCur[k] = rec.p;
+  });
   fs.writeFileSync(path.join(ROOT, "cummins", "data", "prices.js"),
-    "window.CUMMINS_PRICES = " + JSON.stringify(cum) + ";\n");
-  console.log("cummins/data/prices.js — цен для каталога двигателя: " + Object.keys(cum).length);
+    "window.CUMMINS_PRICES = " + JSON.stringify(cum) + ";\n" +
+    "window.CUMMINS_PRICES_CUR = " + JSON.stringify(cumCur) + ";\n");
+  console.log("cummins/data/prices.js — согласованных цен: " + Object.keys(cum).length +
+    ", текущих: " + Object.keys(cumCur).length);
 })();
 
 // ---- catalogs + per-machine prices -------------------------------------
@@ -193,8 +210,10 @@ MACHINES.forEach(function (m) {
     ", сохранено уникальных PDF-номеров: " + dd.keptUnique);
   CATALOGS[m.id] = { chapters: cat.chapters || [], sections: cat.sections || [] };
 
-  // catalog part numbers -> price from the central list (keep map small)
-  var prices = {}, total = 0, priced = 0;
+  // catalog part numbers -> price from the central list (keep map small).
+  // Каждая запись несёт согласованную цену (p, как раньше) и рядом — текущую
+  // (cp) из отдельного прайса, по тому же артикулу/взаимозамене.
+  var prices = {}, total = 0, priced = 0, pricedCur = 0;
   var seen = {};
   (cat.sections || []).forEach(function (s) {
     (s.figures || []).forEach(function (f) {
@@ -202,7 +221,12 @@ MACHINES.forEach(function (m) {
         if (!p.pn || seen[p.pn]) return;
         seen[p.pn] = 1; total++;
         var rec = PRICE_MAP[normArt(p.pn)];
-        if (rec) { prices[p.pn] = rec; if (rec.p != null) priced++; }
+        if (!rec) return;
+        var curRec = CUR_MAP[normArt(p.pn)] || (rec.x && CUR_MAP[rec.x]);
+        var cp = curRec ? curRec.p : null;
+        prices[p.pn] = { p: rec.p, g: rec.g, x: rec.x, n: rec.n, cp: cp };
+        if (rec.p != null) priced++;
+        if (cp != null) pricedCur++;
       });
     });
   });
@@ -211,8 +235,9 @@ MACHINES.forEach(function (m) {
   fs.writeFileSync(path.join(dir, "prices.js"),
     "window.PRICES = " + JSON.stringify(prices) + ";\n");
 
-  stats.push(m.id + ": уник. номеров " + total + ", с ценой из прайса " + priced +
-    " (" + Math.round(priced / total * 100) + "%), всего сматчено " + Object.keys(prices).length);
+  stats.push(m.id + ": уник. номеров " + total + ", с согласованной ценой " + priced +
+    " (" + Math.round(priced / total * 100) + "%), с текущей " + pricedCur +
+    ", всего сматчено " + Object.keys(prices).length);
 });
 
 var machinesOut = MACHINES.map(function (m) {

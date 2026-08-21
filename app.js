@@ -452,7 +452,8 @@
       '<th class="num">№</th>' +
       "<th>Номер детали</th>" +
       "<th>Наименование</th>" +
-      '<th class="price" style="text-align:right">Цена, ' + cur3 + "</th>" +
+      '<th class="price" style="text-align:right">Текущий, ' + cur3 + "</th>" +
+      '<th class="price" style="text-align:right">Согласованный, ' + cur3 + "</th>" +
       '<th class="qty">Кол-во</th>' +
       "<th>Нужно</th>" +
       "<th></th>" +
@@ -487,12 +488,14 @@
     if (pr && pr.n) nameHtml += '<div class="ru">' + esc(pr.n) + "</div>";
     if (pr && pr.g) nameHtml += '<span class="grp">' + esc(pr.g) + "</span>";
     if (!nameHtml) nameHtml = '<span class="en">—</span>';
+    var curHtml = pr && pr.cp != null ? fmt(pr.cp) : '<span class="muted">—</span>';
     var priceHtml = pr && pr.p != null ? fmt(pr.p) : '<span class="muted">—</span>';
     var need = defNeed(p.qty);
     tr.innerHTML =
       '<td class="num">' + esc(pad(p.ref)) + "</td>" +
       '<td class="pn">' + pnCell + "</td>" +
       '<td class="name">' + nameHtml + "</td>" +
+      '<td class="price">' + curHtml + "</td>" +
       '<td class="price">' + priceHtml + "</td>" +
       '<td class="qty">' + esc(p.qty || "") + "</td>";
     if (p.pn) {
@@ -766,9 +769,9 @@
     var headers = ["Машина", "Глава (код)", "Глава", "Раздел (код)", "Раздел",
       "Рисунок", "№ позиции", "Артикул (Part No.)", "Взаимозаменяемый артикул",
       "Наименование (RU)", "Description (EN)", "Описание (ZH)",
-      "Кол-во на схеме", "Уровень", "Цена", "Валюта", "Группа", "Чертёж (файлы)"];
+      "Кол-во на схеме", "Уровень", "Текущая цена", "Согласованная цена", "Валюта", "Группа", "Чертёж (файлы)"];
     var types = ["s", "s", "s", "s", "s", "s", "s", "s", "s", "s", "s", "s",
-      "s", "s", "n", "s", "s", "s"];
+      "s", "s", "n", "n", "s", "s", "s"];
     var rows = [];
     MACHINES.forEach(function (mm) {
       var id = mm.id, prices = pricesFor(id);
@@ -788,7 +791,8 @@
               pad(p.ref), p.pn, pr.x || "",
               pr.n || "", p.en || "", p.zh || "",
               p.qty || "", p.lvl != null ? p.lvl : "",
-              pr.p != null ? pr.p : "", currencyOf(id), pr.g || "", drawing]);
+              pr.cp != null ? pr.cp : "", pr.p != null ? pr.p : "",
+              currencyOf(id), pr.g || "", drawing]);
           });
         });
       });
@@ -1125,13 +1129,14 @@
           out.push({
             query: raw, found: true, via: hit.via, machine: m.machine, pn: m.pn,
             ru: pr.n || "", en: m.en || "", zh: m.zh || "",
-            price: pr.p != null ? pr.p : null, group: pr.g || "", xref: pr.x || "",
+            curPrice: pr.cp != null ? pr.cp : null, price: pr.p != null ? pr.p : null,
+            group: pr.g || "", xref: pr.x || "",
             secs: Object.keys(m.secs).sort()
           });
         });
       } else {
         out.push({ query: raw, found: false, via: null, machine: "", pn: "", ru: "", en: "", zh: "",
-          price: null, group: "", xref: "", secs: [] });
+          curPrice: null, price: null, group: "", xref: "", secs: [] });
       }
     });
     checkResults = out;
@@ -1162,14 +1167,14 @@
     var table = el("table", "chk-table");
     table.innerHTML = "<thead><tr>" +
       "<th>Запрос</th><th>Машина</th><th>Номер детали</th><th>Наименование</th>" +
-      '<th class="price">Цена</th><th>Группа</th><th>Взаимозам.</th>' +
+      '<th class="price">Текущая</th><th class="price">Согласованная</th><th>Группа</th><th>Взаимозам.</th>' +
       "<th>Разделы</th></tr></thead>";
     var tb = el("tbody");
     checkResults.forEach(function (r) {
       var tr = el("tr", r.found ? "" : "chk-miss");
       if (!r.found) {
         tr.innerHTML = '<td class="chk-q">' + esc(r.query) + "</td>" +
-          '<td colspan="7" class="chk-none">не найдено ни в одном каталоге</td>';
+          '<td colspan="8" class="chk-none">не найдено ни в одном каталоге</td>';
         tb.appendChild(tr); return;
       }
       var mm = machineById[r.machine] || { name: r.machine };
@@ -1191,6 +1196,7 @@
         '<td class="chk-pn"><button class="chk-open" data-m="' + esc(r.machine) + '" data-sec="' + esc(r.secs[0] || "") +
           '" data-pn="' + esc(r.pn) + '" title="Открыть в каталоге">' + esc(r.pn) + "</button>" + via + "</td>" +
         '<td class="chk-name">' + nameHtml + "</td>" +
+        '<td class="price">' + (r.curPrice != null ? fmt(r.curPrice) : '<span class="muted">—</span>') + "</td>" +
         '<td class="price">' + (r.price != null ? fmt(r.price) : '<span class="muted">—</span>') + "</td>" +
         "<td>" + esc(r.group || "") + "</td>" +
         "<td>" + esc(r.xref || "") + "</td>" +
@@ -1213,13 +1219,14 @@
   function exportCheck() {
     if (!checkResults.length) { toast("Список пуст"); return; }
     var headers = ["Запрошенный номер", "Статус", "Машина", "Номер в каталоге", "Наименование (RU)",
-      "Description (EN)", "Описание (ZH)", "Цена", "Валюта", "Группа",
+      "Description (EN)", "Описание (ZH)", "Текущая цена", "Согласованная цена", "Валюта", "Группа",
       "Взаимозаменяемый артикул", "Разделы"];
-    var types = ["s", "s", "s", "s", "s", "s", "s", "n", "s", "s", "s", "s"];
+    var types = ["s", "s", "s", "s", "s", "s", "s", "n", "n", "s", "s", "s", "s"];
     var rows = checkResults.map(function (r) {
       var status = !r.found ? "не найдено" : (r.via === "xref" ? "найдено (взаимозам.)" : "найдено");
       return [r.query, status, (machineById[r.machine] || {}).name || "", r.pn, r.ru, r.en, r.zh,
-        r.price != null ? r.price : "", r.machine ? currencyOf(r.machine) : "", r.group, r.xref, r.secs.join(" ")];
+        r.curPrice != null ? r.curPrice : "", r.price != null ? r.price : "",
+        r.machine ? currencyOf(r.machine) : "", r.group, r.xref, r.secs.join(" ")];
     });
     downloadBlob("NHL_проверка_номеров.xlsx", xlsx("Проверка", headers, rows, types));
     toast("Выгружено строк: " + rows.length);
@@ -1229,14 +1236,14 @@
     if (!checkRan) { toast("Сначала выполните проверку"); return; }
     var idx = buildCheckIndex();
     var headers = ["Машина", "Артикул (Part No.)", "Наименование (RU)", "Description (EN)",
-      "Описание (ZH)", "Цена", "Валюта", "Группа", "Взаимозаменяемый артикул", "Разделы"];
-    var types = ["s", "s", "s", "s", "s", "n", "s", "s", "s", "s"];
+      "Описание (ZH)", "Текущая цена", "Согласованная цена", "Валюта", "Группа", "Взаимозаменяемый артикул", "Разделы"];
+    var types = ["s", "s", "s", "s", "s", "n", "n", "s", "s", "s", "s"];
     var rows = [];
     Object.keys(idx.meta).forEach(function (mk) {
       if (checkMatchedMk[mk]) return;           // present in the list — skip
       var m = idx.meta[mk], pr = pricesFor(m.machine)[m.pn] || {};
       rows.push([(machineById[m.machine] || {}).name || m.machine, m.pn, pr.n || "", m.en, m.zh,
-        pr.p != null ? pr.p : "", currencyOf(m.machine), pr.g || "", pr.x || "",
+        pr.cp != null ? pr.cp : "", pr.p != null ? pr.p : "", currencyOf(m.machine), pr.g || "", pr.x || "",
         Object.keys(m.secs).sort().join(" ")]);
     });
     rows.sort(function (a, b) { return (a[0] + a[1] < b[0] + b[1]) ? -1 : 1; });
