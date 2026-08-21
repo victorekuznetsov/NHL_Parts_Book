@@ -48,7 +48,7 @@ function priceOf(no) {
   var v = PRICES[normNo(no)];
   return (v != null && !isNaN(v)) ? v : null;
 }
-/* текущая цена (второй прайс, для сравнения рядом с согласованной) —
+/* текущая цена (второй прайс, для сравнения рядом с несогласованной) —
    справочная, пользовательская загрузка прайса на неё не влияет */
 function curPriceOf(no) {
   var v = PRICES_CUR[normNo(no)];
@@ -639,7 +639,7 @@ function openKitCard(no) {
   if (!kit) { openPartCard(no); return; }
   var price = priceOf(kit.no), curPrice = curPriceOf(kit.no);
   $("pc-title").textContent = "Комплект " + kit.no;
-  $("pc-name").textContent = kit.name + (price != null ? "  ·  согласованная " + money(price) : "") +
+  $("pc-name").textContent = kit.name + (price != null ? "  ·  несогласованная " + money(price) : "") +
     (curPrice != null ? "  ·  текущая " + money(curPrice) : "");
   // прячем блоки, относящиеся только к детали
   document.querySelector(".pc-gallery").style.display = "none";
@@ -651,12 +651,12 @@ function openKitCard(no) {
   var comps = kitComponents(kit);
   var head = $("pc-comp-head"); head.innerHTML = "";
   head.appendChild(el("span", "comp-count",
-    comps.length + " составляющих" + (price != null ? " · согласованная цена комплекта " + money(price) : " · цена уточняется")));
+    comps.length + " составляющих" + (price != null ? " · несогласованная цена комплекта " + money(price) : " · цена уточняется")));
   head.appendChild(makeKitOrderBtn(kit));
 
   var tb = $("pc-comp-body"); tb.innerHTML = "";
   var htr = el("tr");
-  ["№", "Номер", "Наименование", "Кол-во", "Текущая", "Согласованная"].forEach(function (h) { htr.appendChild(el("th", null, h)); });
+  ["№", "Номер", "Наименование", "Кол-во", "Текущая", "Несогласованная"].forEach(function (h) { htr.appendChild(el("th", null, h)); });
   tb.appendChild(htr);
   comps.forEach(function (cp, i) {
     var tr = el("tr");
@@ -707,7 +707,7 @@ function showKits() {
     card.appendChild(a);
     var metaTxt = comps.length + " составляющих";
     if (curPrice != null) metaTxt += " · текущая " + money(curPrice);
-    if (price != null) metaTxt += " · согласованная " + money(price);
+    if (price != null) metaTxt += " · несогласованная " + money(price);
     if (price == null && curPrice == null) metaTxt += " · цена уточняется";
     card.appendChild(el("div", "kit-card-meta", metaTxt));
     card.appendChild(makeKitOrderBtn(kit));
@@ -722,9 +722,9 @@ function showKits() {
 function exportKits() {
   var e = engineOf(C.esn);
   var head = ["Машина", "Модель", "ESN", "Комплект №", "Комплект — наименование",
-              "Текущая цена комплекта", "Согласованная цена комплекта",
+              "Текущая цена комплекта", "Несогласованная цена комплекта",
               "Составляющая №", "Составляющая — наименование", "Кол-во",
-              "Текущая цена составляющей", "Согласованная цена составляющей", "Продаётся отдельно"];
+              "Текущая цена составляющей", "Несогласованная цена составляющей", "Продаётся отдельно"];
   var rows = [head];
   (C.kits || []).forEach(function (kit) {
     var comps = kitComponents(kit), kp = priceOf(kit.no), kcp = curPriceOf(kit.no);
@@ -1031,6 +1031,16 @@ function curNoFor(cat, pn) {
   return last && last.no !== pn ? last.no : "";
 }
 
+/* основные атрибуты детали для выгрузки (вес/габариты/опасный груз) —
+   берутся из карточки детали (CARDS[pn].attrs), не из позиции на чертеже */
+function partAttrsFor(cat, pn) {
+  var a = ((cat.cards || {})[pn] || {}).attrs || {};
+  var dims = (a.Length || a.Width || a.Height)
+    ? [a.Length, a.Width, a.Height].filter(Boolean).join(" × ")
+    : (a.Dimensions || "");
+  return { weight: a.Weight || "", dims: dims, hazmat: a["Hazardous Material"] || "" };
+}
+
 /* --- «Все номера этой модели» --- */
 function exportModel() {
   var e = engineOf(C.esn), map = {};
@@ -1047,14 +1057,15 @@ function exportModel() {
   });
   var keys = Object.keys(map).sort(function (a, b) { return map[a].no.localeCompare(map[b].no); });
   var head = ["Машина", "Модель", "ESN", "Номер детали", "Наименование",
-              "Продаётся отдельно", "Действующий номер", "Текущая цена", "Согласованная цена",
-              "Входит в комплекты", "Узлов", "Узлы"];
+              "Продаётся отдельно", "Действующий номер", "Текущая цена", "Несогласованная цена",
+              "Вес", "Габариты (Д×Ш×В)", "Опасный груз", "Входит в комплекты", "Узлов", "Узлы"];
   var rows = [head];
   keys.forEach(function (k) {
-    var r = map[k], us = Object.keys(r.units);
+    var r = map[k], us = Object.keys(r.units), at = partAttrsFor(C, r.no);
     rows.push([e.machine || "", C.model, C.esn, r.no, r.name,
                sellableIn(C.cards, r.no) ? "да" : "нет", currentNo(r.no),
-               priceCsv(r.curPrice), priceCsv(r.price), kitsForNoIn(C, r.no).join(" | "), us.length,
+               priceCsv(r.curPrice), priceCsv(r.price),
+               at.weight, at.dims, at.hazmat, kitsForNoIn(C, r.no).join(" | "), us.length,
                us.map(function (u) { return r.units[u] + " (" + u + ")"; }).join(" | ")]);
   });
   var tag = (e.machine ? e.machine + "_" : "") + C.model.replace(/[^\wА-Яа-я]+/g, "_") + "_" + C.esn;
@@ -1064,8 +1075,8 @@ function exportModel() {
 /* --- «Все номера всех каталогов» --- */
 function exportAll() {
   var head = ["Машина", "Модель", "ESN", "CPL", "Номер детали", "Наименование",
-              "Продаётся отдельно", "Действующий номер", "Текущая цена", "Согласованная цена",
-              "Входит в комплекты", "Узлов"];
+              "Продаётся отдельно", "Действующий номер", "Текущая цена", "Несогласованная цена",
+              "Вес", "Габариты (Д×Ш×В)", "Опасный груз", "Входит в комплекты", "Узлов"];
   var rows = [head];
   ENGINES.forEach(function (eng) {
     var cat = ALL[eng.esn]; if (!cat) return;
@@ -1083,10 +1094,11 @@ function exportAll() {
     });
     Object.keys(map).sort(function (a, b) { return map[a].no.localeCompare(map[b].no); })
       .forEach(function (k) {
-        var r = map[k];
+        var r = map[k], at = partAttrsFor(cat, r.no);
         rows.push([eng.machine || "", cat.model, eng.esn, cat.cpl || "", r.no, r.name,
                    sellableIn(cat.cards, r.no) ? "да" : "нет",
                    curNoFor(cat, r.no), priceCsv(r.curPrice), priceCsv(r.price),
+                   at.weight, at.dims, at.hazmat,
                    kitsForNoIn(cat, r.no).join(" | "), Object.keys(r.units).length]);
       });
   });
@@ -1386,7 +1398,14 @@ var saved = null;
 try { saved = localStorage.getItem(LS_ENG); } catch (e) {}
 // Allow deep-linking a specific engine via ?esn=<ESN> (used when the unified
 // NHL catalog opens this page in an iframe for a machine's "Двигатель").
-var urlEsn = null;
-try { urlEsn = new URLSearchParams(location.search).get("esn"); } catch (e) {}
+var urlEsn = null, urlPn = null;
+try {
+  var qs = new URLSearchParams(location.search);
+  urlEsn = qs.get("esn");
+  urlPn = qs.get("pn");
+} catch (e) {}
 selectEngine(urlEsn && ALL[urlEsn] ? urlEsn : (saved && ALL[saved] ? saved : ENGINES[0].esn));
+// Deep-link прямо на деталь (используется "Проверить список" единого приложения,
+// когда номер найден только как заменённый/старый номер двигателя Cummins).
+if (urlPn && (CARDS[urlPn] || findPart(urlPn))) openPartCard(urlPn);
 })();
