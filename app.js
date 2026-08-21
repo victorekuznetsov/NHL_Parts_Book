@@ -118,6 +118,13 @@
     (s.figures || []).forEach(function (f) { (f.parts || []).forEach(function (p) { out.push(p); }); });
     return out;
   }
+  // Каталоги Машина/Электропривод (в отличие от EPC Cummins) не содержат
+  // структурированного состава комплектов — только позиции, чьё наименование
+  // само указывает, что это комплект. Помечаем такие по названию.
+  var KIT_RE = /\bkit\b|комплект/i;
+  function isKitPart(p, pr) {
+    return KIT_RE.test(p.zh || "") || KIT_RE.test(p.en || "") || (pr && pr.n && KIT_RE.test(pr.n));
+  }
 
   // ---- per-machine derived state ---------------------------------------
   var CAT, sectionByCode, chapterName, CATALOG_PNS, searchIndex;
@@ -224,6 +231,12 @@
         "Это отдельный каталог двигателя, полученный из EPC Cummins (не из PDF).</div>";
       return;
     }
+    var kitsBtn = el("button", "kits-link", "🧰 Комплекты в этом разделе");
+    kitsBtn.type = "button";
+    kitsBtn.title = "Показать позиции этого раздела, чьё наименование содержит KIT / комплект";
+    kitsBtn.addEventListener("click", function () { location.hash = catHash(cur, curCat, "k"); });
+    root.appendChild(kitsBtn);
+
     var codes = {}; catChapterCodes(cur, curCat).forEach(function (c) { codes[c] = 1; });
     CAT.chapters.forEach(function (ch) {
       if (!codes[ch.code]) return;
@@ -452,9 +465,13 @@
   }
 
   function renderRow(p) {
-    var tr = el("tr", p.lvl ? "lvl" + Math.min(p.lvl, 2) : "");
-    if (p.pn) tr.dataset.pn = p.pn;
     var pr = p.pn ? priceOf(p.pn) : null;
+    var isKit = isKitPart(p, pr);
+    var cls = [];
+    if (p.lvl) cls.push("lvl" + Math.min(p.lvl, 2));
+    if (isKit) cls.push("row-kit");
+    var tr = el("tr", cls.join(" "));
+    if (p.pn) tr.dataset.pn = p.pn;
     var pnCell;
     if (p.pn) {
       var xref = pr && pr.x ? '<span class="xref">↔ ' + esc(pr.x) + "</span>" : "";
@@ -464,6 +481,7 @@
       pnCell = '<span class="muted">—</span>';
     }
     var nameHtml = "";
+    if (isKit) nameHtml += '<span class="kit-badge" title="Комплект (по названию позиции)">🧰 комплект</span>';
     if (p.zh) nameHtml += '<div class="zh">' + esc(p.zh) + "</div>";
     if (p.en) nameHtml += '<div class="en">' + esc(p.en) + "</div>";
     if (pr && pr.n) nameHtml += '<div class="ru">' + esc(pr.n) + "</div>";
@@ -547,6 +565,44 @@
       content.appendChild(block);
     });
     if (hits.length > 600) content.appendChild(el("p", "sub", "Показаны первые 600 из " + hits.length + " — уточните запрос."));
+    window.scrollTo(0, 0);
+  }
+
+  // ---- комплекты в текущей категории (по названию позиции; см. isKitPart) ---
+  function kitPartsInCat() {
+    var codes = {}; catChapterCodes(cur, curCat).forEach(function (c) { codes[c] = 1; });
+    var out = [];
+    CAT.sections.forEach(function (s) {
+      if (!codes[s.chapter]) return;
+      sectionParts(s).forEach(function (p) {
+        var pr = p.pn ? priceOf(p.pn) : null;
+        if (isKitPart(p, pr)) out.push({ sec: s.code, p: p });
+      });
+    });
+    return out;
+  }
+  function renderKits() {
+    var content = $("#content");
+    content.innerHTML = "";
+    var hits = kitPartsInCat();
+    var head = el("div", "results-head");
+    head.innerHTML = "<h1>Комплекты · " + esc(machine().name) + " · " + esc(catLabel(curCat)) + "</h1>" +
+      "<div class='sub'>Позиции этого раздела, чьё наименование содержит «KIT» / «комплект» — найдено: " +
+      hits.length + ". У этих каталогов (в отличие от EPC Cummins) нет расписанного состава " +
+      "комплекта, это обычная позиция с одним номером.</div>";
+    content.appendChild(head);
+    if (!hits.length) { window.scrollTo(0, 0); return; }
+    var bySec = {};
+    hits.forEach(function (h) { (bySec[h.sec] = bySec[h.sec] || []).push(h.p); });
+    Object.keys(bySec).forEach(function (code) {
+      var s = sectionByCode[code];
+      var block = el("div", "result-sec");
+      var rsh = el("div", "rsh", esc(code) + " · " + esc(secName(s)));
+      rsh.addEventListener("click", function () { location.hash = catHash(cur, curCat, "s/" + code); });
+      block.appendChild(rsh);
+      block.appendChild(renderParts(bySec[code]));
+      content.appendChild(block);
+    });
     window.scrollTo(0, 0);
   }
 
@@ -1263,7 +1319,7 @@
   function route() {
     var h = location.hash || "";
     if (h === "" || h === "#" || h === "#/") { renderLanding(); return; }
-    var m = /^#\/m\/([^\/]+)\/([^\/]+)(?:\/(s|q)\/([\s\S]*))?$/.exec(h);
+    var m = /^#\/m\/([^\/]+)\/([^\/]+)(?:\/(s|q|k)(?:\/([\s\S]*))?)?$/.exec(h);
     if (!m) { renderLanding(); return; }
     var id = decodeURIComponent(m[1]);
     if (!machineById[id]) id = cur;
@@ -1275,6 +1331,8 @@
       highlightSidebar(rest); renderSection(rest); $("#search").value = "";
     } else if (kind === "q") {
       highlightSidebar(null); $("#search").value = rest; renderSearch(rest);
+    } else if (kind === "k") {
+      highlightSidebar(null); $("#search").value = ""; renderKits();
     } else {
       // category home
       if (isEngineSite(cur, curCat)) { highlightSidebar(null); renderEngine(); $("#search").value = ""; }
