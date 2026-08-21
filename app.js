@@ -306,7 +306,12 @@
       '" target="_blank" rel="noopener">↗ Открыть каталог двигателя в отдельной вкладке</a></div>';
     c.appendChild(head);
     var frame = el("iframe", "engine-frame");
-    frame.src = m.engineSite;
+    var src = m.engineSite;
+    if (engineFocusPn) {
+      src += (src.indexOf("?") >= 0 ? "&" : "?") + "pn=" + encodeURIComponent(engineFocusPn);
+      engineFocusPn = null;
+    }
+    frame.src = src;
     frame.setAttribute("title", "Каталог двигателя " + m.name);
     frame.setAttribute("loading", "lazy");
     c.appendChild(frame);
@@ -356,6 +361,7 @@
   }
 
   var focusPN = null;
+  var engineFocusPn = null;   // деталь двигателя, которую надо открыть в iframe Cummins
   function focusRow(pn) {
     // снять прошлую подсветку и подсветить выбранную деталь — стойко, пока
     // пользователь не перейдёт в другой раздел (чтобы деталь не искать глазами)
@@ -453,7 +459,7 @@
       "<th>Номер детали</th>" +
       "<th>Наименование</th>" +
       '<th class="price" style="text-align:right">Текущий, ' + cur3 + "</th>" +
-      '<th class="price" style="text-align:right">Согласованный, ' + cur3 + "</th>" +
+      '<th class="price" style="text-align:right">Несогласованный, ' + cur3 + "</th>" +
       '<th class="qty">Кол-во</th>' +
       "<th>Нужно</th>" +
       "<th></th>" +
@@ -769,7 +775,7 @@
     var headers = ["Машина", "Глава (код)", "Глава", "Раздел (код)", "Раздел",
       "Рисунок", "№ позиции", "Артикул (Part No.)", "Взаимозаменяемый артикул",
       "Наименование (RU)", "Description (EN)", "Описание (ZH)",
-      "Кол-во на схеме", "Уровень", "Текущая цена", "Согласованная цена", "Валюта", "Группа", "Чертёж (файлы)"];
+      "Кол-во на схеме", "Уровень", "Текущая цена", "Несогласованная цена", "Валюта", "Группа", "Чертёж (файлы)"];
     var types = ["s", "s", "s", "s", "s", "s", "s", "s", "s", "s", "s", "s",
       "s", "s", "n", "n", "s", "s", "s"];
     var rows = [];
@@ -1063,6 +1069,21 @@
   function normNo(s) { return String(s == null ? "" : s).toUpperCase().replace(/[\s\-]/g, ""); }
   function stripZeros(s) { return s.replace(/^0+/, ""); }
 
+  // замены номеров двигателя Cummins (см. build/gen_engine_sup.js) — используются,
+  // когда запрошенный номер не найден в собственном прайсе/каталоге машины, но
+  // является старым/заменённым номером в каталоге двигателя (EPC Cummins)
+  var ENGINE_SUP = window.ENGINE_SUP || {};
+  var CUMMINS_PRICES = window.CUMMINS_PRICES || {};
+  var CUMMINS_PRICES_CUR = window.CUMMINS_PRICES_CUR || {};
+  function lookupEngineSup(raw) {
+    var k = normNo(raw);
+    if (!k) return null;
+    if (ENGINE_SUP[k]) return ENGINE_SUP[k];
+    var z = stripZeros(k);
+    if (z !== k && ENGINE_SUP[z]) return ENGINE_SUP[z];
+    return null;
+  }
+
   var checkIndex = null;   // { meta, byNo, byXref } across all machines
   function buildCheckIndex() {
     if (checkIndex) return checkIndex;
@@ -1135,8 +1156,22 @@
           });
         });
       } else {
-        out.push({ query: raw, found: false, via: null, machine: "", pn: "", ru: "", en: "", zh: "",
-          curPrice: null, price: null, group: "", xref: "", secs: [] });
+        var esHits = lookupEngineSup(raw);
+        if (esHits && esHits.length) {
+          esHits.forEach(function (h) {
+            var cpn = normNo(h.cur);
+            out.push({
+              query: raw, found: true, via: "engine", machine: h.machine, pn: h.cur,
+              ru: h.name || "", en: "", zh: "",
+              curPrice: CUMMINS_PRICES_CUR[cpn] != null ? CUMMINS_PRICES_CUR[cpn] : null,
+              price: CUMMINS_PRICES[cpn] != null ? CUMMINS_PRICES[cpn] : null,
+              group: "Двигатель Cummins (EPC)", xref: raw, secs: [], engineEsn: h.esn
+            });
+          });
+        } else {
+          out.push({ query: raw, found: false, via: null, machine: "", pn: "", ru: "", en: "", zh: "",
+            curPrice: null, price: null, group: "", xref: "", secs: [] });
+        }
       }
     });
     checkResults = out;
@@ -1167,7 +1202,7 @@
     var table = el("table", "chk-table");
     table.innerHTML = "<thead><tr>" +
       "<th>Запрос</th><th>Машина</th><th>Номер детали</th><th>Наименование</th>" +
-      '<th class="price">Текущая</th><th class="price">Согласованная</th><th>Группа</th><th>Взаимозам.</th>' +
+      '<th class="price">Текущая</th><th class="price">Несогласованная</th><th>Группа</th><th>Взаимозам.</th>' +
       "<th>Разделы</th></tr></thead>";
     var tb = el("tbody");
     checkResults.forEach(function (r) {
@@ -1183,18 +1218,28 @@
       if (r.zh) nameHtml += '<div class="zh">' + esc(r.zh) + "</div>";
       if (r.en) nameHtml += '<div class="en">' + esc(r.en) + "</div>";
       if (!nameHtml) nameHtml = "—";
-      var via = r.via === "xref" ? '<div class="chk-via">вместо ' + esc(r.query) + "</div>" : "";
-      var secChips = r.secs.map(function (code) {
-        var s = (CATALOGS[r.machine] && CATALOGS[r.machine].sections || []).filter(function (x) { return x.code === code; })[0];
-        return '<button class="chk-sec" data-m="' + esc(r.machine) + '" data-sec="' + esc(code) + '" data-pn="' + esc(r.pn) +
-          '" title="Открыть раздел ' + esc(code) + ' в каталоге ' + esc(mm.name) + '">' + esc(code) +
-          " · " + esc(secName(s)) + "</button>";
-      }).join("");
+      var via = (r.via === "xref" || r.via === "engine")
+        ? '<div class="chk-via">вместо ' + esc(r.query) + "</div>" : "";
+      var openBtn;
+      if (r.via === "engine") {
+        openBtn = '<button class="chk-open" data-m="' + esc(r.machine) + '" data-engine="1" data-pn="' + esc(r.pn) +
+          '" title="Открыть в каталоге двигателя Cummins">' + esc(r.pn) + "</button>";
+      } else {
+        openBtn = '<button class="chk-open" data-m="' + esc(r.machine) + '" data-sec="' + esc(r.secs[0] || "") +
+          '" data-pn="' + esc(r.pn) + '" title="Открыть в каталоге">' + esc(r.pn) + "</button>";
+      }
+      var secChips = r.via === "engine"
+        ? '<span class="chk-eng-note">двигатель (EPC Cummins)</span>'
+        : r.secs.map(function (code) {
+            var s = (CATALOGS[r.machine] && CATALOGS[r.machine].sections || []).filter(function (x) { return x.code === code; })[0];
+            return '<button class="chk-sec" data-m="' + esc(r.machine) + '" data-sec="' + esc(code) + '" data-pn="' + esc(r.pn) +
+              '" title="Открыть раздел ' + esc(code) + ' в каталоге ' + esc(mm.name) + '">' + esc(code) +
+              " · " + esc(secName(s)) + "</button>";
+          }).join("");
       tr.innerHTML =
         '<td class="chk-q">' + esc(r.query) + "</td>" +
         '<td class="chk-machinecell"><span class="mchip ' + esc(r.machine) + '">' + esc(mm.name) + "</span></td>" +
-        '<td class="chk-pn"><button class="chk-open" data-m="' + esc(r.machine) + '" data-sec="' + esc(r.secs[0] || "") +
-          '" data-pn="' + esc(r.pn) + '" title="Открыть в каталоге">' + esc(r.pn) + "</button>" + via + "</td>" +
+        '<td class="chk-pn">' + openBtn + via + "</td>" +
         '<td class="chk-name">' + nameHtml + "</td>" +
         '<td class="price">' + (r.curPrice != null ? fmt(r.curPrice) : '<span class="muted">—</span>') + "</td>" +
         '<td class="price">' + (r.price != null ? fmt(r.price) : '<span class="muted">—</span>') + "</td>" +
@@ -1207,8 +1252,15 @@
     box.appendChild(table);
     box.querySelectorAll(".chk-sec, .chk-open").forEach(function (btn) {
       btn.addEventListener("click", function () {
-        var mid = btn.getAttribute("data-m"), sec = btn.getAttribute("data-sec"), pn = btn.getAttribute("data-pn");
-        if (!sec || !mid) return;
+        var mid = btn.getAttribute("data-m"), pn = btn.getAttribute("data-pn");
+        if (!mid) return;
+        if (btn.getAttribute("data-engine")) {
+          engineFocusPn = pn; closeCheck();
+          location.hash = catHash(mid, "engine");
+          return;
+        }
+        var sec = btn.getAttribute("data-sec");
+        if (!sec) return;
         focusPN = pn; closeCheck();
         var secObj = (CATALOGS[mid].sections || []).filter(function (x) { return x.code === sec; })[0];
         var cat = chapterCategory(mid, secObj ? secObj.chapter : "");
@@ -1219,7 +1271,7 @@
   function exportCheck() {
     if (!checkResults.length) { toast("Список пуст"); return; }
     var headers = ["Запрошенный номер", "Статус", "Машина", "Номер в каталоге", "Наименование (RU)",
-      "Description (EN)", "Описание (ZH)", "Текущая цена", "Согласованная цена", "Валюта", "Группа",
+      "Description (EN)", "Описание (ZH)", "Текущая цена", "Несогласованная цена", "Валюта", "Группа",
       "Взаимозаменяемый артикул", "Разделы"];
     var types = ["s", "s", "s", "s", "s", "s", "s", "n", "n", "s", "s", "s", "s"];
     var rows = checkResults.map(function (r) {
@@ -1236,7 +1288,7 @@
     if (!checkRan) { toast("Сначала выполните проверку"); return; }
     var idx = buildCheckIndex();
     var headers = ["Машина", "Артикул (Part No.)", "Наименование (RU)", "Description (EN)",
-      "Описание (ZH)", "Текущая цена", "Согласованная цена", "Валюта", "Группа", "Взаимозаменяемый артикул", "Разделы"];
+      "Описание (ZH)", "Текущая цена", "Несогласованная цена", "Валюта", "Группа", "Взаимозаменяемый артикул", "Разделы"];
     var types = ["s", "s", "s", "s", "s", "n", "n", "s", "s", "s", "s"];
     var rows = [];
     Object.keys(idx.meta).forEach(function (mk) {

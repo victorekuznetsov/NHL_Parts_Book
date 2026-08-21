@@ -428,6 +428,7 @@ aside.cart.open { transform: none; }
   overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
 }
 .chk-sec:hover { border-color: var(--accent-strong); color: var(--accent-ink); background: var(--surface-2); }
+.chk-eng-note { color: var(--muted); font-size: 11.5px; font-style: italic; }
 @media (max-width: 900px) { #checkBtn { font-size: 0; padding: 0 12px; } #checkBtn::before { content: "🔎"; font-size: 16px; } }
 
 /* row flash when arriving from the search / check-list results */
