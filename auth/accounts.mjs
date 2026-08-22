@@ -7,17 +7,17 @@ export default {
       "name": "Кузнецов В.Е. (владелец)",
       "role": "permanent",
       "expires": null,
-      "salt": "YTf4TL7sK3Uj9IKXmOQS1g",
-      "hash": "wW_m41YTnos1gyyQfxY2ZFbFntLZ88xu-UMSFUFDjRk",
+      "salt": "4M9_3bG9iNy90Cn1EKky_Q",
+      "hash": "ROEGh8oPWNQ_cdBBOgbXltuwjzD8xV4OdJ3IchlHBcg",
       "iters": 120000
     },
     {
-      "u": "partner1",
-      "name": "Пример: подрядчик",
+      "u": "user",
+      "name": "Временный доступ",
       "role": "temporary",
-      "expires": "2026-09-30",
-      "salt": "dKQX0dDnHxDtY5xaMA9OSw",
-      "hash": "gFYm7G_rZQ-ZoHcC5t-Y6srw6uI9xAOaLn7cWfjjs6c",
+      "expires": "2026-09-22",
+      "salt": "drHOd3NVbE1zfF01PSJOxw",
+      "hash": "y8GsbWNbDC1-DcOa7NCsH3JZrL8ty2w6oVx8K19x4Es",
       "iters": 120000
     }
   ]
