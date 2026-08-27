@@ -3,6 +3,11 @@
    response (what @vercel/edge's next() emits); otherwise it redirects to
    /login.html. The login page, the auth API and the favicon stay public. */
 import { verifyToken, getSecret } from "./auth/token.mjs";
+/* Переключатель открытого доступа. true — каталог пускает всех без входа
+   (временный режим), false — вход обязателен. Менять только осознанно:
+   при true по ссылке доступны и документация, и остатки, и цены, и заказы. */
+const PUBLIC_ACCESS = true;
+
 
 export const config = {
   matcher: ["/((?!api/login|api/logout|api/photo|login\\.html|favicon\\.svg|robots\\.txt).*)"]
@@ -13,6 +18,8 @@ function cont() {
 }
 
 export default async function middleware(request) {
+  if (PUBLIC_ACCESS) return cont();
+
   const cookie = request.headers.get("cookie") || "";
   const m = cookie.match(/(?:^|;\s*)nhl_auth=([^;]+)/);
   const token = m ? decodeURIComponent(m[1]) : "";
