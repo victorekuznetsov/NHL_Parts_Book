@@ -30,9 +30,10 @@
 - `service.html`, `service/`, `service_media/` — **70 инструкций по ремонту и
   обслуживанию** по разделам каталога, из перевода заводского руководства
   «俄罗斯NTE240维修手册-2023-译文». Названия разделов — русские, из оглавления
-  того же руководства; спецификации к рисункам — таблицы «позиция /
-  наименование», отсортированные по номеру позиции. Пересобираются
-  `build/gen_nte240_service.py` и `build/gen_service_tables.py`.
+  того же руководства; спецификации к рисункам, моменты затяжки, перевод
+  единиц и массы узлов — настоящие таблицы (структура из исходных файлов
+  Word). Пересобираются `build/gen_nte240_service.py` и
+  `build/gen_service_tables.py`.
 - `manuals.html`, `manuals/`, `data/manuals.js` — заводские руководства в PDF:
   **Руководство по сборке** (47 с.) и **Инструкция по сварке кузова** (30 с.).
 - **`engine/`** — подробный каталог двигателя **Cummins QSK60** (ESN 33239746,
@@ -66,7 +67,7 @@
 ```
 python3 build/gen_nte240_manual.py  "NTE240 Driver's Manual-Polyus.docx"
 python3 build/gen_nte240_service.py <папка с главами руководства по ремонту>
-python3 build/gen_service_tables.py                   # спецификации -> таблицы
+python3 build/gen_service_tables.py <та же папка>     # текст -> настоящие таблицы
 node     build/gen_kb.js /путь/к/Cummins_Parts_Book   # подхватит их в базу знаний
 node     build/gen_part_docs.js                       # ссылки в «Проверить список»
 ```

@@ -746,11 +746,17 @@ table.parts tr.hit-row td{
 table.parts tr.hit-row td:first-child{box-shadow:inset 3px 0 0 var(--accent-2)}
 table.parts tr.hit-row .pn{color:var(--accent-2)}
 
-/* спецификации в инструкциях по ремонту машин (nte240/service) */
-table.spec{border-collapse:collapse; margin:14px 0; width:100%; max-width:640px}
-table.spec td{border:1px solid var(--line); padding:5px 9px; vertical-align:top}
+/* таблицы в инструкциях по ремонту машин (nte240/service): спецификации к
+   рисункам, моменты затяжки, перевод единиц, массы узлов */
+table.tbl,table.spec{
+  border-collapse:collapse; margin:14px 0; width:100%; max-width:900px; font-size:14px;
+}
+table.tbl td,table.spec td{border:1px solid var(--line); padding:5px 9px; vertical-align:top}
+table.tbl tr:first-child td{background:var(--th-bg); font-weight:600}
 table.spec td.n{
   width:3.2em; text-align:right; color:var(--muted);
   font-variant-numeric:tabular-nums; background:var(--th-bg);
 }
-table.spec caption{caption-side:top; text-align:left; font-weight:700; padding:0 0 6px}
+table.tbl caption,table.spec caption{
+  caption-side:top; text-align:left; font-weight:700; padding:0 0 6px;
+}
