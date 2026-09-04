@@ -461,3 +461,287 @@ mark{background:#ffe08a; color:#3a2c00; padding:0 1px; border-radius:2px}
 }
 .comp-table td.comp-no { white-space: nowrap; }
 .comp-table td.comp-no .pn-photo { vertical-align: middle; margin-right: 6px; }
+
+/* ===================================================================
+   База знаний: документы QuickServe, руководства, темы, машины.
+   Живёт в том же оформлении, что и каталог; переключается кнопками
+   в шапке и адресом вида #/doc/<номер>.
+   =================================================================== */
+.kb-root{display:none}
+body.kb-mode .layout,
+body.kb-mode .passport{display:none}
+body.kb-mode .kb-root{display:block; max-width:none; margin:0; padding:18px 24px 60px}
+
+.kb-nav{display:flex; gap:2px; flex-wrap:wrap}
+.kb-nav a{
+  display:inline-block; padding:7px 12px; border-radius:6px; text-decoration:none;
+  color:var(--muted); font-size:13.5px; font-weight:600; white-space:nowrap;
+}
+.kb-nav a:hover{background:var(--line-soft); color:var(--text)}
+.kb-nav a.on{background:var(--accent-soft); color:var(--accent-2)}
+
+/* --- хлебные крошки, заголовки --- */
+.crumbs{font-size:12.5px; color:var(--muted); margin-bottom:12px}
+.crumbs a{color:var(--accent-2); text-decoration:none}
+.crumbs a:hover{text-decoration:underline}
+.crumbs i{font-style:normal; margin:0 7px; color:var(--line)}
+.kb-head{display:flex; align-items:flex-end; gap:16px; flex-wrap:wrap; margin-bottom:16px}
+.kb-head h1{margin:0; font-size:24px; font-weight:650}
+.kb-head .lead{margin:0; color:var(--muted); flex-basis:100%}
+.kb-filter{
+  margin-left:auto; min-width:280px; flex:1; max-width:520px;
+  padding:8px 12px; border:1px solid var(--line); border-radius:6px;
+  background:var(--field); color:var(--text); font-size:14px;
+}
+.kb-filter:focus{outline:none; border-color:var(--accent-2); box-shadow:0 0 0 3px var(--focus)}
+
+/* --- стартовая страница базы --- */
+.kb-hero{
+  background:var(--panel); border:1px solid var(--line); border-radius:10px;
+  padding:22px 24px; margin-bottom:18px; box-shadow:var(--shadow);
+}
+.kb-hero h1{margin:0 0 8px; font-size:26px}
+.kb-hero .lead{margin:0 0 16px; color:var(--muted); max-width:900px}
+.kb-counters{display:flex; gap:10px; flex-wrap:wrap}
+.counter{
+  display:flex; flex-direction:column; gap:2px; min-width:132px; padding:12px 14px;
+  border:1px solid var(--line); border-radius:8px; text-decoration:none;
+  background:var(--bg); color:var(--text);
+}
+.counter:hover{border-color:var(--accent-2); background:var(--accent-soft)}
+.counter b{font-size:21px; font-weight:650; color:var(--accent-2)}
+.counter span{font-size:12.5px; color:var(--muted)}
+
+.kb-cols{display:grid; grid-template-columns:repeat(auto-fit,minmax(320px,1fr)); gap:16px}
+.kb-card{
+  background:var(--panel); border:1px solid var(--line); border-radius:10px;
+  padding:16px 18px; box-shadow:var(--shadow); margin-bottom:16px;
+}
+.kb-card.wide{grid-column:1/-1}
+.kb-card h2{margin:0 0 12px; font-size:16px; font-weight:650}
+.kb-card h2 a{color:inherit; text-decoration:none}
+.kb-card h3{margin:16px 0 8px; font-size:14px; font-weight:650; color:var(--muted)}
+.kb-list{list-style:none; margin:0; padding:0}
+.kb-list.cols{columns:2; column-gap:26px}
+.kb-list li{padding:5px 0; border-bottom:1px solid var(--line-soft); break-inside:avoid}
+.kb-list li:last-child{border-bottom:none}
+.kb-list a{color:var(--accent-2); text-decoration:none; font-weight:600}
+.kb-list a:hover{text-decoration:underline}
+.kb-list .sub{display:block; color:var(--muted); font-size:12.5px; font-weight:400}
+.cnt{
+  display:inline-block; min-width:20px; padding:0 7px; margin-left:6px; border-radius:9px;
+  background:var(--th-bg); color:var(--muted); font-size:11.5px; font-weight:600;
+}
+
+/* --- таблицы списков --- */
+.kb-table{width:100%; border-collapse:collapse; font-size:13.5px}
+.kb-table td,.kb-table th{
+  padding:7px 10px; border-bottom:1px solid var(--line-soft); vertical-align:top; text-align:left;
+}
+.kb-table tr:hover td{background:var(--hover)}
+.kb-table .c-id{white-space:nowrap; font-family:Consolas,"SF Mono",monospace; width:1%}
+.kb-table .c-date{white-space:nowrap; color:var(--muted); width:1%}
+.kb-table .c-eng{white-space:nowrap; width:1%}
+.kb-table .c-ext{width:1%; color:var(--muted); cursor:help}
+.kb-table .sub{color:var(--muted); font-size:12.5px}
+.empty{color:var(--muted); padding:18px 0}
+
+.chip{
+  display:inline-block; padding:1px 7px; margin:0 3px 3px 0; border-radius:9px;
+  background:var(--th-bg); color:var(--muted); font-size:11.5px; text-decoration:none;
+}
+a.chip:hover{background:var(--accent-soft); color:var(--accent-2)}
+.tag{
+  display:inline-block; padding:1px 8px; border-radius:9px; font-size:11.5px;
+  font-weight:600; background:var(--th-bg); color:var(--muted); white-space:nowrap;
+}
+.tag.t-tsb{background:#fbe9ec; color:#a3243a}
+.tag.t-procedures{background:#e7f0fb; color:#1c5aa8}
+.tag.t-manual{background:#eae7fb; color:#4b3ea8}
+.tag.t-bulletin{background:#fdf0e2; color:#9a5b12}
+.tag.t-sti{background:#e6f7f0; color:#0f7a55}
+:root[data-theme="dark"] .tag.t-tsb{background:#4a2730; color:#ffb3bf}
+:root[data-theme="dark"] .tag.t-procedures{background:#25384f; color:#9dc6f5}
+:root[data-theme="dark"] .tag.t-manual{background:#332f52; color:#bdb3f5}
+:root[data-theme="dark"] .tag.t-bulletin{background:#4a3820; color:#f3c98a}
+:root[data-theme="dark"] .tag.t-sti{background:#23473a; color:#7ce0b8}
+
+/* --- документ --- */
+.doc-layout{display:grid; grid-template-columns:minmax(0,1fr) 320px; gap:20px; align-items:start}
+@media (min-width:1700px){
+  .doc-layout{grid-template-columns:minmax(0,1fr) 380px; gap:26px}
+  body.kb-mode .kb-root{padding-left:32px; padding-right:32px}
+}
+.kb-doc{
+  background:var(--panel); border:1px solid var(--line); border-radius:10px;
+  padding:22px 26px 28px; box-shadow:var(--shadow); min-width:0;
+}
+.doc-head{border-bottom:1px solid var(--line); padding-bottom:14px; margin-bottom:18px}
+.doc-head h1{margin:0 0 4px; font-size:23px; font-weight:650; line-height:1.25}
+.doc-en{color:var(--muted); font-size:14px; margin-bottom:8px}
+.doc-meta{display:flex; gap:10px; align-items:center; flex-wrap:wrap; margin-bottom:10px}
+.doc-meta .num{font-family:Consolas,"SF Mono",monospace; font-size:13px; color:var(--text)}
+.doc-meta .mi{color:var(--muted); font-size:12.5px}
+.doc-links{display:flex; gap:8px; flex-wrap:wrap}
+.btn-mini{
+  display:inline-block; padding:5px 11px; border:1px solid var(--line); border-radius:6px;
+  font-size:12.5px; text-decoration:none; color:var(--text); background:var(--bg);
+}
+.btn-mini:hover{border-color:var(--accent-2); color:var(--accent-2)}
+
+.doc-body{font-size:14.5px; line-height:1.62; max-width:none}
+.doc-body h2{font-size:18px; margin:26px 0 10px; font-weight:650}
+.doc-body h3{font-size:15.5px; margin:22px 0 8px; font-weight:650}
+.doc-body h4{font-size:14px; margin:18px 0 6px; font-weight:650; color:var(--muted)}
+.doc-body p{margin:9px 0}
+.doc-body ul,.doc-body ol{margin:9px 0 9px 22px; padding:0}
+.doc-body li{margin:4px 0}
+.doc-body code{
+  font-family:Consolas,"SF Mono",monospace; font-size:12.5px;
+  background:var(--th-bg); padding:1px 5px; border-radius:4px;
+}
+.doc-body hr{border:none; border-top:1px solid var(--line); margin:22px 0}
+.fig{margin:14px 0; text-align:center}
+.fig img{
+  max-width:100%; border:1px solid var(--line); border-radius:6px;
+  background:#fff; padding:4px;
+}
+.tw{overflow-x:auto; margin:12px 0}
+.doc-table{width:100%; border-collapse:collapse; font-size:13px}
+.doc-table th,.doc-table td{
+  border:1px solid var(--line); padding:6px 9px; text-align:left; vertical-align:top;
+}
+.doc-table th{background:var(--th-bg); font-weight:600}
+.doc-table tr:hover td{background:var(--hover)}
+
+/* ссылки внутри документов */
+.lnk{color:var(--accent-2); text-decoration:none; border-bottom:1px dotted var(--accent-2)}
+.lnk:hover{background:var(--accent-soft)}
+.lnk.part{font-family:Consolas,"SF Mono",monospace}
+.lnk.doc{border-bottom-style:solid}
+
+/* callout'ы Cummins: предупреждения, примечания, моменты затяжки */
+.callout{
+  border:1px solid var(--line); border-left-width:4px; border-radius:8px;
+  padding:10px 14px; margin:14px 0; background:var(--bg);
+}
+.callout-head{font-weight:650; display:flex; gap:8px; align-items:center; margin-bottom:4px}
+.callout-ico{font-size:14px}
+.callout-body p:first-child{margin-top:0}
+.callout-body p:last-child{margin-bottom:0}
+.callout.danger{border-left-color:#c02a3a; background:var(--danger-soft)}
+.callout.warning{border-left-color:#d98d1a; background:var(--note-bg)}
+.callout.note{border-left-color:#1c5aa8}
+.callout.tip{border-left-color:var(--brand); background:var(--accent-soft)}
+.callout.abstract{border-left-color:var(--muted)}
+.callout.missing{border-left-color:var(--muted); color:var(--muted)}
+.callout.info{border-left-color:#1c5aa8}
+
+/* правая колонка связей */
+.doc-side{
+  position:sticky; top:70px; align-self:start; max-height:calc(100vh - 90px);
+  overflow:auto; background:var(--panel); border:1px solid var(--line);
+  border-radius:10px; padding:14px 16px; box-shadow:var(--shadow); font-size:13px;
+}
+.doc-side section{margin-bottom:16px}
+.doc-side h3{margin:0 0 7px; font-size:12.5px; text-transform:uppercase;
+  letter-spacing:.4px; color:var(--muted); font-weight:650}
+.side-list{list-style:none; margin:0; padding:0}
+.side-list li{padding:3px 0; line-height:1.4}
+.side-list.plain li{color:var(--muted)}
+.side-p{margin:0; color:var(--muted)}
+
+/* карточка детали и машины */
+.part-photos{display:flex; gap:10px; flex-wrap:wrap; margin-bottom:14px}
+.part-photos img{
+  width:150px; height:150px; object-fit:contain; background:#fff;
+  border:1px solid var(--line); border-radius:8px; padding:6px;
+}
+.kb-details summary{cursor:pointer; color:var(--accent-2); font-weight:600; margin:8px 0}
+.res-tabs{color:var(--muted); font-size:13px; margin-bottom:10px}
+
+/* блок базы знаний в результатах поиска каталога и в карточке детали */
+.kb-inline{
+  margin-top:18px; padding-top:14px; border-top:1px solid var(--line);
+}
+.kb-inline h3{font-size:14px; margin:0 0 8px; font-weight:650}
+.pc-kb{
+  display:flex; gap:8px; align-items:center; flex-wrap:wrap;
+  margin:6px 0 10px; font-size:13px;
+}
+.pc-kb .sub{color:var(--muted); font-size:12px}
+.ru-name{display:block; font-weight:600}
+.opt-en{display:block; font-size:13px; font-weight:400; color:var(--muted)}
+
+@media (max-width:1100px){
+  .doc-layout{grid-template-columns:minmax(0,1fr)}
+  .doc-side{position:static; max-height:none}
+  .kb-list.cols{columns:1}
+}
+.fig-missing{
+  margin:14px 0; padding:10px 14px; border:1px dashed var(--line);
+  border-radius:8px; color:var(--muted); font-size:13px;
+}
+.fig-missing a{color:var(--accent-2)}
+.doc-layout > .crumbs{grid-column:1/-1; margin-bottom:0}
+
+/* просмотр иллюстрации во весь экран */
+.kb-lightbox{
+  position:fixed; inset:0; z-index:100; background:rgba(15,20,25,.85);
+  display:flex; align-items:center; justify-content:center; padding:24px; cursor:zoom-out;
+}
+.kb-lightbox img{max-width:96vw; max-height:92vh; background:#fff; border-radius:8px; padding:8px}
+.doc-body img,.part-photos img{cursor:zoom-in}
+
+@media print{
+  .contacts,.topbar,.crumbs,.doc-side,.doc-links,.kb-nav{display:none !important}
+  body.kb-mode .kb-root{padding:0}
+  .kb-doc{border:none; box-shadow:none; padding:0}
+  .doc-body{max-width:none}
+  .callout{break-inside:avoid}
+  .fig{break-inside:avoid}
+}
+
+/* переключатель языка документов */
+.lang-switch{display:inline-flex; border:1px solid var(--line); border-radius:6px; overflow:hidden}
+.lang-switch button{
+  border:none; background:var(--panel); color:var(--muted); cursor:pointer;
+  padding:7px 10px; font-size:12.5px; font-weight:700; letter-spacing:.3px;
+}
+.lang-switch button:hover{background:var(--line-soft); color:var(--text)}
+.lang-switch button.on{background:var(--accent-soft); color:var(--accent-2)}
+.mt-note{
+  margin:0 0 14px; padding:8px 12px; border:1px dashed var(--line);
+  border-left:3px solid var(--brand); border-radius:6px;
+  background:var(--bg); color:var(--muted); font-size:12.5px;
+}
+.mt-note a{color:var(--accent-2)}
+
+/* ---------- английский режим: оригинальные названия выходят вперёд ---- */
+body.lang-en .tree-opt,
+body.lang-en td.c-name,
+body.lang-en #opt-name{display:flex; flex-direction:column; align-items:flex-start}
+body.lang-en .n-en{order:1}
+body.lang-en .n-ru{order:2}
+body.lang-en .n-meta{order:3}
+body.lang-en .tree-opt .n-en,
+body.lang-en #opt-name .n-en{
+  color:inherit; font-size:inherit; font-weight:inherit;
+}
+body.lang-en #opt-name .n-ru,
+body.lang-en .tree-opt .n-ru{
+  font-size:13px; font-weight:400; color:var(--muted);
+}
+body.lang-en td.c-name .n-en{font-weight:600; color:var(--text); display:block}
+body.lang-en td.c-name .n-ru{font-size:13px; font-weight:400; color:var(--muted)}
+
+/* номера документов, найденные в тексте: моноширинный номер-ссылка */
+.lnk.man,.lnk.tsb{font-family:Consolas,"SF Mono",monospace; border-bottom-style:solid}
+
+/* найденная позиция: подсветка держится, пока не выберут другую */
+table.parts tr.hit-row td{
+  background:var(--accent-soft) !important;
+  box-shadow:inset 0 -1px 0 var(--accent-2);
+}
+table.parts tr.hit-row td:first-child{box-shadow:inset 3px 0 0 var(--accent-2)}
+table.parts tr.hit-row .pn{color:var(--accent-2)}

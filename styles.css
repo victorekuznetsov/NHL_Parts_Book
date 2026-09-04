@@ -429,6 +429,16 @@ aside.cart.open { transform: none; }
 }
 .chk-sec:hover { border-color: var(--accent-strong); color: var(--accent-ink); background: var(--surface-2); }
 .chk-eng-note { color: var(--muted); font-size: 11.5px; font-style: italic; }
+/* комплектность: деталь не поставляется отдельно и чем её можно заказать */
+.chk-sep, .chk-kits { max-width: 260px; }
+.chk-nosep {
+  display: inline-block; border: 1px solid var(--danger); color: var(--danger);
+  border-radius: 6px; padding: 1px 7px; font-size: 11.5px; font-weight: 700;
+  background: rgba(209, 73, 91, .07); white-space: nowrap;
+}
+.chk-kit { font-size: 11.5px; color: var(--ink-soft); }
+.chk-kit + .chk-kit { margin-top: 2px; }
+.chk-kit b { font-family: "Cascadia Code", Consolas, monospace; color: var(--accent-ink); }
 @media (max-width: 900px) { #checkBtn { font-size: 0; padding: 0 12px; } #checkBtn::before { content: "🔎"; font-size: 16px; } }
 
 /* row flash when arriving from the search / check-list results */

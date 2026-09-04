@@ -1090,8 +1090,27 @@
   // когда запрошенный номер не найден в собственном прайсе/каталоге машины, но
   // является старым/заменённым номером в каталоге двигателя (EPC Cummins)
   var ENGINE_SUP = window.ENGINE_SUP || {};
+  // поставляется ли номер двигателя отдельно и в какие ремкомплекты он входит
+  // (см. build/gen_engine_parts.js; данные — из каталога EPC Cummins)
+  var ENGINE_PART_INFO = window.ENGINE_PART_INFO || {};
   var CUMMINS_PRICES = window.CUMMINS_PRICES || {};
   var CUMMINS_PRICES_CUR = window.CUMMINS_PRICES_CUR || {};
+  /* сведения о комплектности по номеру: {sold:true|false|null, kits:[{no,name}]} */
+  function partInfo(no) {
+    var k = normNo(no);
+    var rec = ENGINE_PART_INFO[k];
+    if (!rec) {
+      var z = stripZeros(k);
+      if (z !== k) rec = ENGINE_PART_INFO[z];
+    }
+    if (!rec) return { sold: null, kits: [] };
+    return { sold: rec.s === 0 ? false : true, kits: rec.k || [] };
+  }
+  function kitsText(kits) {
+    return (kits || []).map(function (k) {
+      return k.no + (k.name ? " · " + k.name : "");
+    }).join("; ");
+  }
   function lookupEngineSup(raw) {
     var k = normNo(raw);
     if (!k) return null;
@@ -1164,11 +1183,13 @@
         hit.mks.forEach(function (mk) {
           checkMatchedMk[mk] = 1;
           var m = idx.meta[mk], pr = pricesFor(m.machine)[m.pn] || {};
+          var inf = partInfo(m.pn);
           out.push({
             query: raw, found: true, via: hit.via, machine: m.machine, pn: m.pn,
             ru: pr.n || "", en: m.en || "", zh: m.zh || "",
             curPrice: pr.cp != null ? pr.cp : null, price: pr.p != null ? pr.p : null,
             group: pr.g || "", xref: pr.x || "",
+            sold: inf.sold, kits: inf.kits,
             secs: Object.keys(m.secs).sort()
           });
         });
@@ -1177,17 +1198,20 @@
         if (esHits && esHits.length) {
           esHits.forEach(function (h) {
             var cpn = normNo(h.cur);
+            var einf = partInfo(h.cur);
             out.push({
               query: raw, found: true, via: "engine", machine: h.machine, pn: h.cur,
               ru: h.name || "", en: "", zh: "",
               curPrice: CUMMINS_PRICES_CUR[cpn] != null ? CUMMINS_PRICES_CUR[cpn] : null,
               price: CUMMINS_PRICES[cpn] != null ? CUMMINS_PRICES[cpn] : null,
-              group: "Двигатель Cummins (EPC)", xref: raw, secs: [], engineEsn: h.esn
+              group: "Двигатель Cummins (EPC)", xref: raw,
+              sold: einf.sold, kits: einf.kits, secs: [], engineEsn: h.esn
             });
           });
         } else {
           out.push({ query: raw, found: false, via: null, machine: "", pn: "", ru: "", en: "", zh: "",
-            curPrice: null, price: null, group: "", xref: "", secs: [] });
+            curPrice: null, price: null, group: "", xref: "",
+            sold: null, kits: [], secs: [] });
         }
       }
     });
@@ -1220,13 +1244,15 @@
     table.innerHTML = "<thead><tr>" +
       "<th>Запрос</th><th>Машина</th><th>Номер детали</th><th>Наименование</th>" +
       '<th class="price">Текущая</th><th class="price">Несогласованная</th><th>Группа</th><th>Взаимозам.</th>' +
+      '<th title="Деталь не поставляется отдельно — только в составе узла или комплекта">' +
+      "Не поставляется отдельно</th><th>Входит в комплект</th>" +
       "<th>Разделы</th></tr></thead>";
     var tb = el("tbody");
     checkResults.forEach(function (r) {
       var tr = el("tr", r.found ? "" : "chk-miss");
       if (!r.found) {
         tr.innerHTML = '<td class="chk-q">' + esc(r.query) + "</td>" +
-          '<td colspan="8" class="chk-none">не найдено ни в одном каталоге</td>';
+          '<td colspan="10" class="chk-none">не найдено ни в одном каталоге</td>';
         tb.appendChild(tr); return;
       }
       var mm = machineById[r.machine] || { name: r.machine };
@@ -1253,6 +1279,15 @@
               '" title="Открыть раздел ' + esc(code) + ' в каталоге ' + esc(mm.name) + '">' + esc(code) +
               " · " + esc(secName(s)) + "</button>";
           }).join("");
+      var soldCell = r.sold === false
+        ? '<span class="chk-nosep">не поставляется отдельно</span>'
+        : (r.sold === true ? '<span class="muted">поставляется</span>' : '<span class="muted">—</span>');
+      var kitCell = (r.kits && r.kits.length)
+        ? r.kits.map(function (k) {
+            return '<div class="chk-kit"><b>' + esc(k.no) + "</b>" +
+                   (k.name ? " · " + esc(k.name) : "") + "</div>";
+          }).join("")
+        : '<span class="muted">—</span>';
       tr.innerHTML =
         '<td class="chk-q">' + esc(r.query) + "</td>" +
         '<td class="chk-machinecell"><span class="mchip ' + esc(r.machine) + '">' + esc(mm.name) + "</span></td>" +
@@ -1262,6 +1297,8 @@
         '<td class="price">' + (r.price != null ? fmt(r.price) : '<span class="muted">—</span>') + "</td>" +
         "<td>" + esc(r.group || "") + "</td>" +
         "<td>" + esc(r.xref || "") + "</td>" +
+        '<td class="chk-sep">' + soldCell + "</td>" +
+        '<td class="chk-kits">' + kitCell + "</td>" +
         '<td class="chk-secs">' + secChips + "</td>";
       tb.appendChild(tr);
     });
@@ -1289,13 +1326,15 @@
     if (!checkResults.length) { toast("Список пуст"); return; }
     var headers = ["Запрошенный номер", "Статус", "Машина", "Номер в каталоге", "Наименование (RU)",
       "Description (EN)", "Описание (ZH)", "Текущая цена", "Несогласованная цена", "Валюта", "Группа",
-      "Взаимозаменяемый артикул", "Разделы"];
-    var types = ["s", "s", "s", "s", "s", "s", "s", "n", "n", "s", "s", "s", "s"];
+      "Взаимозаменяемый артикул", "Не поставляется отдельно", "Входит в комплект", "Разделы"];
+    var types = ["s", "s", "s", "s", "s", "s", "s", "n", "n", "s", "s", "s", "s", "s", "s"];
     var rows = checkResults.map(function (r) {
       var status = !r.found ? "не найдено" : (r.via === "xref" ? "найдено (взаимозам.)" : "найдено");
       return [r.query, status, (machineById[r.machine] || {}).name || "", r.pn, r.ru, r.en, r.zh,
         r.curPrice != null ? r.curPrice : "", r.price != null ? r.price : "",
-        r.machine ? currencyOf(r.machine) : "", r.group, r.xref, r.secs.join(" ")];
+        r.machine ? currencyOf(r.machine) : "", r.group, r.xref,
+        r.sold === false ? "да" : (r.sold === true ? "нет" : ""), kitsText(r.kits),
+        r.secs.join(" ")];
     });
     downloadBlob("NHL_проверка_номеров.xlsx", xlsx("Проверка", headers, rows, types));
     toast("Выгружено строк: " + rows.length);
@@ -1305,14 +1344,16 @@
     if (!checkRan) { toast("Сначала выполните проверку"); return; }
     var idx = buildCheckIndex();
     var headers = ["Машина", "Артикул (Part No.)", "Наименование (RU)", "Description (EN)",
-      "Описание (ZH)", "Текущая цена", "Несогласованная цена", "Валюта", "Группа", "Взаимозаменяемый артикул", "Разделы"];
-    var types = ["s", "s", "s", "s", "s", "n", "n", "s", "s", "s", "s"];
+      "Описание (ZH)", "Текущая цена", "Несогласованная цена", "Валюта", "Группа",
+      "Взаимозаменяемый артикул", "Не поставляется отдельно", "Входит в комплект", "Разделы"];
+    var types = ["s", "s", "s", "s", "s", "n", "n", "s", "s", "s", "s", "s", "s"];
     var rows = [];
     Object.keys(idx.meta).forEach(function (mk) {
       if (checkMatchedMk[mk]) return;           // present in the list — skip
-      var m = idx.meta[mk], pr = pricesFor(m.machine)[m.pn] || {};
+      var m = idx.meta[mk], pr = pricesFor(m.machine)[m.pn] || {}, inf = partInfo(m.pn);
       rows.push([(machineById[m.machine] || {}).name || m.machine, m.pn, pr.n || "", m.en, m.zh,
         pr.cp != null ? pr.cp : "", pr.p != null ? pr.p : "", currencyOf(m.machine), pr.g || "", pr.x || "",
+        inf.sold === false ? "да" : (inf.sold === true ? "нет" : ""), kitsText(inf.kits),
         Object.keys(m.secs).sort().join(" ")]);
     });
     rows.sort(function (a, b) { return (a[0] + a[1] < b[0] + b[1]) ? -1 : 1; });

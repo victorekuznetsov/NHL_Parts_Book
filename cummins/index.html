@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Каталог запасных частей Cummins</title>
 <link rel="icon" href="brand/razvitie-mark.svg">
-<link rel="stylesheet" href="styles.css?v=p8">
+<link rel="stylesheet" href="styles.css?v=p9">
 <script>
   /* тема применяется до отрисовки, чтобы не мигало */
   (function(){try{
@@ -35,12 +35,23 @@
       </div>
     </div>
   </div>
+  <nav class="kb-nav" id="kb-nav">
+    <a id="nav-catalog" class="on" href="#/catalog">Каталог</a>
+    <a href="#/kb">База знаний</a>
+    <a href="#/docs/all">Документы</a>
+    <a href="#/machines">Машины</a>
+    <a href="#/parts">Детали</a>
+  </nav>
   <div class="search-box">
     <input id="search" type="search" autocomplete="off"
            placeholder="Поиск по номеру детали или наименованию…">
     <button id="search-clear" class="btn-plain" title="Очистить">✕</button>
   </div>
   <div class="topbar-tools">
+    <span id="lang-switch" class="lang-switch" title="Язык документов базы знаний">
+      <button type="button" data-lang="ru" class="on">RU</button>
+      <button type="button" data-lang="en">EN</button>
+    </span>
     <button id="theme-toggle" class="btn-icon" title="Светлая / тёмная тема" aria-label="Переключить тему">
       <svg class="ico-sun" viewBox="0 0 24 24" width="18" height="18" fill="none"
            stroke="currentColor" stroke-width="2" stroke-linecap="round">
@@ -63,6 +74,8 @@
 </header>
 
 <div class="passport" id="passport"></div>
+
+<div id="kb-root" class="kb-root"></div>
 
 <main class="layout">
   <aside class="sidebar">
@@ -251,6 +264,18 @@
 <script src="data/93058669.js"></script>
 <script src="data/37295879.js"></script>
 <script src="data/prices.js?v=p9"></script>
-<script src="app.js?v=p15"></script>
+
+<!-- база знаний: документы QuickServe, руководства, темы, машины -->
+<script src="data/kb_docs.js?v=k1"></script>
+<script src="data/kb_manuals.js?v=k1"></script>
+<script src="data/kb_parts.js?v=k1"></script>
+<script src="data/kb_names.js?v=k1"></script>
+<script src="data/kb_mparts.js?v=k1"></script>
+<script src="data/kb_machines.js?v=k1"></script>
+<script src="data/kb_media.js?v=k1"></script>
+<script src="data/kb_topics.js?v=k1"></script>
+<script src="data/kb_search.js?v=k1"></script>
+<script src="kb.js?v=k1"></script>
+<script src="app.js?v=p16"></script>
 </body>
 </html>

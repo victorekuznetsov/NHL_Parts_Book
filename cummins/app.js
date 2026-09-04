@@ -201,7 +201,9 @@ function renderTree() {
       var o = byNo[no];
       if (!o) return;
       var a = el("div", "tree-opt");
-      a.appendChild(el("span", null, o.name));
+      var ruo = optionRu(no);
+      a.appendChild(el("span", ruo ? "n-ru" : "n-en", ruo || o.name));
+      if (ruo) a.appendChild(el("span", "no n-en", o.name));
       a.appendChild(el("span", "no", no + " · позиций: " + o.parts.length));
       a.dataset.no = no;
       a.onclick = function () { openOption(no); };
@@ -231,6 +233,15 @@ function show(view) {
   });
 }
 
+/* русские наименования узлов и деталей приходят из базы знаний (kb.js);
+   без неё каталог работает как раньше — на оригинальных названиях */
+function optionRu(no) {
+  return (window.KB && window.KB.ruOption) ? window.KB.ruOption(no) : "";
+}
+function partRu(no) {
+  return (window.KB && window.KB.ruPart && no) ? window.KB.ruPart(no) : "";
+}
+
 function openOption(no, focusPart) {
   var o = byNo[no];
   if (!o) return;
@@ -238,7 +249,10 @@ function openOption(no, focusPart) {
   show("view-option");
   highlightTree(no);
 
-  $("opt-name").textContent = o.name;
+  var ruOpt = optionRu(o.no);
+  $("opt-name").innerHTML = "";
+  $("opt-name").appendChild(el("span", ruOpt ? "n-ru" : "n-en", ruOpt || o.name));
+  if (ruOpt) $("opt-name").appendChild(el("span", "opt-en n-en", o.name));
   var meta = "Вариант исполнения " + o.no + " · позиций: " + o.parts.length;
   if (o.systems && o.systems.length) meta += " · система: " + o.systems.join(", ");
   $("opt-meta").textContent = meta;
@@ -327,7 +341,13 @@ function renderParts(o, focusPart) {
     tr.appendChild(tdNo);
 
     var tdName = el("td", "c-name");
-    tdName.appendChild(document.createTextNode(p.name || ""));
+    var ruName = partRu(p.no);
+    if (ruName) {
+      tdName.appendChild(el("span", "ru-name n-ru", ruName));
+      tdName.appendChild(el("span", "dim n-en", p.name || ""));
+    } else {
+      tdName.appendChild(document.createTextNode(p.name || ""));
+    }
     if (p.dim) tdName.appendChild(el("span", "dim", p.dim));
     if (p.rem) tdName.appendChild(el("span", "dim", p.rem));
     if (p.alt) tdName.appendChild(el("span", "dim", "взаимозаменяемый: " + p.alt));
@@ -557,6 +577,7 @@ function openPartCard(pn) {
   });
   $("pc-used").classList.toggle("hidden", !used.length);
 
+  if (window.KB && window.KB.decoratePartCard) window.KB.decoratePartCard(pn);
   $("part-card").classList.remove("hidden");
   $("part-overlay").classList.remove("hidden");
 }
@@ -838,9 +859,11 @@ function doSearch(q) {
     if (h.via) no.appendChild(el("span", "chip-sup", "вместо " + h.via));
     d.appendChild(no);
     var nm = el("span", "hit-name");
-    nm.innerHTML = highlight(h.p.name || "", q);
+    var ruHit = partRu(h.p.no);
+    nm.innerHTML = (ruHit ? "<b>" + highlight(ruHit, q) + "</b> · " : "") +
+                   highlight(h.p.name || "", q);
     d.appendChild(nm);
-    var where = h.o.name + " · " + h.o.no + " · поз. " + (h.p.pos || "—");
+    var where = (optionRu(h.o.no) || h.o.name) + " · " + h.o.no + " · поз. " + (h.p.pos || "—");
     if (h.eng.esn !== C.esn) where = (h.eng.machine || h.eng.model) + " → " + where;
     d.appendChild(el("span", "hit-where", where));
     d.onclick = function () {
@@ -852,6 +875,7 @@ function doSearch(q) {
   if (hits.length > 400) {
     box.appendChild(el("p", "sub", "Показаны первые 400 совпадений — уточните запрос."));
   }
+  if (window.KB && window.KB.appendDocs) window.KB.appendDocs(q, box);
 }
 
 function highlight(text, q) {
@@ -868,6 +892,7 @@ $("search").addEventListener("input", function () {
   var v = this.value;
   clearTimeout(searchTimer);
   searchTimer = setTimeout(function () {
+    if (window.KB && window.KB.active()) { window.KB.search(v); return; }
     if (v.trim().length < 2) { if (state.option) openOption(state.option.no); else show("view-welcome"); }
     else doSearch(v);
   }, 200);
@@ -1159,6 +1184,34 @@ function whereList(hits, sup) {
     return label + u;
   });
 }
+/* комплектность найденного номера: поставляется ли он отдельно и какими
+   ремкомплектами его можно заказать (данные карточек EPC: attrs.Sellable и kits) */
+function checkSupply(r) {
+  var sold = null, kits = [];
+  (r.hits || []).forEach(function (h) {
+    var cat = ALL[h.esn];
+    if (!cat) return;
+    var s = sellableIn(cat.cards, h.no);
+    sold = sold === null ? s : (sold && s);
+    kitsForNoIn(cat, h.no).forEach(function (kn) {
+      if (kits.indexOf(kn) < 0) kits.push(kn);
+    });
+  });
+  return { sold: sold, kits: kits };
+}
+function kitLabel(cat, kn) {
+  var name = "";
+  (cat && cat.kits || []).some(function (k) {
+    if (k.no === kn) { name = k.name || ""; return true; }
+    return false;
+  });
+  return kn + (name ? " · " + name : "");
+}
+function kitsTextFor(r, kits) {
+  var cat = r.hits && r.hits[0] ? ALL[r.hits[0].esn] : null;
+  return kits.map(function (kn) { return kitLabel(cat, kn); }).join("; ");
+}
+
 function findOptionOfPart(esn, pn) {
   var cat = ALL[esn]; if (!cat) return null;
   for (var i = 0; i < cat.options.length; i++) {
@@ -1201,7 +1254,8 @@ function renderCheck(results, sum) {
   var box = $("check-results"); box.innerHTML = "";
   if (!results.length) { box.appendChild(el("p", "sub", "Введите номера и нажмите «Проверить».")); return; }
   var tbl = el("table"), thead = el("thead"), htr = el("tr");
-  ["Номер", "Статус", "Где в каталоге"].forEach(function (h) { htr.appendChild(el("th", null, h)); });
+  ["Номер", "Статус", "Где в каталоге", "Не поставляется отдельно", "Входит в комплект"]
+    .forEach(function (h) { htr.appendChild(el("th", null, h)); });
   thead.appendChild(htr); tbl.appendChild(thead);
   var tb = el("tbody");
   results.forEach(function (r) {
@@ -1222,19 +1276,38 @@ function renderCheck(results, sum) {
       tr.onclick = function () { openHit(r); };
     }
     tr.appendChild(tdW);
+
+    var sup = r.status === "no" ? { sold: null, kits: [] } : checkSupply(r);
+    var tdS2 = el("td", "r-sep");
+    if (sup.sold === false) tdS2.appendChild(el("span", "status no", "не поставляется отдельно"));
+    else tdS2.textContent = sup.sold === true ? "поставляется" : "—";
+    tr.appendChild(tdS2);
+
+    var tdK = el("td", "r-kits");
+    if (sup.kits.length) {
+      sup.kits.forEach(function (kn) {
+        tdK.appendChild(el("div", null, kitLabel(r.hits[0] ? ALL[r.hits[0].esn] : null, kn)));
+      });
+    } else tdK.textContent = "—";
+    tr.appendChild(tdK);
+
     tb.appendChild(tr);
   });
   tbl.appendChild(tb); box.appendChild(tbl);
 }
 function downloadCheck() {
   if (!checkResults || !checkResults.length) return;
-  var head = ["Номер", "Статус", "Машины и узлы", "Действующий номер"];
+  var head = ["Номер", "Статус", "Машины и узлы", "Действующий номер",
+              "Не поставляется отдельно", "Входит в комплект"];
   var rows = [head];
   checkResults.forEach(function (r) {
     var status = r.status === "ok" ? "в каталоге" : r.status === "sup" ? "заменённый" : "нет в каталоге";
     var where = r.status === "no" ? "" : whereList(r.hits, r.status === "sup").join(" | ");
     var cur = r.status === "sup" ? (r.hits[0] ? r.hits[0].no : "") : "";
-    rows.push([r.raw, status, where, cur]);
+    var sup = r.status === "no" ? { sold: null, kits: [] } : checkSupply(r);
+    rows.push([r.raw, status, where, cur,
+               sup.sold === false ? "да" : (sup.sold === true ? "нет" : ""),
+               kitsTextFor(r, sup.kits)]);
   });
   downloadCsv("proverka_spiska.csv", rows);
 }
@@ -1390,6 +1463,33 @@ $("theme-toggle").onclick = function () {
 document.addEventListener("keydown", function (e) {
   if (e.key === "Escape") { closeCart(); closePartCard(); closeCheck(); }
 });
+
+/* ---------- внешний интерфейс для базы знаний ---------- */
+window.CATALOG_API = {
+  selectEngine: function (esn) { if (ALL[esn]) selectEngine(esn); },
+  openOption: function (esn, optNo, focusPart) {
+    if (ALL[esn] && esn !== C.esn) selectEngine(esn);
+    openOption(optNo, focusPart || null);
+  },
+  openPart: function (pn) {
+    var hit = null;
+    ENGINES.some(function (e) {
+      var cat = ALL[e.esn];
+      return (cat.options || []).some(function (o) {
+        return (o.parts || []).some(function (p) {
+          if (p.no === pn) { hit = { esn: e.esn, o: o.no }; return true; }
+          return false;
+        });
+      });
+    });
+    if (hit) {
+      if (hit.esn !== C.esn) selectEngine(hit.esn);
+      openOption(hit.o, pn);
+    }
+    openPartCard(pn);
+  },
+  currentEngine: function () { return C ? C.esn : null; }
+};
 
 /* ---------- старт ---------- */
 buildEngineSelect();
