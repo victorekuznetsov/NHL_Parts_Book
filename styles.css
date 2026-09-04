@@ -160,6 +160,20 @@ main.content { flex: 1; min-width: 0; padding: 22px 26px 80px; }
 .sec-head .xref-link.engine { color: var(--accent-ink); border-color: var(--accent-strong); background: linear-gradient(180deg, rgba(62,240,175,.14), rgba(62,240,175,.05)); }
 .sec-head .xref-link.engine:hover { background: rgba(62,240,175,.22); }
 
+/* страница из старого PDF-каталога двигателя: перекрыта EPC-каталогом, поэтому
+   подписываем её явно — и в разделе, и в результатах поиска/проверки */
+.pdf-note {
+  margin-top: 10px; padding: 9px 12px; border-radius: 8px;
+  border: 1px solid #f0c9a0; background: #fffaf3; color: #8a5a12;
+  font-size: 12.5px; line-height: 1.55;
+}
+.pdf-note a { color: #b45309; font-weight: 600; }
+.pdf-badge {
+  display: inline-block; margin-left: 6px; padding: 1px 7px; border-radius: 999px;
+  border: 1px solid #f0c9a0; background: #fffaf3; color: #b45309;
+  font-size: 11px; font-weight: 600; vertical-align: middle;
+}
+
 .figure {
   background: var(--surface); border: 1px solid var(--line);
   border-radius: var(--radius); box-shadow: var(--shadow);
@@ -428,6 +442,7 @@ aside.cart.open { transform: none; }
   overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
 }
 .chk-sec:hover { border-color: var(--accent-strong); color: var(--accent-ink); background: var(--surface-2); }
+.chk-sec.pdf { border-color: #f0c9a0; background: #fffaf3; color: #b45309; }
 .chk-eng-note { color: var(--muted); font-size: 11.5px; font-style: italic; }
 /* комплектность: деталь не поставляется отдельно и чем её можно заказать */
 .chk-sep, .chk-kits { max-width: 260px; }

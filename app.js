@@ -55,6 +55,20 @@
     var s = (CATALOGS[id].sections || []).filter(function (x) { return codes[x.chapter]; })[0];
     return s ? s.code : null;
   }
+  /* Раздел взят из старого PDF-каталога двигателя (глава 700 / Q**).
+     Такие главы не показываются в дереве: их содержимое перекрыто EPC-каталогом
+     Cummins, а после сборки в них остаются только номера, которых в EPC нет.
+     Страницу всё равно можно открыть из поиска и «Проверить список», поэтому
+     она подписывается отдельной плашкой. */
+  function isPdfChapter(id, chapter) {
+    return ((machineById[id] || {}).enginePdfChapters || []).indexOf(chapter) >= 0;
+  }
+  function isPdfSection(id, code) {
+    var s = (CATALOGS[id] && CATALOGS[id].sections || []).filter(function (x) { return x.code === code; })[0];
+    return !!s && isPdfChapter(id, s.chapter);
+  }
+  var PDF_BADGE = '<span class="pdf-badge" title="Страница из PDF-каталога двигателя Cummins">из PDF-каталога</span>';
+
   // which category a section's chapter belongs to (for navigation from search/check)
   function chapterCategory(id, chapter) {
     var m = machineById[id] || {};
@@ -330,6 +344,17 @@
     }
   }
 
+  /* плашка «страница из PDF-каталога» над разделом старой главы двигателя */
+  function pdfNote(m) {
+    return '<div class="pdf-note"><b>📄 Страница из PDF-каталога двигателя.</b> ' +
+      'Это отсканированный бумажный каталог Cummins, приложенный к машине. ' +
+      'Номера, которые уже есть в электронном каталоге двигателя (EPC), из него убраны — ' +
+      'здесь остались только позиции, которых в EPC нет. ' +
+      'Фотографий деталей, цен Cummins и цепочек замен на этих страницах нет.' +
+      (m.engineSite ? ' <a href="' + esc(catHash(m.id, "engine")) +
+        '">Открыть каталог двигателя (EPC) →</a>' : "") + "</div>";
+  }
+
   // ---- section view -----------------------------------------------------
   function renderSection(code) {
     var s = sectionByCode[code];
@@ -357,6 +382,7 @@
       ' <span class="en">' + esc(s.en || "") + "</span></h1>" +
       '<div class="meta">' + (s.figures || []).length + " рис. · " +
       count + " позиц. с номером детали</div>" +
+      (isPdfChapter(m.id, s.chapter) ? pdfNote(m) : "") +
       '<div class="xref-row">' + toMachine + toService + "</div>";
     content.appendChild(head);
 
@@ -582,7 +608,8 @@
     Object.keys(bySec).forEach(function (code) {
       var s = sectionByCode[code];
       var block = el("div", "result-sec");
-      var rsh = el("div", "rsh", esc(code) + " · " + esc(secName(s)));
+      var rsh = el("div", "rsh", esc(code) + " · " + esc(secName(s)) +
+        (s && isPdfChapter(cur, s.chapter) ? " " + PDF_BADGE : ""));
       var goSec = function (pn) {
         focusPN = pn || null;
         location.hash = catHash(cur, chapterCategory(cur, s ? s.chapter : ""), "s/" + code);
@@ -1143,6 +1170,12 @@
     var name = (machineById[machine] || {}).name || machine;
     return (svc || []).map(function (s) { return name + " " + s.code + " · " + s.t; }).join("; ");
   }
+  /* разделы для выгрузки: страницы старого PDF-каталога двигателя подписываем */
+  function secsText(machine, secs) {
+    return (secs || []).map(function (code) {
+      return code + (isPdfSection(machine, code) ? " (из PDF-каталога)" : "");
+    }).join(" ");
+  }
   function kitsText(kits) {
     return (kits || []).map(function (k) {
       return k.no + (k.name ? " · " + k.name : "");
@@ -1346,9 +1379,12 @@
             ? '<span class="muted">и ещё ' + (r.engineOpts.length - 4) + "</span>" : "")
         : r.secs.map(function (code) {
             var s = (CATALOGS[r.machine] && CATALOGS[r.machine].sections || []).filter(function (x) { return x.code === code; })[0];
-            return '<button class="chk-sec" data-m="' + esc(r.machine) + '" data-sec="' + esc(code) + '" data-pn="' + esc(r.pn) +
-              '" title="Открыть раздел ' + esc(code) + ' в каталоге ' + esc(mm.name) + '">' + esc(code) +
-              " · " + esc(secName(s)) + "</button>";
+            var pdf = isPdfChapter(r.machine, s ? s.chapter : "");
+            return '<button class="chk-sec' + (pdf ? " pdf" : "") + '" data-m="' + esc(r.machine) +
+              '" data-sec="' + esc(code) + '" data-pn="' + esc(r.pn) +
+              '" title="Открыть раздел ' + esc(code) + ' в каталоге ' + esc(mm.name) +
+              (pdf ? " (страница из PDF-каталога двигателя)" : "") + '">' + esc(code) +
+              " · " + esc(secName(s)) + (pdf ? " · из PDF-каталога" : "") + "</button>";
           }).join("");
       var soldCell = r.sold === false
         ? '<span class="chk-nosep">не поставляется отдельно</span>'
@@ -1436,7 +1472,7 @@
         r.sold === false ? "да" : (r.sold === true ? "нет" : ""), kitsText(r.kits),
         docsText(r.docs), serviceText(r.machine, r.svc),
         // у позиций двигателя вместо разделов машины — узлы EPC
-        (r.secs.length ? r.secs : (r.engineOpts || [])).join(" ")];
+        r.secs.length ? secsText(r.machine, r.secs) : (r.engineOpts || []).join(" ")];
     });
     downloadBlob("NHL_проверка_номеров.xlsx", xlsx("Проверка", headers, rows, types));
     toast("Выгружено строк: " + rows.length);
@@ -1459,7 +1495,7 @@
         pr.cp != null ? pr.cp : "", pr.p != null ? pr.p : "", currencyOf(m.machine), pr.g || "", pr.x || "",
         inf.sold === false ? "да" : (inf.sold === true ? "нет" : ""), kitsText(inf.kits),
         docsText(kb.d), serviceText(m.machine, serviceFor(m.machine, secs)),
-        secs.join(" ")]);
+        secsText(m.machine, secs)]);
     });
     rows.sort(function (a, b) { return (a[0] + a[1] < b[0] + b[1]) ? -1 : 1; });
     downloadBlob("NHL_отсутствуют_в_списке.xlsx", xlsx("Отсутствуют в списке", headers, rows, types));

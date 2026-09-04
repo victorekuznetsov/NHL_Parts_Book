@@ -48,30 +48,36 @@ function loadGlobal(file, name) {
   return ctx.window[name];
 }
 
-// Remove duplicate engine numbers: when a machine carries BOTH the EPC Cummins
-// engine (QO*) and the superseded "из PDF" engine (Q\d), every part number that
-// the EPC already lists is stripped from the PDF sections. Numbers unique to the
-// PDF are kept (they are real parts EPC omits). PDF figures/sections that end up
-// with no numbered parts are dropped, and now-empty PDF chapters are pruned.
-// The EPC keeps every drawing (verified richer than the PDF), so no images are
-// borrowed. Returns {removed, keptUnique} for reporting.
-function dedupePdfEngine(cat, epcChapters, pdfChapters) {
-  if (!epcChapters.length || !pdfChapters.length) return { removed: 0, keptUnique: 0 };
+// Remove duplicate engine numbers: when a machine carries BOTH the Cummins EPC
+// engine and the superseded "из PDF" engine (Q\d / 700), every part number that
+// the EPC already lists is stripped from the PDF sections. The EPC side comes
+// either from the machine's own QO* chapters (NTE200) or from the standalone
+// EPC catalog cummins/data/<ESN>.js (NTE240, TR100A — their engine lives in the
+// separate site, so the machine book has no QO* chapters at all).
+// Numbers unique to the PDF are kept (they are real parts EPC omits). PDF
+// figures/sections that end up with no numbered parts are dropped, and
+// now-empty PDF chapters are pruned. The EPC keeps every drawing (verified
+// richer than the PDF), so no images are borrowed.
+// Returns {removed, keptUnique} for reporting.
+function dedupePdfEngine(cat, epcChapters, pdfChapters, sitePns) {
+  if (!pdfChapters.length) return { removed: 0, keptUnique: 0 };
+  if (!epcChapters.length && !sitePns) return { removed: 0, keptUnique: 0 };
   var isPdf = {}; pdfChapters.forEach(function (c) { isPdf[c] = 1; });
   var isEpc = {}; epcChapters.forEach(function (c) { isEpc[c] = 1; });
   var epcPns = {};
   cat.sections.forEach(function (s) {
     if (!isEpc[s.chapter]) return;
     (s.figures || []).forEach(function (f) {
-      (f.parts || []).forEach(function (p) { if (p.pn) epcPns[p.pn] = 1; });
+      (f.parts || []).forEach(function (p) { if (p.pn) epcPns[normPn(p.pn)] = 1; });
     });
   });
+  if (sitePns) Object.keys(sitePns).forEach(function (k) { epcPns[k] = 1; });
   var removed = 0, keptUnique = 0;
   cat.sections.forEach(function (s) {
     if (!isPdf[s.chapter]) return;
     (s.figures || []).forEach(function (f) {
       f.parts = (f.parts || []).filter(function (p) {
-        if (p.pn && epcPns[p.pn]) { removed++; return false; }
+        if (p.pn && epcPns[normPn(p.pn)]) { removed++; return false; }
         if (p.pn) keptUnique++;
         return true;
       });
@@ -87,6 +93,25 @@ function dedupePdfEngine(cat, epcChapters, pdfChapters) {
   var used = {}; cat.sections.forEach(function (s) { used[s.chapter] = 1; });
   cat.chapters = cat.chapters.filter(function (c) { return !isPdf[c.code] || used[c.code]; });
   return { removed: removed, keptUnique: keptUnique };
+}
+
+// Part numbers of the standalone EPC engine catalog (cummins/data/<ESN>.js).
+// Read from options[].parts[] and cards{} — together they cover everything the
+// EPC site can show for that ESN. Null when the machine has no engine site.
+function normPn(s) { return String(s || "").toUpperCase().replace(/[\s-]/g, ""); }
+function epcSitePns(engineSite) {
+  var m = /[?&]esn=(\d+)/.exec(engineSite || "");
+  if (!m) return null;
+  var file = path.join(ROOT, "cummins", "data", m[1] + ".js");
+  if (!fs.existsSync(file)) return null;
+  var cat = (loadGlobal(file, "CATALOGS") || {})[m[1]];
+  if (!cat) return null;
+  var out = {};
+  (cat.options || []).forEach(function (o) {
+    (o.parts || []).forEach(function (p) { if (p.no) out[normPn(p.no)] = 1; });
+  });
+  Object.keys(cat.cards || {}).forEach(function (no) { out[normPn(no)] = 1; });
+  return out;
 }
 
 // ---- central price list -------------------------------------------------
@@ -205,9 +230,12 @@ MACHINES.forEach(function (m) {
   m.driveChapters = cls.drive;
   m.enginePdfChapters = cls.enginePdf;
   m.engineEpcChapters = cls.engineEpc;
-  var dd = dedupePdfEngine(cat, cls.engineEpc, cls.enginePdf);
-  if (dd.removed) console.log("  " + m.id + ": удалено дублей двигателя (PDF↔EPC): " + dd.removed +
+  var dd = dedupePdfEngine(cat, cls.engineEpc, cls.enginePdf, epcSitePns(m.engineSite));
+  if (dd.removed) console.log("  " + m.id + ": удалено дублей двигателя (PDF\u2194EPC): " + dd.removed +
     ", сохранено уникальных PDF-номеров: " + dd.keptUnique);
+  // главы «из PDF» могли опустеть — оставляем в списке только выжившие
+  var alive = {}; (cat.chapters || []).forEach(function (c) { alive[c.code] = 1; });
+  m.enginePdfChapters = cls.enginePdf.filter(function (c) { return alive[c]; });
   CATALOGS[m.id] = { chapters: cat.chapters || [], sections: cat.sections || [] };
 
   // catalog part numbers -> price from the central list (keep map small).
