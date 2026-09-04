@@ -260,6 +260,54 @@ Object.keys(byChunk).forEach(function (ch) {
   });
 });
 
+/* ------------------------- руководства и инструкции из каталога машины */
+/* Читаем <машина>/data/manuals.js и <машина>/data/service.js: первый даёт
+   список PDF, второй — актуальные названия разделов ремонта и разделы,
+   которых в выгрузке базы знаний ещё нет (их текст берём из
+   <машина>/service/<код>.html). */
+function machineDocs(m) {
+  var dir = path.join(ROOT, MACHINES[m]);
+  var man = [], svc = [];
+  var manFile = path.join(dir, "data", "manuals.js");
+  if (fs.existsSync(manFile)) {
+    var mm = loadFrom(dir, "data/manuals.js", "MANUALS") || {};
+    man = (mm.files || []).filter(function (f) {
+      return fs.existsSync(path.join(dir, f.file));
+    });
+  }
+  var svcFile = path.join(dir, "data", "service.js");
+  if (fs.existsSync(svcFile)) {
+    var titles = loadFrom(dir, "data/service.js", "SERVICE") || {};
+    Object.keys(titles).sort().forEach(function (code) {
+      var page = path.join(dir, "service", code + ".html");
+      if (!fs.existsSync(page)) return;
+      svc.push({ c: code, t: titles[code], b: serviceBody(page, m) });
+    });
+  }
+  return { man: man, svc: svc };
+}
+/* тело инструкции со страницы каталога машины; пути к картинкам — на файлы
+   машины, как и во всей базе знаний */
+function serviceBody(page, m) {
+  var html = fs.readFileSync(page, "utf8");
+  var body = /<div id="doc">([\s\S]*?)<\/div>\s*<\/main>/.exec(html);
+  if (!body) return "";
+  return body[1].replace(/src="\.\.\/([\w\-]+)\/([\w.\-]+)"/g, function (all, dir, file) {
+    return 'src="../' + MACHINES[m] + "/" + dir + "/" + file + '"';
+  });
+}
+/* названия и тексты из каталога машины важнее выгрузки; разделы, которых
+   в каталоге машины нет, оставляем как были */
+function mergeSvc(fromKb, own) {
+  var byCode = {};
+  fromKb.forEach(function (s) { byCode[s.c] = s; });
+  own.forEach(function (s) {
+    var cur = byCode[s.c];
+    byCode[s.c] = { c: s.c, t: s.t, b: s.b || (cur && cur.b) || "" };
+  });
+  return Object.keys(byCode).sort().map(function (c) { return byCode[c]; });
+}
+
 /* =================================== машины: разделы, ремонт, чертежи */
 var machineFiles = 0, machineBytes = 0;
 Object.keys(MACHINES).forEach(function (m) {
@@ -271,11 +319,26 @@ Object.keys(MACHINES).forEach(function (m) {
     .replace(/assets\/machines\/([A-Z0-9]+)\/([\w.\-]+)/g, function (all, mm, file) {
       return localMedia(mm, file) || all;
     }));
+  /* Каталог самой машины — источник истины по её руководствам и инструкциям
+     по ремонту: там они пополняются (см. build/gen_nte240_service.py), поэтому
+     список PDF и названия разделов берём оттуда, а не из выгрузки. */
+  var own = machineDocs(m);
+  if (own.man.length) data.man = own.man;
+  if (own.svc.length) data.svc = mergeSvc(data.svc || [], own.svc);
   /* руководства машины лежат в её собственной подпапке */
   (data.man || []).forEach(function (f) {
     f.url = "../" + MACHINES[m] + "/" + String(f.file).replace(/^\.?\//, "");
     if (f.id === "repair") data.tocUrl = f.url;
   });
+  /* счётчики на карточке машины — по итоговым данным, а не по выгрузке */
+  if (mlist[m]) {
+    mlist[m].ns = (data.s || []).length;
+    mlist[m].nsvc = (data.svc || []).length;
+    mlist[m].nes = (data.es || []).length;
+    mlist[m].man = (data.man || []).map(function (f) {
+      return { id: f.id, title: f.title, pages: f.pages };
+    });
+  }
   var file = path.join(DST, rel);
   fs.mkdirSync(path.dirname(file), { recursive: true });
   fs.writeFileSync(file,

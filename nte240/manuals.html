@@ -1,0 +1,34 @@
+<!DOCTYPE html><html lang="ru"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Заводские руководства NTE240 (PDF)</title>
+<script src="gate.js"></script>
+<style>body{font:15px/1.6 Calibri,"Segoe UI",Arial,sans-serif;color:#2a3138;background:#eef0f2;margin:0}.top{background:#2a3138;color:#fff;padding:14px 20px;border-bottom:2px solid #3ef0af;display:flex;gap:16px;align-items:center}.top a{color:#3ef0af;text-decoration:none;margin-left:auto;font-weight:700}main{max-width:900px;margin:18px auto;background:#fff;border:1px solid #e2e5e8;border-radius:10px;padding:24px 30px 60px}h2{font-size:17px;border-top:2px solid #3ef0af;padding-top:10px;margin-top:24px}p.lead{color:#5b636b;margin:4px 0 18px}a.doc{display:block;padding:12px 14px;margin-bottom:10px;color:#2a3138;text-decoration:none;border:1px solid #e2e5e8;border-radius:9px}a.doc:hover{border-color:#3ef0af;background:#f0fdf8}a.doc .t{font-weight:700;display:block}a.doc .d{color:#5b636b;font-size:13.5px;display:block;margin-top:2px}a.doc .m{color:#80868b;font-size:12.5px;display:block;margin-top:4px}a.sec{display:block;padding:7px 10px;color:#2a3138;text-decoration:none;border-radius:6px}a.sec:hover{background:#f0fdf8}</style></head><body>
+<div class="top"><b>Развитие · Заводские руководства NTE240</b><a href="index.html">← К каталогу запчастей</a></div><main>
+<h2>Руководства в PDF</h2>
+<p class="lead">Заводские документы NHL по самосвалу NTE240. Открываются в отдельной вкладке.</p>
+<div id="docs"></div>
+<h2>Ещё по этой машине</h2>
+<a class="sec" href="manual.html">📘 Руководство оператора NTE240 — полный текст с иллюстрациями</a>
+<a class="sec" href="service.html">🔧 Инструкции по ремонту и обслуживанию — 70 разделов каталога</a>
+<a class="sec" href="engine/index.html">🛠 Каталог двигателя Cummins QSK60 (ESN 33239746)</a>
+</main>
+<script src="data/manuals.js"></script>
+<script>
+(function () {
+  var box = document.getElementById("docs");
+  var files = (window.MANUALS && window.MANUALS.files) || [];
+  if (!files.length) { box.textContent = "Руководства не подключены."; return; }
+  files.forEach(function (f) {
+    var a = document.createElement("a");
+    a.className = "doc";
+    a.href = f.file;
+    a.target = "_blank";
+    a.rel = "noopener";
+    a.innerHTML = '<span class="t">📄 ' + f.title + "</span>" +
+      (f.desc ? '<span class="d">' + f.desc + "</span>" : "") +
+      '<span class="m">PDF' + (f.pages ? " · " + f.pages + " с." : "") + "</span>";
+    box.appendChild(a);
+  });
+})();
+</script>
+</body></html>
