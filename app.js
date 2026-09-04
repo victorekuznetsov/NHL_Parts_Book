@@ -343,6 +343,12 @@
     var nativeHref = m.id + "/index.html" + (m.hashPrefix || "#") + encodeURIComponent(s.code);
     var toMachine = '<a class="xref-link tomachine" href="' + nativeHref + '" target="_blank" rel="noopener">' +
       '🔧 Открыть раздел в полном каталоге ' + esc(m.name) + ' (руководство, ремонт, двигатель) →</a>';
+    // инструкция по ремонту именно этого узла, если она есть в базе знаний
+    var svc = (SERVICE_PAGES[m.id] || {})[s.code];
+    var toService = svc
+      ? '<a class="xref-link toservice" href="' + esc(svc.u) + '" target="_blank" rel="noopener">' +
+        '📘 Инструкция по ремонту: ' + esc(svc.t) + " →</a>"
+      : "";
     head.innerHTML =
       '<div class="crumb"><a class="crumb-link" href="#/">Выбор моделей</a> · ' +
       '<a class="crumb-link" href="' + catHash(m.id, curCat) + '">' + esc(m.name) + " · " + esc(catLabel(curCat)) + "</a> · " +
@@ -351,7 +357,7 @@
       ' <span class="en">' + esc(s.en || "") + "</span></h1>" +
       '<div class="meta">' + (s.figures || []).length + " рис. · " +
       count + " позиц. с номером детали</div>" +
-      '<div class="xref-row">' + toMachine + '</div>';
+      '<div class="xref-row">' + toMachine + toService + "</div>";
     content.appendChild(head);
 
     var figs = s.figures || [];
@@ -1093,6 +1099,11 @@
   // поставляется ли номер двигателя отдельно и в какие ремкомплекты он входит
   // (см. build/gen_engine_parts.js; данные — из каталога EPC Cummins)
   var ENGINE_PART_INFO = window.ENGINE_PART_INFO || {};
+  // всё, что о номере знает база знаний: документы QuickServe и русское
+  // наименование (см. build/gen_part_docs.js), плюс инструкции по ремонту
+  // разделов каталога — чтобы по найденной позиции была вся информация
+  var PART_DOCS = window.PART_DOCS || {};
+  var SERVICE_PAGES = window.SERVICE_PAGES || {};
   var CUMMINS_PRICES = window.CUMMINS_PRICES || {};
   var CUMMINS_PRICES_CUR = window.CUMMINS_PRICES_CUR || {};
   /* сведения о комплектности по номеру: {sold:true|false|null, kits:[{no,name}]} */
@@ -1105,6 +1116,28 @@
     }
     if (!rec) return { sold: null, kits: [] };
     return { sold: rec.s === 0 ? false : true, kits: rec.k || [] };
+  }
+  /* документы базы знаний по номеру */
+  function docsFor(no) {
+    var k = normNo(no), rec = PART_DOCS[k];
+    if (!rec) { var z = stripZeros(k); if (z !== k) rec = PART_DOCS[z]; }
+    return rec || {};
+  }
+  /* инструкции по ремонту разделов, в которых стоит деталь */
+  function serviceFor(machine, secs) {
+    var pages = SERVICE_PAGES[machine] || {}, out = [];
+    (secs || []).forEach(function (code) {
+      var p = pages[code];
+      if (p) out.push({ code: code, t: p.t, u: p.u });
+    });
+    return out;
+  }
+  function docsText(docs) {
+    return (docs || []).map(function (d) { return d[0] + " · " + d[1]; }).join("; ");
+  }
+  function serviceText(machine, svc) {
+    var name = (machineById[machine] || {}).name || machine;
+    return (svc || []).map(function (s) { return name + " " + s.code + " · " + s.t; }).join("; ");
   }
   function kitsText(kits) {
     return (kits || []).map(function (k) {
@@ -1183,13 +1216,15 @@
         hit.mks.forEach(function (mk) {
           checkMatchedMk[mk] = 1;
           var m = idx.meta[mk], pr = pricesFor(m.machine)[m.pn] || {};
-          var inf = partInfo(m.pn);
+          var inf = partInfo(m.pn), kb = docsFor(m.pn);
           out.push({
             query: raw, found: true, via: hit.via, machine: m.machine, pn: m.pn,
             ru: pr.n || "", en: m.en || "", zh: m.zh || "",
             curPrice: pr.cp != null ? pr.cp : null, price: pr.p != null ? pr.p : null,
             group: pr.g || "", xref: pr.x || "",
             sold: inf.sold, kits: inf.kits,
+            docs: kb.d || [], kbRu: kb.ru || "",
+            svc: serviceFor(m.machine, Object.keys(m.secs).sort()),
             secs: Object.keys(m.secs).sort()
           });
         });
@@ -1198,20 +1233,22 @@
         if (esHits && esHits.length) {
           esHits.forEach(function (h) {
             var cpn = normNo(h.cur);
-            var einf = partInfo(h.cur);
+            var einf = partInfo(h.cur), ekb = docsFor(h.cur);
             out.push({
               query: raw, found: true, via: "engine", machine: h.machine, pn: h.cur,
               ru: h.name || "", en: "", zh: "",
               curPrice: CUMMINS_PRICES_CUR[cpn] != null ? CUMMINS_PRICES_CUR[cpn] : null,
               price: CUMMINS_PRICES[cpn] != null ? CUMMINS_PRICES[cpn] : null,
               group: "Двигатель Cummins (EPC)", xref: raw,
-              sold: einf.sold, kits: einf.kits, secs: [], engineEsn: h.esn
+              sold: einf.sold, kits: einf.kits,
+              docs: ekb.d || [], kbRu: ekb.ru || "", svc: [],
+              secs: [], engineEsn: h.esn
             });
           });
         } else {
           out.push({ query: raw, found: false, via: null, machine: "", pn: "", ru: "", en: "", zh: "",
             curPrice: null, price: null, group: "", xref: "",
-            sold: null, kits: [], secs: [] });
+            sold: null, kits: [], docs: [], kbRu: "", svc: [], secs: [] });
         }
       }
     });
@@ -1246,18 +1283,20 @@
       '<th class="price">Текущая</th><th class="price">Несогласованная</th><th>Группа</th><th>Взаимозам.</th>' +
       '<th title="Деталь не поставляется отдельно — только в составе узла или комплекта">' +
       "Не поставляется отдельно</th><th>Входит в комплект</th>" +
-      "<th>Разделы</th></tr></thead>";
+      '<th title="Документы QuickServe и инструкции по ремонту, где встречается номер">' +
+      "База знаний</th><th>Разделы</th></tr></thead>";
     var tb = el("tbody");
     checkResults.forEach(function (r) {
       var tr = el("tr", r.found ? "" : "chk-miss");
       if (!r.found) {
         tr.innerHTML = '<td class="chk-q">' + esc(r.query) + "</td>" +
-          '<td colspan="10" class="chk-none">не найдено ни в одном каталоге</td>';
+          '<td colspan="11" class="chk-none">не найдено ни в одном каталоге</td>';
         tb.appendChild(tr); return;
       }
       var mm = machineById[r.machine] || { name: r.machine };
       var nameHtml = "";
       if (r.ru) nameHtml += '<div class="ru">' + esc(r.ru) + "</div>";
+      else if (r.kbRu) nameHtml += '<div class="ru">' + esc(r.kbRu) + "</div>";
       if (r.zh) nameHtml += '<div class="zh">' + esc(r.zh) + "</div>";
       if (r.en) nameHtml += '<div class="en">' + esc(r.en) + "</div>";
       if (!nameHtml) nameHtml = "—";
@@ -1288,6 +1327,23 @@
                    (k.name ? " · " + esc(k.name) : "") + "</div>";
           }).join("")
         : '<span class="muted">—</span>';
+      var kbBits = [];
+      if (r.docs && r.docs.length) {
+        kbBits.push('<a class="chk-kb" target="_blank" rel="noopener" href="cummins/index.html#/part/' +
+          esc(r.pn) + '" title="Открыть карточку детали в базе знаний">📄 документов: ' +
+          r.docs.length + "</a>");
+        r.docs.slice(0, 3).forEach(function (d) {
+          kbBits.push('<a class="chk-doc" target="_blank" rel="noopener" href="cummins/index.html#/doc/' +
+            esc(d[0]) + '">' + esc(d[1]) + "</a>");
+        });
+        if (r.docs.length > 3) kbBits.push('<span class="muted">и ещё ' + (r.docs.length - 3) + "</span>");
+      }
+      (r.svc || []).forEach(function (sv) {
+        kbBits.push('<a class="chk-doc" target="_blank" rel="noopener" href="' + esc(sv.u) +
+          '" title="Инструкция по ремонту раздела ' + esc(sv.code) + '">🔧 ' + esc(sv.code) +
+          " · " + esc(sv.t) + "</a>");
+      });
+      if (!kbBits.length) kbBits.push('<span class="muted">—</span>');
       tr.innerHTML =
         '<td class="chk-q">' + esc(r.query) + "</td>" +
         '<td class="chk-machinecell"><span class="mchip ' + esc(r.machine) + '">' + esc(mm.name) + "</span></td>" +
@@ -1299,6 +1355,7 @@
         "<td>" + esc(r.xref || "") + "</td>" +
         '<td class="chk-sep">' + soldCell + "</td>" +
         '<td class="chk-kits">' + kitCell + "</td>" +
+        '<td class="chk-kb">' + kbBits.join("") + "</td>" +
         '<td class="chk-secs">' + secChips + "</td>";
       tb.appendChild(tr);
     });
@@ -1326,14 +1383,16 @@
     if (!checkResults.length) { toast("Список пуст"); return; }
     var headers = ["Запрошенный номер", "Статус", "Машина", "Номер в каталоге", "Наименование (RU)",
       "Description (EN)", "Описание (ZH)", "Текущая цена", "Несогласованная цена", "Валюта", "Группа",
-      "Взаимозаменяемый артикул", "Не поставляется отдельно", "Входит в комплект", "Разделы"];
-    var types = ["s", "s", "s", "s", "s", "s", "s", "n", "n", "s", "s", "s", "s", "s", "s"];
+      "Взаимозаменяемый артикул", "Не поставляется отдельно", "Входит в комплект",
+      "Документы базы знаний", "Инструкции по ремонту", "Разделы"];
+    var types = ["s", "s", "s", "s", "s", "s", "s", "n", "n", "s", "s", "s", "s", "s", "s", "s", "s"];
     var rows = checkResults.map(function (r) {
       var status = !r.found ? "не найдено" : (r.via === "xref" ? "найдено (взаимозам.)" : "найдено");
-      return [r.query, status, (machineById[r.machine] || {}).name || "", r.pn, r.ru, r.en, r.zh,
+      return [r.query, status, (machineById[r.machine] || {}).name || "", r.pn, r.ru || r.kbRu, r.en, r.zh,
         r.curPrice != null ? r.curPrice : "", r.price != null ? r.price : "",
         r.machine ? currencyOf(r.machine) : "", r.group, r.xref,
         r.sold === false ? "да" : (r.sold === true ? "нет" : ""), kitsText(r.kits),
+        docsText(r.docs), serviceText(r.machine, r.svc),
         r.secs.join(" ")];
     });
     downloadBlob("NHL_проверка_номеров.xlsx", xlsx("Проверка", headers, rows, types));
@@ -1345,16 +1404,19 @@
     var idx = buildCheckIndex();
     var headers = ["Машина", "Артикул (Part No.)", "Наименование (RU)", "Description (EN)",
       "Описание (ZH)", "Текущая цена", "Несогласованная цена", "Валюта", "Группа",
-      "Взаимозаменяемый артикул", "Не поставляется отдельно", "Входит в комплект", "Разделы"];
-    var types = ["s", "s", "s", "s", "s", "n", "n", "s", "s", "s", "s", "s", "s"];
+      "Взаимозаменяемый артикул", "Не поставляется отдельно", "Входит в комплект",
+      "Документы базы знаний", "Инструкции по ремонту", "Разделы"];
+    var types = ["s", "s", "s", "s", "s", "n", "n", "s", "s", "s", "s", "s", "s", "s", "s"];
     var rows = [];
     Object.keys(idx.meta).forEach(function (mk) {
       if (checkMatchedMk[mk]) return;           // present in the list — skip
       var m = idx.meta[mk], pr = pricesFor(m.machine)[m.pn] || {}, inf = partInfo(m.pn);
-      rows.push([(machineById[m.machine] || {}).name || m.machine, m.pn, pr.n || "", m.en, m.zh,
+      var secs = Object.keys(m.secs).sort(), kb = docsFor(m.pn);
+      rows.push([(machineById[m.machine] || {}).name || m.machine, m.pn, pr.n || kb.ru || "", m.en, m.zh,
         pr.cp != null ? pr.cp : "", pr.p != null ? pr.p : "", currencyOf(m.machine), pr.g || "", pr.x || "",
         inf.sold === false ? "да" : (inf.sold === true ? "нет" : ""), kitsText(inf.kits),
-        Object.keys(m.secs).sort().join(" ")]);
+        docsText(kb.d), serviceText(m.machine, serviceFor(m.machine, secs)),
+        secs.join(" ")]);
     });
     rows.sort(function (a, b) { return (a[0] + a[1] < b[0] + b[1]) ? -1 : 1; });
     downloadBlob("NHL_отсутствуют_в_списке.xlsx", xlsx("Отсутствуют в списке", headers, rows, types));

@@ -439,6 +439,14 @@ aside.cart.open { transform: none; }
 .chk-kit { font-size: 11.5px; color: var(--ink-soft); }
 .chk-kit + .chk-kit { margin-top: 2px; }
 .chk-kit b { font-family: "Cascadia Code", Consolas, monospace; color: var(--accent-ink); }
+
+/* база знаний по номеру: документы QuickServe и инструкции по ремонту */
+.chk-kb { max-width: 300px; }
+.chk-kb a { display: block; font-size: 11.5px; line-height: 1.45; }
+.chk-kb .chk-kb { font-weight: 700; }
+a.chk-doc { color: var(--ink-soft); text-decoration: none; }
+a.chk-doc:hover { color: var(--accent-ink); text-decoration: underline; }
+a.chk-kb:hover { text-decoration: underline; }
 @media (max-width: 900px) { #checkBtn { font-size: 0; padding: 0 12px; } #checkBtn::before { content: "🔎"; font-size: 16px; } }
 
 /* row flash when arriving from the search / check-list results */
@@ -455,3 +463,6 @@ tr.pn-selected > td:first-child { box-shadow: inset 3px 0 0 0 var(--accent-stron
 /* Строка результата поиска — щелчок ведёт в каталог и подсвечивает позицию */
 table.parts tr.jumpable { cursor: pointer; }
 table.parts tr.jumpable:hover > td { background: rgba(62,240,175,.08); }
+
+/* ссылка на инструкцию по ремонту узла рядом с «полным каталогом машины» */
+.xref-link.toservice { border-color: var(--accent-strong); }

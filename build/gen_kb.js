@@ -156,7 +156,10 @@ Object.keys(PARTS).forEach(function (no) {
   var p = PARTS[no];
   if (!(p.e || []).some(function (e) { return ESN_SET[e]; })) return;
   p.e = p.e.filter(function (e) { return ESN_SET[e]; });
-  if (p.d) p.d = p.d.filter(function (x) { return docSet[x]; });
+  /* ссылки на документы записаны как "<категория>|<номер документа>" */
+  if (p.d) p.d = p.d.filter(function (x) {
+    return docSet[String(x).split("|").pop()];
+  });
   delete p.ph_local;
   parts[no] = p;
 });
@@ -231,7 +234,7 @@ docIds.forEach(function (id) {
   if (ch == null || ch < 0) return;
   (byChunk[ch] = byChunk[ch] || []).push(id);
 });
-var figs = {}, hasBody = {};
+var figs = {}, hasBody = {}, hasBodyRu = {};
 var bodyBytes = 0, bodyFiles = 0;
 Object.keys(byChunk).forEach(function (ch) {
   ["", "_ru"].forEach(function (suf) {
@@ -244,6 +247,7 @@ Object.keys(byChunk).forEach(function (ch) {
       if (!b) return;
       out[id] = b;
       hasBody[id] = 1;
+      if (suf) hasBodyRu[id] = 1;
       (b.match(/assets\/figures\/[\w.\-]+\.png/g) || []).forEach(function (f) {
         figs[f.split("/").pop()] = 1;
       });
@@ -307,6 +311,17 @@ function mergeSvc(fromKb, own) {
   });
   return Object.keys(byCode).sort().map(function (c) { return byCode[c]; });
 }
+
+/* Документы, текст которых не выгружен (в исходнике он пуст), помечаем
+   ch = -1, а отсутствие русского перевода — ru_body = 0: иначе каталог просит
+   несуществующий файл куска и ловит 404. */
+var noBody = 0, noRu = 0;
+docIds.forEach(function (id) {
+  var d = docs[id];
+  if (d.ch == null || d.ch < 0) return;
+  if (!hasBody[id]) { d.ch = -1; d.ru_body = 0; noBody++; return; }
+  if (d.ru_body && !hasBodyRu[id]) { d.ru_body = 0; noRu++; }
+});
 
 /* =================================== машины: разделы, ремонт, чертежи */
 var machineFiles = 0, machineBytes = 0;
@@ -400,7 +415,8 @@ console.log("  деталей Cummins " + Object.keys(parts).length);
 console.log("  деталей машин   " + Object.keys(mparts).length);
 console.log("  тем             " + TOPICS.length + ", строк поиска " + SEARCH.length);
 console.log("  индексы         " + mb(idxBytes));
-console.log("  тексты          " + bodyFiles + " файлов, " + mb(bodyBytes));
+console.log("  тексты          " + bodyFiles + " файлов, " + mb(bodyBytes) +
+            ", документов без текста: " + noBody + (noRu ? ", без перевода: " + noRu : ""));
 console.log("  машины          " + machineFiles + " файлов, " + mb(machineBytes) +
             (mediaMissing.length ? ", не найдено картинок: " + mediaMissing.length : ""));
 console.log("  рисунки         " + (figNames.length - figMissing) + " файлов, " + mb(figBytes) +
