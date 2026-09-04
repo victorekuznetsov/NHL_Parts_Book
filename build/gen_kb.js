@@ -300,6 +300,31 @@ function serviceBody(page, m) {
     return 'src="../' + MACHINES[m] + "/" + dir + "/" + file + '"';
   });
 }
+/* «Позиции на рисунке: 10-гайка; 1-Рама в сборе; 4-…» — это спецификация к
+   чертежу, разложенная в строку и вперемешку (нумерация в исходнике идёт по
+   столбцам). Собираем её в таблицу и сортируем по номеру позиции. */
+function specTables(body) {
+  if (!body || body.indexOf("<table") >= 0) return body;
+  return body.replace(/<p><b>Позиции на рисунке:<\/b>([^<]*)<\/p>/g, function (all, list) {
+    var rows = [];
+    list.split(";").forEach(function (part) {
+      var m = /^\s*(\d{1,3})\s*[-–—]\s*(.+?)\s*$/.exec(part);
+      if (m) rows.push([parseInt(m[1], 10), m[2]]);
+    });
+    if (rows.length < 3 || rows.length !== list.split(";").filter(function (x) {
+      return x.trim();
+    }).length) return all;
+    rows.sort(function (a, b) { return a[0] - b[0]; });
+    return '<table class="spec"><caption>Позиции на рисунке</caption>' +
+      rows.map(function (r) {
+        return '<tr><td class="n">' + r[0] + "</td><td>" +
+               String(r[1]).replace(/[&<>]/g, function (c) {
+                 return { "&": "&amp;", "<": "&lt;", ">": "&gt;" }[c];
+               }) + "</td></tr>";
+      }).join("") + "</table>";
+  });
+}
+
 /* названия и тексты из каталога машины важнее выгрузки; разделы, которых
    в каталоге машины нет, оставляем как были */
 function mergeSvc(fromKb, own) {
@@ -340,6 +365,7 @@ Object.keys(MACHINES).forEach(function (m) {
   var own = machineDocs(m);
   if (own.man.length) data.man = own.man;
   if (own.svc.length) data.svc = mergeSvc(data.svc || [], own.svc);
+  (data.svc || []).forEach(function (s) { s.b = specTables(s.b); });
   /* руководства машины лежат в её собственной подпапке */
   (data.man || []).forEach(function (f) {
     f.url = "../" + MACHINES[m] + "/" + String(f.file).replace(/^\.?\//, "");

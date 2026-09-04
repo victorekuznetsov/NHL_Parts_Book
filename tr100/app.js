@@ -321,7 +321,45 @@
     wrap.appendChild(srcNote);
 
     var body = el("div", "svc-body");
+    // «10-гайка», «1-Рама в сборе», «4-…» идут подряд и вперемешку: в исходном
+    // руководстве это спецификация к чертежу, набранная столбцами. Собираем её
+    // в таблицу и сортируем по номеру позиции.
+    var SPEC = /^\s*(\d{1,3})\s*[-–—]\s*(.+?)\s*$/;
+    var items = [];
     (data.items || []).forEach(function (it) {
+      var m = it.t === "text" ? SPEC.exec(it.x || "") : null;
+      var last = items[items.length - 1];
+      if (m) {
+        if (last && last.t === "spec") { last.rows.push([parseInt(m[1], 10), m[2]]); return; }
+        items.push({ t: "spec", rows: [[parseInt(m[1], 10), m[2]]] });
+        return;
+      }
+      items.push(it);
+    });
+    items = items.reduce(function (acc, it) {
+      if (it.t === "spec" && it.rows.length < 3) {
+        it.rows.forEach(function (r) { acc.push({ t: "text", x: r[0] + "-" + r[1] }); });
+      } else acc.push(it);
+      return acc;
+    }, []);
+
+    items.forEach(function (it) {
+      if (it.t === "spec") {
+        var tbl = el("table", "spec");
+        var cap = document.createElement("caption");
+        cap.textContent = "Позиции на рисунке";
+        tbl.appendChild(cap);
+        it.rows.slice().sort(function (a, b) { return a[0] - b[0]; }).forEach(function (r) {
+          var tr = el("tr");
+          tr.appendChild(el("td", "n", String(r[0])));
+          var td = el("td");
+          linkifyCodes(r[1], td);
+          tr.appendChild(td);
+          tbl.appendChild(tr);
+        });
+        body.appendChild(tbl);
+        return;
+      }
       if (it.t === "img") {
         var im = el("img", "svc-img");
         im.src = it.x; im.loading = "lazy"; im.alt = sec.code + " иллюстрация";

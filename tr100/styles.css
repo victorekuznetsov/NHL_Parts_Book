@@ -280,3 +280,14 @@ tr.flash{animation:flash 1s}
 .engine-xref a{display:inline-block;padding:.4rem .7rem;border:1px solid var(--accent,#c8102e);
   border-radius:6px;color:var(--accent,#c8102e);text-decoration:none;font-size:.9rem;font-weight:600}
 .engine-xref a:hover{background:var(--accent,#c8102e);color:#fff}
+
+/* спецификация к чертежу в инструкции по ремонту: «позиция — наименование» */
+.svc-body table.spec { border-collapse: collapse; margin: 12px 0; width: 100%; max-width: 640px; }
+.svc-body table.spec td { border: 1px solid #e2e5e8; padding: 5px 9px; vertical-align: top; }
+.svc-body table.spec td.n {
+  width: 3.2em; text-align: right; color: #80868b; background: #f7f9fa;
+  font-variant-numeric: tabular-nums;
+}
+.svc-body table.spec caption {
+  caption-side: top; text-align: left; font-weight: 700; padding: 0 0 6px;
+}
