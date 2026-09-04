@@ -1103,6 +1103,10 @@
   // наименование (см. build/gen_part_docs.js), плюс инструкции по ремонту
   // разделов каталога — чтобы по найденной позиции была вся информация
   var PART_DOCS = window.PART_DOCS || {};
+  // весь состав трёх двигателей: номер -> узлы (см. build/gen_engine_parts.js).
+  // Нужен, чтобы «Проверить список» находил номера, которых нет в каталоге
+  // машины, но которые есть в каталоге двигателя Cummins.
+  var ENGINE_PARTS = window.ENGINE_PARTS || {};
   var SERVICE_PAGES = window.SERVICE_PAGES || {};
   var CUMMINS_PRICES = window.CUMMINS_PRICES || {};
   var CUMMINS_PRICES_CUR = window.CUMMINS_PRICES_CUR || {};
@@ -1143,6 +1147,12 @@
     return (kits || []).map(function (k) {
       return k.no + (k.name ? " · " + k.name : "");
     }).join("; ");
+  }
+  /* номер в составе двигателя (прямое совпадение, не замена) */
+  function lookupEngineCat(raw) {
+    var k = normNo(raw), rec = ENGINE_PARTS[k];
+    if (!rec) { var z = stripZeros(k); if (z !== k) rec = ENGINE_PARTS[z]; }
+    return rec || null;
   }
   function lookupEngineSup(raw) {
     var k = normNo(raw);
@@ -1228,6 +1238,22 @@
             secs: Object.keys(m.secs).sort()
           });
         });
+      } else if (lookupEngineCat(raw)) {
+        var ec = lookupEngineCat(raw);
+        var pn = raw.trim(), einf2 = partInfo(pn), ekb2 = docsFor(pn);
+        var cpn2 = normNo(pn);
+        ec.m.forEach(function (h) {
+          out.push({
+            query: raw, found: true, via: "engine", machine: h.m, pn: pn,
+            ru: "", en: ec.n || "", zh: "",
+            curPrice: CUMMINS_PRICES_CUR[cpn2] != null ? CUMMINS_PRICES_CUR[cpn2] : null,
+            price: CUMMINS_PRICES[cpn2] != null ? CUMMINS_PRICES[cpn2] : null,
+            group: "Двигатель Cummins (EPC)", xref: "",
+            sold: einf2.sold, kits: einf2.kits,
+            docs: ekb2.d || [], kbRu: ekb2.ru || "", svc: [],
+            secs: [], engineEsn: h.e, engineOpts: h.o || []
+          });
+        });
       } else {
         var esHits = lookupEngineSup(raw);
         if (esHits && esHits.length) {
@@ -1300,7 +1326,8 @@
       if (r.zh) nameHtml += '<div class="zh">' + esc(r.zh) + "</div>";
       if (r.en) nameHtml += '<div class="en">' + esc(r.en) + "</div>";
       if (!nameHtml) nameHtml = "—";
-      var via = (r.via === "xref" || r.via === "engine")
+      // «вместо …» показываем только когда номер в каталоге другой
+      var via = ((r.via === "xref" || r.via === "engine") && normNo(r.pn) !== normNo(r.query))
         ? '<div class="chk-via">вместо ' + esc(r.query) + "</div>" : "";
       var openBtn;
       if (r.via === "engine") {
@@ -1311,7 +1338,12 @@
           '" data-pn="' + esc(r.pn) + '" title="Открыть в каталоге">' + esc(r.pn) + "</button>";
       }
       var secChips = r.via === "engine"
-        ? '<span class="chk-eng-note">двигатель (EPC Cummins)</span>'
+        ? '<span class="chk-eng-note">двигатель (EPC Cummins)</span>' +
+          (r.engineOpts || []).slice(0, 4).map(function (o) {
+            return '<span class="chk-eng-opt">' + esc(o) + "</span>";
+          }).join("") +
+          ((r.engineOpts || []).length > 4
+            ? '<span class="muted">и ещё ' + (r.engineOpts.length - 4) + "</span>" : "")
         : r.secs.map(function (code) {
             var s = (CATALOGS[r.machine] && CATALOGS[r.machine].sections || []).filter(function (x) { return x.code === code; })[0];
             return '<button class="chk-sec" data-m="' + esc(r.machine) + '" data-sec="' + esc(code) + '" data-pn="' + esc(r.pn) +
@@ -1379,6 +1411,16 @@
       });
     });
   }
+  /* как номер нашёлся: в каталоге машины, по взаимозаменяемому или в EPC */
+  function checkStatus(r) {
+    if (!r.found) return "не найдено";
+    if (r.via === "xref") return "найдено (взаимозам.)";
+    if (r.via === "engine") {
+      return normNo(r.pn) === normNo(r.query)
+        ? "найдено (каталог двигателя)" : "найдено (взаимозам., двигатель)";
+    }
+    return "найдено";
+  }
   function exportCheck() {
     if (!checkResults.length) { toast("Список пуст"); return; }
     var headers = ["Запрошенный номер", "Статус", "Машина", "Номер в каталоге", "Наименование (RU)",
@@ -1387,13 +1429,14 @@
       "Документы базы знаний", "Инструкции по ремонту", "Разделы"];
     var types = ["s", "s", "s", "s", "s", "s", "s", "n", "n", "s", "s", "s", "s", "s", "s", "s", "s"];
     var rows = checkResults.map(function (r) {
-      var status = !r.found ? "не найдено" : (r.via === "xref" ? "найдено (взаимозам.)" : "найдено");
+      var status = checkStatus(r);
       return [r.query, status, (machineById[r.machine] || {}).name || "", r.pn, r.ru || r.kbRu, r.en, r.zh,
         r.curPrice != null ? r.curPrice : "", r.price != null ? r.price : "",
         r.machine ? currencyOf(r.machine) : "", r.group, r.xref,
         r.sold === false ? "да" : (r.sold === true ? "нет" : ""), kitsText(r.kits),
         docsText(r.docs), serviceText(r.machine, r.svc),
-        r.secs.join(" ")];
+        // у позиций двигателя вместо разделов машины — узлы EPC
+        (r.secs.length ? r.secs : (r.engineOpts || [])).join(" ")];
     });
     downloadBlob("NHL_проверка_номеров.xlsx", xlsx("Проверка", headers, rows, types));
     toast("Выгружено строк: " + rows.length);

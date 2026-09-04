@@ -14,6 +14,13 @@
        k: [{ no, name }, ... ],    // комплекты, в которые деталь входит
        e: ["33239746", ... ]       // двигатели, где деталь так помечена
      } }
+     window.ENGINE_PARTS = { "<нормализованный номер>": {
+       n: "наименование",
+       m: [{ e: "<ESN>", m: "<машина>", o: ["<узел>", ...] }, ... ]
+     } }
+   Второй индекс — весь состав трёх двигателей: по нему «Проверить список»
+   находит номера, которых нет в каталоге машины, но которые есть в каталоге
+   двигателя (933 из 2692).
 
    В индекс попадают только номера, про которые есть что сказать (не
    поставляется отдельно и/или входит в комплект), поэтому файл небольшой.
@@ -38,6 +45,7 @@ function loadCatalog(esn) {
 }
 
 var out = {};
+var parts = {};
 var notSold = 0, inKits = 0;
 
 Object.keys(NHL).forEach(function (esn) {
@@ -50,6 +58,20 @@ Object.keys(NHL).forEach(function (esn) {
     (kit.parts || []).forEach(function (p) {
       if (!p.no || p.no === kit.no) return;
       (kitsByPart[p.no] = kitsByPart[p.no] || []).push({ no: kit.no, name: kit.name || "" });
+    });
+  });
+
+  /* весь состав двигателя: номер -> узлы, в которых он стоит */
+  (cat.options || []).forEach(function (o) {
+    (o.parts || []).forEach(function (p) {
+      if (!p.no) return;
+      var key = normNo(p.no);
+      var rec = parts[key] || (parts[key] = { n: "", m: [] });
+      if (!rec.n && p.name) rec.n = p.name;
+      var slot = null;
+      rec.m.forEach(function (x) { if (x.e === esn) slot = x; });
+      if (!slot) { slot = { e: esn, m: NHL[esn], o: [] }; rec.m.push(slot); }
+      if (slot.o.indexOf(o.no) < 0) slot.o.push(o.no);
     });
   });
 
@@ -77,6 +99,9 @@ Object.keys(out).forEach(function (k) {
 
 fs.mkdirSync(path.join(ROOT, "data"), { recursive: true });
 fs.writeFileSync(path.join(ROOT, "data", "engine_parts.js"),
-  "window.ENGINE_PART_INFO = " + JSON.stringify(out) + ";\n");
-console.log("data/engine_parts.js — номеров: " + Object.keys(out).length +
-  " (не поставляются отдельно: " + notSold + ", входят в комплекты: " + inKits + ")");
+  "window.ENGINE_PART_INFO = " + JSON.stringify(out) + ";\n" +
+  "window.ENGINE_PARTS = " + JSON.stringify(parts) + ";\n");
+console.log("data/engine_parts.js — комплектность: " + Object.keys(out).length +
+  " номеров (не поставляются отдельно: " + notSold + ", входят в комплекты: " + inKits + ")");
+console.log("  состав двигателей: " + Object.keys(parts).length + " номеров, " +
+  (fs.statSync(path.join(ROOT, "data", "engine_parts.js")).size / 1024).toFixed(0) + " КБ");
