@@ -1,26 +1,7 @@
+/* Двигатели каталога — три ДВС парка NHL. Остальные двигатели общей выгрузки
+   EPC (SD32, SD90C-5, DH46C3, SG21A-3, SD60-C5) к NHL отношения не имеют и в
+   этот каталог не переносятся: их данные и чертежи только утяжеляли деплой. */
 window.ENGINES = [
- {
-  "esn": "85201236",
-  "model": "QSX15 CM570",
-  "cpl": "8761",
-  "machine": "DH46C3",
-  "build": "2022-04-06",
-  "config": "D103007CC01",
-  "options": 74,
-  "parts": 729,
-  "fleet": []
- },
- {
-  "esn": "80201235",
-  "model": "X15 CM2350 X114B",
-  "cpl": "4342",
-  "machine": "DH46C3",
-  "build": "2019-07-29",
-  "config": "D103016BW25",
-  "options": 75,
-  "parts": 868,
-  "fleet": []
- },
  {
   "esn": "33239899",
   "model": "QSK50 CM2150 MCRS",
@@ -167,50 +148,6 @@ window.ENGINES = [
    "33239054",
    "33239220"
   ]
- },
- {
-  "esn": "41343322",
-  "model": "NH/NT 855",
-  "cpl": "3362",
-  "machine": "SD32",
-  "build": "2022-12-08",
-  "config": "D093664CX03",
-  "options": 63,
-  "parts": 873,
-  "fleet": []
- },
- {
-  "esn": "41349633",
-  "model": "QSK19 CM2150 MCRS",
-  "cpl": "3666",
-  "machine": "SD60-C5",
-  "build": "2023-06-02",
-  "config": "D193101CX03",
-  "options": 82,
-  "parts": 700,
-  "fleet": []
- },
- {
-  "esn": "37292556",
-  "model": "QST30 CM552",
-  "cpl": "1244",
-  "machine": "SD90C-5",
-  "build": "2024-01-12",
-  "config": "D573011CC33",
-  "options": 82,
-  "parts": 863,
-  "fleet": []
- },
- {
-  "esn": "93058669",
-  "model": "6C8.3",
-  "cpl": "3105",
-  "machine": "SG21A-3",
-  "build": "2022-09-22",
-  "config": "D413052CX03",
-  "options": 82,
-  "parts": 392,
-  "fleet": []
  },
  {
   "esn": "37295879",
