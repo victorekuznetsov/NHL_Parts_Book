@@ -446,6 +446,23 @@ aside.cart.open { transform: none; }
 .chk-eng-note { color: var(--muted); font-size: 11.5px; font-style: italic; }
 /* комплектность: деталь не поставляется отдельно и чем её можно заказать */
 .chk-sep, .chk-kits { max-width: 260px; }
+/* где нашёлся номер и идёт ли он отдельно — явными подписями, без прочерков */
+.chk-srccell { max-width: 190px; }
+.chk-tally { color: var(--muted); font-size: 12px; font-weight: 500; }
+.chk-src {
+  display: inline-block; border-radius: 6px; padding: 1px 7px;
+  font-size: 11.5px; font-weight: 700; line-height: 1.45;
+  border: 1px solid var(--line-strong); background: var(--surface-2); color: var(--ink-soft);
+}
+.chk-src.machine { border-color: var(--accent-strong); color: var(--accent-ink); background: rgba(62,240,175,.12); }
+.chk-src.engine { border-color: #9db8e8; color: #2f5aa8; background: #eef3fd; }
+.chk-src.kit { border-color: #d9b3e8; color: #7a3f96; background: #f8effc; }
+.chk-src.kb { border-color: #f0c9a0; color: #b45309; background: #fffaf3; }
+.chk-sep-yes {
+  display: inline-block; border: 1px solid var(--line-strong); color: var(--ink-soft);
+  border-radius: 6px; padding: 1px 7px; font-size: 11.5px; background: var(--surface-2);
+  white-space: nowrap;
+}
 .chk-nosep {
   display: inline-block; border: 1px solid var(--danger); color: var(--danger);
   border-radius: 6px; padding: 1px 7px; font-size: 11.5px; font-weight: 700;

@@ -821,14 +821,27 @@
   // available attribute: one row per occurrence (a number that appears in
   // several figures/sections yields several rows, keeping its distinct position,
   // quantity, level and drawing). No attribute is dropped.
+  /* Полная выгрузка «все номера со всеми атрибутами» — по всем источникам:
+     каталоги трёх машин, каталог двигателя EPC, ремкомплекты Cummins и номера,
+     известные только базе знаний. Колонка «Источник» разделяет их, колонки
+     «Отдельная поставка» / «Входит в комплект» / «База знаний» отвечают на
+     вопрос «есть ли номер и чем его заказать» прямо в файле. */
   function exportAllNumbers() {
-    var headers = ["Машина", "Глава (код)", "Глава", "Раздел (код)", "Раздел",
+    var headers = ["Источник", "Машина", "Глава (код)", "Глава", "Раздел (код)", "Раздел",
       "Рисунок", "№ позиции", "Артикул (Part No.)", "Взаимозаменяемый артикул",
       "Наименование (RU)", "Description (EN)", "Описание (ZH)",
-      "Кол-во на схеме", "Уровень", "Текущая цена", "Несогласованная цена", "Валюта", "Группа", "Чертёж (файлы)"];
-    var types = ["s", "s", "s", "s", "s", "s", "s", "s", "s", "s", "s", "s",
-      "s", "s", "n", "n", "s", "s", "s"];
+      "Кол-во на схеме", "Уровень", "Текущая цена", "Несогласованная цена", "Валюта", "Группа",
+      "Отдельная поставка", "Входит в комплект", "Документы базы знаний", "Чертёж (файлы)"];
+    var types = ["s", "s", "s", "s", "s", "s", "s", "s", "s", "s", "s", "s", "s",
+      "s", "s", "n", "n", "s", "s", "s", "s", "s", "s"];
     var rows = [];
+    function soldOf(no) {
+      var i = partInfo(no);
+      return i.sold === false ? "не поставляется отдельно"
+        : (i.sold === true ? "поставляется отдельно" : "нет данных");
+    }
+
+    /* 1. каталоги машин — как раньше, позиция за позицией */
     MACHINES.forEach(function (mm) {
       var id = mm.id, prices = pricesFor(id);
       var chById = {};
@@ -841,18 +854,71 @@
           var drawing = (f.images || []).map(baseName).join(" ");
           (f.parts || []).forEach(function (p) {
             if (!p.pn) return;
-            var pr = prices[p.pn] || {};
-            rows.push([mm.name, s.chapter, chName, s.code, secName(s),
+            var pr = prices[p.pn] || {}, inf = partInfo(p.pn), kb = docsFor(p.pn);
+            rows.push(["Каталог машины", mm.name, s.chapter, chName,
+              s.code + (isPdfSection(id, s.code) ? " (из PDF-каталога)" : ""), secName(s),
               figs.length > 1 ? (fi + 1) + " / " + figs.length : "",
               pad(p.ref), p.pn, pr.x || "",
-              pr.n || "", p.en || "", p.zh || "",
+              pr.n || kb.ru || "", p.en || "", p.zh || "",
               p.qty || "", p.lvl != null ? p.lvl : "",
               pr.cp != null ? pr.cp : "", pr.p != null ? pr.p : "",
-              currencyOf(id), pr.g || "", drawing]);
+              currencyOf(id), pr.g || "",
+              inf.sold === false ? "не поставляется отдельно"
+                : (inf.sold === true ? "поставляется отдельно" : "нет данных (номер не из каталога ДВС)"),
+              kitsText(inf.kits), docsText(kb.d), drawing]);
           });
         });
       });
     });
+
+    /* 2. каталог двигателя EPC Cummins — узел вместо раздела */
+    Object.keys(ENGINE_PARTS).forEach(function (k) {
+      var rec = ENGINE_PARTS[k], kb = docsFor(k), inf = partInfo(k);
+      (rec.m || []).forEach(function (h) {
+        var mm = machineById[h.m] || { name: h.m };
+        (h.o && h.o.length ? h.o : [""]).forEach(function (o) {
+          rows.push(["Каталог двигателя (EPC Cummins)", mm.name, "ДВС",
+            (mm.engineLabel || "Двигатель Cummins (EPC)"), o, ENGINE_OPTS[o] || "",
+            "", "", k, "", kb.ru || "", rec.n || "", "", "", "",
+            CUMMINS_PRICES_CUR[k] != null ? CUMMINS_PRICES_CUR[k] : "",
+            CUMMINS_PRICES[k] != null ? CUMMINS_PRICES[k] : "",
+            h.m ? currencyOf(h.m) : "", "Двигатель Cummins (EPC)",
+            soldOf(k), kitsText(inf.kits), docsText(kb.d), ""]);
+        });
+      });
+    });
+
+    /* 3. номера самих ремкомплектов Cummins */
+    Object.keys(ENGINE_KITS).forEach(function (k) {
+      var kit = ENGINE_KITS[k], kb = docsFor(k);
+      (kit.e && kit.e.length ? kit.e : [""]).forEach(function (esn) {
+        var mid = machineByEsn(esn), mm = machineById[mid] || { name: "" };
+        rows.push(["Ремкомплект Cummins (EPC)", mm.name, "ДВС", "Ремкомплекты Cummins",
+          k, kit.n || "", "", "", k, "", kb.ru || "", kit.n || "", "",
+          (kit.p || []).length, "",
+          CUMMINS_PRICES_CUR[k] != null ? CUMMINS_PRICES_CUR[k] : "",
+          CUMMINS_PRICES[k] != null ? CUMMINS_PRICES[k] : "",
+          mid ? currencyOf(mid) : "", "Ремкомплект Cummins (EPC)",
+          "поставляется отдельно",
+          (kit.p || []).map(function (x) { return x.no + (x.name ? " · " + x.name : ""); }).join("; "),
+          docsText(kb.d), ""]);
+      });
+    });
+
+    /* 4. номера, известные только базе знаний */
+    var catIdx = buildCheckIndex();
+    Object.keys(PART_DOCS).forEach(function (k) {
+      if (ENGINE_PARTS[k] || ENGINE_KITS[k]) return;
+      if (catIdx.byNo[k] || catIdx.byNo[stripZeros(k)]) return;
+      var kb = PART_DOCS[k];
+      if (!(kb.d && kb.d.length) && !kb.ru) return;
+      rows.push(["База знаний Cummins", "", "", "База знаний QuickServe", "", "",
+        "", "", k, "", kb.ru || "", "", "", "", "",
+        CUMMINS_PRICES_CUR[k] != null ? CUMMINS_PRICES_CUR[k] : "",
+        CUMMINS_PRICES[k] != null ? CUMMINS_PRICES[k] : "",
+        "", "", soldOf(k), kitsText(partInfo(k).kits), docsText(kb.d), ""]);
+    });
+
     downloadBlob("NHL_все_номера_со_всеми_атрибутами.xlsx",
       xlsx("Все номера", headers, rows, types));
     toast("Экспортировано строк: " + rows.length);
@@ -1134,6 +1200,10 @@
   // Нужен, чтобы «Проверить список» находил номера, которых нет в каталоге
   // машины, но которые есть в каталоге двигателя Cummins.
   var ENGINE_PARTS = window.ENGINE_PARTS || {};
+  // номера самих ремкомплектов Cummins: их нет ни в составе узлов, ни в
+  // каталогах машин, но заказывают именно их, когда деталь отдельно не идёт
+  var ENGINE_KITS = window.ENGINE_KITS || {};
+  var ENGINE_OPTS = window.ENGINE_OPTS || {};   // код узла -> наименование
   var SERVICE_PAGES = window.SERVICE_PAGES || {};
   var CUMMINS_PRICES = window.CUMMINS_PRICES || {};
   var CUMMINS_PRICES_CUR = window.CUMMINS_PRICES_CUR || {};
@@ -1147,6 +1217,38 @@
     }
     if (!rec) return { sold: null, kits: [] };
     return { sold: rec.s === 0 ? false : true, kits: rec.k || [] };
+  }
+  /* номер ремкомплекта Cummins (2881810 и т.п.) */
+  function lookupKit(raw) {
+    var k = normNo(raw), rec = ENGINE_KITS[k];
+    if (!rec) { var z = stripZeros(k); if (z !== k) rec = ENGINE_KITS[z]; }
+    return rec || null;
+  }
+  /* про номер знает только база знаний: русское имя и/или документы QuickServe */
+  function lookupKbOnly(raw) {
+    var rec = docsFor(raw);
+    return (rec && ((rec.d && rec.d.length) || rec.ru)) ? rec : null;
+  }
+  /* где номер нашёлся — одним понятным словом, без «прочерков наугад» */
+  var SRC_LABEL = {
+    machine: "Каталог машины",
+    engine: "Каталог двигателя (EPC Cummins)",
+    kit: "Ремкомплект Cummins (EPC)",
+    kb: "Только база знаний (в каталогах нет)"
+  };
+  function srcLabel(r) { return r.found ? (SRC_LABEL[r.src] || "") : "Нет ни в каталогах, ни в базе знаний"; }
+  /* как именно совпало: сам номер, взаимозаменяемый артикул или замена Cummins */
+  function viaLabel(r) {
+    if (!r.found) return "";
+    if (r.via === "xref") return "по взаимозаменяемому артикулу";
+    if (r.via === "sup") return "по замене номера Cummins";
+    return "прямое совпадение";
+  }
+  /* отдельная поставка: да / нет / нет данных — без двусмысленных прочерков */
+  function soldLabel(r) {
+    if (r.sold === false) return "не поставляется отдельно";
+    if (r.sold === true) return "поставляется отдельно";
+    return r.src === "machine" ? "нет данных (номер не из каталога ДВС)" : "нет данных";
   }
   /* документы базы знаний по номеру */
   function docsFor(no) {
@@ -1241,6 +1343,14 @@
 
   var checkResults = [];     // last run rows (for export)
   var checkMatchedMk = {};   // catalog entries touched by the last list (for "missing in list")
+  var checkMatchedNo = {};   // все номера (нормализованные), закрытые списком — по всем источникам
+  /* по какой машине показывать номер двигателя: ESN -> машина */
+  function machineByEsn(esn) {
+    for (var i = 0; i < MACHINES.length; i++) {
+      if ((MACHINES[i].engineSite || "").indexOf("esn=" + esn) >= 0) return MACHINES[i].id;
+    }
+    return "";
+  }
   var checkRan = false;
   function parseNumbers(text) {
     return String(text || "").split(/[\s,;]+/).map(function (t) { return t.trim(); })
@@ -1250,18 +1360,22 @@
     var idx = buildCheckIndex();
     var seen = {}, out = [];
     checkMatchedMk = {};
+    checkMatchedNo = {};
+    function mark(no) { var k = normNo(no); if (k) { checkMatchedNo[k] = 1; checkMatchedNo[stripZeros(k)] = 1; } }
     nums.forEach(function (raw) {
       var key = normNo(raw);
       if (!key || seen[key]) return;
       seen[key] = 1;
       var hit = lookupNo(raw);
       if (hit) {
+        /* 1. каталог машины — сам номер или взаимозаменяемый артикул */
         hit.mks.forEach(function (mk) {
           checkMatchedMk[mk] = 1;
           var m = idx.meta[mk], pr = pricesFor(m.machine)[m.pn] || {};
           var inf = partInfo(m.pn), kb = docsFor(m.pn);
+          mark(m.pn);
           out.push({
-            query: raw, found: true, via: hit.via, machine: m.machine, pn: m.pn,
+            query: raw, found: true, src: "machine", via: hit.via, machine: m.machine, pn: m.pn,
             ru: pr.n || "", en: m.en || "", zh: m.zh || "",
             curPrice: pr.cp != null ? pr.cp : null, price: pr.p != null ? pr.p : null,
             group: pr.g || "", xref: pr.x || "",
@@ -1271,14 +1385,17 @@
             secs: Object.keys(m.secs).sort()
           });
         });
-      } else if (lookupEngineCat(raw)) {
-        var ec = lookupEngineCat(raw);
-        var pn = raw.trim(), einf2 = partInfo(pn), ekb2 = docsFor(pn);
-        var cpn2 = normNo(pn);
+        return;
+      }
+      var ec = lookupEngineCat(raw);
+      if (ec) {
+        /* 2. состав двигателя (EPC Cummins) */
+        var pn = raw.trim(), einf2 = partInfo(pn), ekb2 = docsFor(pn), cpn2 = normNo(pn);
+        mark(pn);
         ec.m.forEach(function (h) {
           out.push({
-            query: raw, found: true, via: "engine", machine: h.m, pn: pn,
-            ru: "", en: ec.n || "", zh: "",
+            query: raw, found: true, src: "engine", via: "no", machine: h.m, pn: pn,
+            ru: ekb2.ru || "", en: ec.n || "", zh: "",
             curPrice: CUMMINS_PRICES_CUR[cpn2] != null ? CUMMINS_PRICES_CUR[cpn2] : null,
             price: CUMMINS_PRICES[cpn2] != null ? CUMMINS_PRICES[cpn2] : null,
             group: "Двигатель Cummins (EPC)", xref: "",
@@ -1287,29 +1404,67 @@
             secs: [], engineEsn: h.e, engineOpts: h.o || []
           });
         });
-      } else {
-        var esHits = lookupEngineSup(raw);
-        if (esHits && esHits.length) {
-          esHits.forEach(function (h) {
-            var cpn = normNo(h.cur);
-            var einf = partInfo(h.cur), ekb = docsFor(h.cur);
-            out.push({
-              query: raw, found: true, via: "engine", machine: h.machine, pn: h.cur,
-              ru: h.name || "", en: "", zh: "",
-              curPrice: CUMMINS_PRICES_CUR[cpn] != null ? CUMMINS_PRICES_CUR[cpn] : null,
-              price: CUMMINS_PRICES[cpn] != null ? CUMMINS_PRICES[cpn] : null,
-              group: "Двигатель Cummins (EPC)", xref: raw,
-              sold: einf.sold, kits: einf.kits,
-              docs: ekb.d || [], kbRu: ekb.ru || "", svc: [],
-              secs: [], engineEsn: h.esn
-            });
-          });
-        } else {
-          out.push({ query: raw, found: false, via: null, machine: "", pn: "", ru: "", en: "", zh: "",
-            curPrice: null, price: null, group: "", xref: "",
-            sold: null, kits: [], docs: [], kbRu: "", svc: [], secs: [] });
-        }
+        return;
       }
+      var kit = lookupKit(raw);
+      if (kit) {
+        /* 3. номер самого ремкомплекта Cummins — раньше отвечали «не найдено» */
+        var kpn = raw.trim(), kcpn = normNo(kpn), kkb = docsFor(kpn);
+        mark(kpn);
+        (kit.e && kit.e.length ? kit.e : [""]).forEach(function (esn) {
+          out.push({
+            query: raw, found: true, src: "kit", via: "no", machine: machineByEsn(esn), pn: kpn,
+            ru: kkb.ru || "", en: kit.n || "", zh: "",
+            curPrice: CUMMINS_PRICES_CUR[kcpn] != null ? CUMMINS_PRICES_CUR[kcpn] : null,
+            price: CUMMINS_PRICES[kcpn] != null ? CUMMINS_PRICES[kcpn] : null,
+            group: "Ремкомплект Cummins (EPC)", xref: "",
+            sold: true, kits: [], kitParts: kit.p || [],
+            docs: kkb.d || [], kbRu: kkb.ru || "", svc: [],
+            secs: [], engineEsn: esn, engineOpts: []
+          });
+        });
+        return;
+      }
+      var esHits = lookupEngineSup(raw);
+      if (esHits && esHits.length) {
+        /* 4. старый номер Cummins -> действующий */
+        esHits.forEach(function (h) {
+          var cpn = normNo(h.cur), einf = partInfo(h.cur), ekb = docsFor(h.cur);
+          mark(h.cur);
+          out.push({
+            query: raw, found: true, src: "engine", via: "sup", machine: h.machine, pn: h.cur,
+            ru: h.name || ekb.ru || "", en: "", zh: "",
+            curPrice: CUMMINS_PRICES_CUR[cpn] != null ? CUMMINS_PRICES_CUR[cpn] : null,
+            price: CUMMINS_PRICES[cpn] != null ? CUMMINS_PRICES[cpn] : null,
+            group: "Двигатель Cummins (EPC)", xref: raw,
+            sold: einf.sold, kits: einf.kits,
+            docs: ekb.d || [], kbRu: ekb.ru || "", svc: [],
+            secs: [], engineEsn: h.esn,
+            engineOpts: (lookupEngineCat(h.cur) && lookupEngineCat(h.cur).m[0] || {}).o || []
+          });
+        });
+        return;
+      }
+      var kb = lookupKbOnly(raw);
+      if (kb) {
+        /* 5. номера в каталогах нет, но база знаний про него что-то знает —
+           раньше такая строка уходила в «не найдено» вместе с документами */
+        mark(raw);
+        out.push({
+          query: raw, found: true, src: "kb", via: "no", machine: "", pn: raw.trim(),
+          ru: kb.ru || "", en: "", zh: "",
+          curPrice: CUMMINS_PRICES_CUR[normNo(raw)] != null ? CUMMINS_PRICES_CUR[normNo(raw)] : null,
+          price: CUMMINS_PRICES[normNo(raw)] != null ? CUMMINS_PRICES[normNo(raw)] : null,
+          group: "", xref: "",
+          sold: partInfo(raw).sold, kits: partInfo(raw).kits,
+          docs: kb.d || [], kbRu: kb.ru || "", svc: [], secs: []
+        });
+        return;
+      }
+      /* 6. нигде */
+      out.push({ query: raw, found: false, src: null, via: null, machine: "", pn: "", ru: "", en: "", zh: "",
+        curPrice: null, price: null, group: "", xref: "",
+        sold: null, kits: [], docs: [], kbRu: "", svc: [], secs: [] });
     });
     checkResults = out;
     checkRan = true;
@@ -1329,27 +1484,41 @@
       if (r.found) { foundQ[normNo(r.query)] = 1; if (r.via === "xref") viaX++; }
     });
     checkResults.forEach(function (r) { if (!r.found) miss++; });
-    st.innerHTML = "Запросов: <b>" + qCount + "</b> · найдено (уникальных): <b>" + Object.keys(foundQ).length +
-      "</b> · не найдено: <b>" + (qCount - Object.keys(foundQ).length) + "</b> · всего совпадений по машинам: <b>" +
-      checkResults.filter(function (r) { return r.found; }).length + "</b>" +
-      (viaX ? " · по взаимозам. артикулу: <b>" + viaX + "</b>" : "");
+    /* разбивка по источникам — чтобы сразу было видно, что где нашлось */
+    var bySrc = { machine: {}, engine: {}, kit: {}, kb: {} };
+    checkResults.forEach(function (r) {
+      if (r.found && bySrc[r.src]) bySrc[r.src][normNo(r.query)] = 1;
+    });
+    function n(o) { return Object.keys(o).length; }
+    st.innerHTML = "Запросов: <b>" + qCount + "</b> · найдено: <b>" + Object.keys(foundQ).length +
+      "</b> · не найдено: <b>" + (qCount - Object.keys(foundQ).length) + "</b><br>" +
+      '<span class="chk-tally">в каталогах машин: <b>' + n(bySrc.machine) +
+      "</b> · в каталоге двигателя (EPC): <b>" + n(bySrc.engine) +
+      "</b> · номера ремкомплектов: <b>" + n(bySrc.kit) +
+      "</b> · только в базе знаний: <b>" + n(bySrc.kb) + "</b>" +
+      (viaX ? " · по взаимозам. артикулу: <b>" + viaX + "</b>" : "") +
+      " · строк в таблице: <b>" + checkResults.length + "</b></span>";
     $("#chkExport").disabled = false;
     $("#chkMissing").disabled = false;
 
     var table = el("table", "chk-table");
     table.innerHTML = "<thead><tr>" +
-      "<th>Запрос</th><th>Машина</th><th>Номер детали</th><th>Наименование</th>" +
+      "<th>Запрос</th>" +
+      '<th title="В каком источнике найден номер: каталог машины, каталог двигателя EPC, ремкомплект Cummins или только база знаний">' +
+      "Где найдено</th>" +
+      "<th>Машина</th><th>Номер детали</th><th>Наименование</th>" +
       '<th class="price">Текущая</th><th class="price">Несогласованная</th><th>Группа</th><th>Взаимозам.</th>' +
-      '<th title="Деталь не поставляется отдельно — только в составе узла или комплекта">' +
-      "Не поставляется отдельно</th><th>Входит в комплект</th>" +
+      '<th title="Поставляется ли деталь отдельным номером. «Нет данных» означает, что номера нет в каталоге двигателя Cummins — только там EPC указывает признак Sellable">' +
+      "Отдельная поставка</th><th>Входит в комплект</th>" +
       '<th title="Документы QuickServe и инструкции по ремонту, где встречается номер">' +
-      "База знаний</th><th>Разделы</th></tr></thead>";
+      "База знаний</th><th>Разделы / узлы</th></tr></thead>";
     var tb = el("tbody");
     checkResults.forEach(function (r) {
       var tr = el("tr", r.found ? "" : "chk-miss");
       if (!r.found) {
         tr.innerHTML = '<td class="chk-q">' + esc(r.query) + "</td>" +
-          '<td colspan="11" class="chk-none">не найдено ни в одном каталоге</td>';
+          '<td colspan="12" class="chk-none">нет ни в каталогах машин, ни в каталоге двигателя, ' +
+          "ни в ремкомплектах, ни в базе знаний</td>";
         tb.appendChild(tr); return;
       }
       var mm = machineById[r.machine] || { name: r.machine };
@@ -1360,18 +1529,23 @@
       if (r.en) nameHtml += '<div class="en">' + esc(r.en) + "</div>";
       if (!nameHtml) nameHtml = "—";
       // «вместо …» показываем только когда номер в каталоге другой
-      var via = ((r.via === "xref" || r.via === "engine") && normNo(r.pn) !== normNo(r.query))
+      var via = (normNo(r.pn) !== normNo(r.query) && r.pn)
         ? '<div class="chk-via">вместо ' + esc(r.query) + "</div>" : "";
       var openBtn;
-      if (r.via === "engine") {
+      if (r.src === "engine" || r.src === "kit") {
         openBtn = '<button class="chk-open" data-m="' + esc(r.machine) + '" data-engine="1" data-pn="' + esc(r.pn) +
           '" title="Открыть в каталоге двигателя Cummins">' + esc(r.pn) + "</button>";
+      } else if (r.src === "kb") {
+        openBtn = '<a class="chk-open" target="_blank" rel="noopener" href="cummins/index.html#/part/' +
+          esc(r.pn) + '" title="Открыть карточку номера в базе знаний">' + esc(r.pn) + "</a>";
       } else {
         openBtn = '<button class="chk-open" data-m="' + esc(r.machine) + '" data-sec="' + esc(r.secs[0] || "") +
           '" data-pn="' + esc(r.pn) + '" title="Открыть в каталоге">' + esc(r.pn) + "</button>";
       }
-      var secChips = r.via === "engine"
-        ? '<span class="chk-eng-note">двигатель (EPC Cummins)</span>' +
+      var secChips = (r.src === "engine" || r.src === "kit" || r.src === "kb")
+        ? '<span class="chk-eng-note">' +
+          (r.src === "kb" ? "в каталогах разделов нет" :
+            r.src === "kit" ? "ремкомплект двигателя (EPC Cummins)" : "двигатель (EPC Cummins)") + "</span>" +
           (r.engineOpts || []).slice(0, 4).map(function (o) {
             return '<span class="chk-eng-opt">' + esc(o) + "</span>";
           }).join("") +
@@ -1388,13 +1562,20 @@
           }).join("");
       var soldCell = r.sold === false
         ? '<span class="chk-nosep">не поставляется отдельно</span>'
-        : (r.sold === true ? '<span class="muted">поставляется</span>' : '<span class="muted">—</span>');
+        : (r.sold === true
+            ? '<span class="chk-sep-yes">поставляется отдельно</span>'
+            : '<span class="muted" title="Признак отдельной поставки есть только у номеров каталога двигателя Cummins">нет данных</span>');
+      var srcCell = '<span class="chk-src ' + esc(r.src || "") + '">' + esc(srcLabel(r)) + "</span>" +
+        (r.via && r.via !== "no" ? '<div class="chk-via">' + esc(viaLabel(r)) + "</div>" : "");
       var kitCell = (r.kits && r.kits.length)
         ? r.kits.map(function (k) {
             return '<div class="chk-kit"><b>' + esc(k.no) + "</b>" +
                    (k.name ? " · " + esc(k.name) : "") + "</div>";
           }).join("")
-        : '<span class="muted">—</span>';
+        : (r.src === "kit"
+            ? '<span class="muted">это сам комплект' +
+              ((r.kitParts || []).length ? " (позиций: " + r.kitParts.length + ")" : "") + "</span>"
+            : '<span class="muted">—</span>');
       var kbBits = [];
       if (r.docs && r.docs.length) {
         kbBits.push('<a class="chk-kb" target="_blank" rel="noopener" href="cummins/index.html#/part/' +
@@ -1411,10 +1592,19 @@
           '" title="Инструкция по ремонту раздела ' + esc(sv.code) + '">🔧 ' + esc(sv.code) +
           " · " + esc(sv.t) + "</a>");
       });
+      if (!kbBits.length && (r.kbRu || r.src === "kb")) {
+        /* документов нет, но карточка в базе знаний есть — даём на неё ссылку,
+           иначе колонка молчит там, где сведения на самом деле есть */
+        kbBits.push('<a class="chk-kb" target="_blank" rel="noopener" href="cummins/index.html#/part/' +
+          esc(r.pn) + '" title="Открыть карточку номера в базе знаний">📄 карточка в базе знаний</a>');
+      }
       if (!kbBits.length) kbBits.push('<span class="muted">—</span>');
       tr.innerHTML =
         '<td class="chk-q">' + esc(r.query) + "</td>" +
-        '<td class="chk-machinecell"><span class="mchip ' + esc(r.machine) + '">' + esc(mm.name) + "</span></td>" +
+        '<td class="chk-srccell">' + srcCell + "</td>" +
+        '<td class="chk-machinecell">' + (r.machine
+          ? '<span class="mchip ' + esc(r.machine) + '">' + esc(mm.name) + "</span>"
+          : '<span class="muted">—</span>') + "</td>" +
         '<td class="chk-pn">' + openBtn + via + "</td>" +
         '<td class="chk-name">' + nameHtml + "</td>" +
         '<td class="price">' + (r.curPrice != null ? fmt(r.curPrice) : '<span class="muted">—</span>') + "</td>" +
@@ -1447,57 +1637,124 @@
       });
     });
   }
-  /* как номер нашёлся: в каталоге машины, по взаимозаменяемому или в EPC */
-  function checkStatus(r) {
-    if (!r.found) return "не найдено";
-    if (r.via === "xref") return "найдено (взаимозам.)";
-    if (r.via === "engine") {
-      return normNo(r.pn) === normNo(r.query)
-        ? "найдено (каталог двигателя)" : "найдено (взаимозам., двигатель)";
-    }
-    return "найдено";
+  /* узлы двигателя для выгрузки: код + человеческое имя */
+  function optsText(opts) {
+    return (opts || []).map(function (o) {
+      return o + (ENGINE_OPTS[o] ? " · " + ENGINE_OPTS[o] : "");
+    }).join("; ");
+  }
+  function placeText(r) {
+    if (r.secs && r.secs.length) return secsText(r.machine, r.secs);
+    if (r.engineOpts && r.engineOpts.length) return optsText(r.engineOpts);
+    if (r.src === "kit") return "ремкомплект" +
+      ((r.kitParts || []).length ? " (позиций: " + r.kitParts.length + ")" : "");
+    return "";
   }
   function exportCheck() {
     if (!checkResults.length) { toast("Список пуст"); return; }
-    var headers = ["Запрошенный номер", "Статус", "Машина", "Номер в каталоге", "Наименование (RU)",
+    /* колонки разведены так, чтобы по каждой строке было однозначно видно:
+       есть ли номер в каталоге, где именно, как совпал и идёт ли он отдельно */
+    var headers = ["Запрошенный номер", "Найден", "Есть в каталоге", "Где найдено", "Как найдено",
+      "Машина", "Номер в каталоге", "Наименование (RU)",
       "Description (EN)", "Описание (ZH)", "Текущая цена", "Несогласованная цена", "Валюта", "Группа",
-      "Взаимозаменяемый артикул", "Не поставляется отдельно", "Входит в комплект",
-      "Документы базы знаний", "Инструкции по ремонту", "Разделы"];
-    var types = ["s", "s", "s", "s", "s", "s", "s", "n", "n", "s", "s", "s", "s", "s", "s", "s", "s"];
+      "Взаимозаменяемый артикул", "Отдельная поставка", "Входит в комплект",
+      "Документы базы знаний", "Инструкции по ремонту", "Разделы / узлы"];
+    var types = ["s", "s", "s", "s", "s", "s", "s", "s", "s", "s", "n", "n", "s", "s", "s", "s", "s", "s", "s", "s"];
     var rows = checkResults.map(function (r) {
-      var status = checkStatus(r);
-      return [r.query, status, (machineById[r.machine] || {}).name || "", r.pn, r.ru || r.kbRu, r.en, r.zh,
+      var inCat = r.found && r.src !== "kb";
+      return [r.query, r.found ? "да" : "нет", inCat ? "да" : "нет",
+        srcLabel(r), viaLabel(r),
+        (machineById[r.machine] || {}).name || "", r.pn, r.ru || r.kbRu, r.en, r.zh,
         r.curPrice != null ? r.curPrice : "", r.price != null ? r.price : "",
         r.machine ? currencyOf(r.machine) : "", r.group, r.xref,
-        r.sold === false ? "да" : (r.sold === true ? "нет" : ""), kitsText(r.kits),
+        r.found ? soldLabel(r) : "", kitsText(r.kits),
         docsText(r.docs), serviceText(r.machine, r.svc),
-        // у позиций двигателя вместо разделов машины — узлы EPC
-        r.secs.length ? secsText(r.machine, r.secs) : (r.engineOpts || []).join(" ")];
+        placeText(r)];
     });
     downloadBlob("NHL_проверка_номеров.xlsx", xlsx("Проверка", headers, rows, types));
     toast("Выгружено строк: " + rows.length);
   }
-  // catalog numbers absent from the checked list
+  /* Номера, которых нет в проверенном списке — по ВСЕМ источникам сразу:
+     каталоги трёх машин, каталог двигателя EPC (в т.ч. номера, которых в
+     каталоге машины нет), номера самих ремкомплектов Cummins и номера, про
+     которые знает только база знаний. Раньше сюда попадали только каталоги
+     машин, из-за чего ~1900 номеров вообще не выгружались. */
   function exportMissing() {
     if (!checkRan) { toast("Сначала выполните проверку"); return; }
     var idx = buildCheckIndex();
-    var headers = ["Машина", "Артикул (Part No.)", "Наименование (RU)", "Description (EN)",
+    var headers = ["Источник", "Машина", "Артикул (Part No.)", "Наименование (RU)", "Description (EN)",
       "Описание (ZH)", "Текущая цена", "Несогласованная цена", "Валюта", "Группа",
-      "Взаимозаменяемый артикул", "Не поставляется отдельно", "Входит в комплект",
-      "Документы базы знаний", "Инструкции по ремонту", "Разделы"];
-    var types = ["s", "s", "s", "s", "s", "n", "n", "s", "s", "s", "s", "s", "s", "s", "s"];
+      "Взаимозаменяемый артикул", "Отдельная поставка", "Входит в комплект",
+      "Документы базы знаний", "Инструкции по ремонту", "Разделы / узлы"];
+    var types = ["s", "s", "s", "s", "s", "s", "n", "n", "s", "s", "s", "s", "s", "s", "s", "s"];
     var rows = [];
+    function done(no) { var k = normNo(no); return checkMatchedNo[k] || checkMatchedNo[stripZeros(k)]; }
+    function inMachineCat(no) {
+      var k = normNo(no);
+      return !!(idx.byNo[k] || idx.byNo[stripZeros(k)]);
+    }
+    function soldOf(no) {
+      var i = partInfo(no);
+      return i.sold === false ? "не поставляется отдельно"
+        : (i.sold === true ? "поставляется отдельно" : "нет данных");
+    }
+
+    /* 1. каталоги машин */
     Object.keys(idx.meta).forEach(function (mk) {
-      if (checkMatchedMk[mk]) return;           // present in the list — skip
+      if (checkMatchedMk[mk]) return;
       var m = idx.meta[mk], pr = pricesFor(m.machine)[m.pn] || {}, inf = partInfo(m.pn);
       var secs = Object.keys(m.secs).sort(), kb = docsFor(m.pn);
-      rows.push([(machineById[m.machine] || {}).name || m.machine, m.pn, pr.n || kb.ru || "", m.en, m.zh,
+      rows.push(["Каталог машины", (machineById[m.machine] || {}).name || m.machine, m.pn,
+        pr.n || kb.ru || "", m.en, m.zh,
         pr.cp != null ? pr.cp : "", pr.p != null ? pr.p : "", currencyOf(m.machine), pr.g || "", pr.x || "",
-        inf.sold === false ? "да" : (inf.sold === true ? "нет" : ""), kitsText(inf.kits),
-        docsText(kb.d), serviceText(m.machine, serviceFor(m.machine, secs)),
+        inf.sold === false ? "не поставляется отдельно"
+          : (inf.sold === true ? "поставляется отдельно" : "нет данных (номер не из каталога ДВС)"),
+        kitsText(inf.kits), docsText(kb.d), serviceText(m.machine, serviceFor(m.machine, secs)),
         secsText(m.machine, secs)]);
     });
-    rows.sort(function (a, b) { return (a[0] + a[1] < b[0] + b[1]) ? -1 : 1; });
+
+    /* 2. каталог двигателя EPC — только номера, которых нет в каталогах машин */
+    Object.keys(ENGINE_PARTS).forEach(function (k) {
+      if (done(k) || inMachineCat(k)) return;
+      var rec = ENGINE_PARTS[k], kb = docsFor(k);
+      (rec.m || []).forEach(function (h) {
+        rows.push(["Каталог двигателя (EPC Cummins)", (machineById[h.m] || {}).name || h.m, k,
+          kb.ru || "", rec.n || "", "",
+          CUMMINS_PRICES_CUR[k] != null ? CUMMINS_PRICES_CUR[k] : "",
+          CUMMINS_PRICES[k] != null ? CUMMINS_PRICES[k] : "",
+          h.m ? currencyOf(h.m) : "", "Двигатель Cummins (EPC)", "",
+          soldOf(k), kitsText(partInfo(k).kits), docsText(kb.d), "", optsText(h.o || [])]);
+      });
+    });
+
+    /* 3. номера самих ремкомплектов Cummins */
+    Object.keys(ENGINE_KITS).forEach(function (k) {
+      if (done(k) || inMachineCat(k)) return;
+      var kit = ENGINE_KITS[k], kb = docsFor(k);
+      (kit.e && kit.e.length ? kit.e : [""]).forEach(function (esn) {
+        var mid = machineByEsn(esn);
+        rows.push(["Ремкомплект Cummins (EPC)", (machineById[mid] || {}).name || "", k,
+          kb.ru || "", kit.n || "", "",
+          CUMMINS_PRICES_CUR[k] != null ? CUMMINS_PRICES_CUR[k] : "",
+          CUMMINS_PRICES[k] != null ? CUMMINS_PRICES[k] : "",
+          mid ? currencyOf(mid) : "", "Ремкомплект Cummins (EPC)", "",
+          "поставляется отдельно", "", docsText(kb.d), "",
+          "ремкомплект (позиций: " + (kit.p || []).length + ")"]);
+      });
+    });
+
+    /* 4. номера, известные только базе знаний */
+    Object.keys(PART_DOCS).forEach(function (k) {
+      if (done(k) || inMachineCat(k) || ENGINE_PARTS[k] || ENGINE_KITS[k]) return;
+      var kb = PART_DOCS[k];
+      if (!(kb.d && kb.d.length) && !kb.ru) return;
+      rows.push(["База знаний Cummins", "", k, kb.ru || "", "", "",
+        CUMMINS_PRICES_CUR[k] != null ? CUMMINS_PRICES_CUR[k] : "",
+        CUMMINS_PRICES[k] != null ? CUMMINS_PRICES[k] : "",
+        "", "", "", soldOf(k), kitsText(partInfo(k).kits), docsText(kb.d), "", ""]);
+    });
+
+    rows.sort(function (a, b) { return (a[0] + a[1] + a[2] < b[0] + b[1] + b[2]) ? -1 : 1; });
     downloadBlob("NHL_отсутствуют_в_списке.xlsx", xlsx("Отсутствуют в списке", headers, rows, types));
     toast("Отсутствуют в списке: " + rows.length);
   }
@@ -1650,7 +1907,7 @@
     $("#chkExport").addEventListener("click", exportCheck);
     $("#chkMissing").addEventListener("click", exportMissing);
     $("#chkClear").addEventListener("click", function () {
-      $("#chkInput").value = ""; checkResults = []; checkRan = false; checkMatchedMk = {};
+      $("#chkInput").value = ""; checkResults = []; checkRan = false; checkMatchedMk = {}; checkMatchedNo = {};
       renderCheckResults(); $("#chkStatus").textContent = "";
     });
 

@@ -1,29 +1,44 @@
-/* Строит компактный индекс «поставляется ли деталь отдельно и в какие
-   комплекты она входит» по каталогу двигателя Cummins (cummins/data/<ESN>.js)
-   для трёх двигателей NHL. Нужен единому приложению: в «Проверить список»
-   рядом с найденным номером видно, что отдельно он не поставляется и каким
-   комплектом его можно заказать.
+/* Строит по каталогам двигателей Cummins (cummins/data/<ESN>.js) три индекса
+   для единого приложения — всё, что нужно «Проверке списка», чтобы про любой
+   номер было однозначно видно: есть ли он в каталоге, поставляется ли отдельно
+   и чем его заказать, если отдельно не поставляется.
 
    Источник данных:
-     cards[<номер>].attrs.Sellable === "N"  — отдельно не поставляется;
-     kits[].parts[]                          — состав ремкомплектов.
+     cards[<номер>].attrs.Sellable  — "Y" поставляется отдельно, "N" нет;
+     options[].parts[]              — состав узлов двигателя;
+     kits[]                         — ремкомплекты: свой номер и содержимое.
 
    Пишет data/engine_parts.js:
-     window.ENGINE_PART_INFO = { "<нормализованный номер>": {
-       s: 0,                       // 0 — отдельно не поставляется (иначе поля нет)
-       k: [{ no, name }, ... ],    // комплекты, в которые деталь входит
+
+     window.ENGINE_PART_INFO = { "<номер>": {
+       s: 0 | 1,                   // 0 — отдельно не поставляется, 1 — поставляется
+       k: [{ no, name }, ... ],    // ремкомплекты, в которые деталь входит
        e: ["33239746", ... ]       // двигатели, где деталь так помечена
      } }
-     window.ENGINE_PARTS = { "<нормализованный номер>": {
+     Раньше сюда попадали только номера, про которые «есть что сказать»
+     (не поставляется отдельно и/или входит в комплект) — из-за этого у ~1800
+     номеров в таблице проверки стоял прочерк, хотя из EPC точно известно, что
+     они поставляются отдельно. Теперь индекс покрывает ВСЕ номера каталога
+     двигателя, а прочерк означает ровно одно: номера в каталоге ДВС нет.
+
+     window.ENGINE_PARTS = { "<номер>": {
        n: "наименование",
        m: [{ e: "<ESN>", m: "<машина>", o: ["<узел>", ...] }, ... ]
      } }
-   Второй индекс — весь состав трёх двигателей: по нему «Проверить список»
-   находит номера, которых нет в каталоге машины, но которые есть в каталоге
-   двигателя (933 из 2692).
+     Весь состав трёх двигателей: по нему «Проверить список» находит номера,
+     которых нет в каталоге машины, но которые есть в каталоге двигателя.
 
-   В индекс попадают только номера, про которые есть что сказать (не
-   поставляется отдельно и/или входит в комплект), поэтому файл небольшой.
+     window.ENGINE_KITS = { "<номер комплекта>": {
+       n: "наименование", t: "тип", e: ["<ESN>", ...],
+       p: [{ no, name }, ... ]     // что входит в комплект
+     } }
+     Номера самих ремкомплектов. Их нет ни в составе узлов, ни в каталогах
+     машин — то есть до сих пор «Проверить список» отвечала по ним «не найдено»,
+     хотя заказывают именно их, когда деталь отдельно не поставляется.
+
+     window.ENGINE_OPTS = { "<код узла>": "наименование" }
+     Названия узлов двигателя — чтобы в выгрузках рядом с кодом узла стояло
+     человеческое имя.
 
    Запуск из корня репозитория:  node build/gen_engine_parts.js */
 "use strict";
@@ -46,7 +61,9 @@ function loadCatalog(esn) {
 
 var out = {};
 var parts = {};
-var notSold = 0, inKits = 0;
+var kitsOut = {};
+var optNames = {};
+var notSold = 0, inKits = 0, sold = 0;
 
 Object.keys(NHL).forEach(function (esn) {
   var cat = loadCatalog(esn);
@@ -61,8 +78,22 @@ Object.keys(NHL).forEach(function (esn) {
     });
   });
 
+  /* номера самих ремкомплектов — их нет ни в узлах, ни в каталогах машин */
+  (cat.kits || []).forEach(function (kit) {
+    if (!kit.no) return;
+    var kk = normNo(kit.no);
+    var kr = kitsOut[kk] || (kitsOut[kk] = { n: kit.name || "", t: kit.type || kit.notes || "", e: [], p: [] });
+    if (!kr.n && kit.name) kr.n = kit.name;
+    if (kr.e.indexOf(esn) < 0) kr.e.push(esn);
+    (kit.parts || []).forEach(function (p) {
+      if (!p.no || p.no === kit.no) return;
+      if (!kr.p.some(function (x) { return x.no === p.no; })) kr.p.push({ no: p.no, name: p.name || "" });
+    });
+  });
+
   /* весь состав двигателя: номер -> узлы, в которых он стоит */
   (cat.options || []).forEach(function (o) {
+    if (o.no && !optNames[o.no]) optNames[o.no] = o.name || "";
     (o.parts || []).forEach(function (p) {
       if (!p.no) return;
       var key = normNo(p.no);
@@ -75,15 +106,17 @@ Object.keys(NHL).forEach(function (esn) {
     });
   });
 
+  /* комплектность — по КАЖДОМУ номеру каталога двигателя, а не только по
+     «интересным»: иначе в таблице проверки не отличить «поставляется
+     отдельно» от «нет данных» */
   Object.keys(cards).forEach(function (pn) {
     var attrs = cards[pn].attrs || {};
-    var sold = attrs.Sellable !== "N";
+    var sellable = attrs.Sellable !== "N";
     var kits = kitsByPart[pn] || [];
-    if (sold && !kits.length) return;
-
     var key = normNo(pn);
-    var rec = out[key] || (out[key] = { k: [], e: [] });
-    if (!sold) rec.s = 0;
+    var rec = out[key] || (out[key] = { s: 1, k: [], e: [] });
+    /* если хоть на одном двигателе деталь отдельно не поставляется — так и пишем */
+    if (!sellable) rec.s = 0;
     kits.forEach(function (k) {
       if (!rec.k.some(function (x) { return x.no === k.no; })) rec.k.push(k);
     });
@@ -92,7 +125,7 @@ Object.keys(NHL).forEach(function (esn) {
 });
 
 Object.keys(out).forEach(function (k) {
-  if (out[k].s === 0) notSold++;
+  if (out[k].s === 0) notSold++; else sold++;
   if (out[k].k.length) inKits++;
   if (!out[k].k.length) delete out[k].k;
 });
@@ -100,8 +133,14 @@ Object.keys(out).forEach(function (k) {
 fs.mkdirSync(path.join(ROOT, "data"), { recursive: true });
 fs.writeFileSync(path.join(ROOT, "data", "engine_parts.js"),
   "window.ENGINE_PART_INFO = " + JSON.stringify(out) + ";\n" +
-  "window.ENGINE_PARTS = " + JSON.stringify(parts) + ";\n");
+  "window.ENGINE_PARTS = " + JSON.stringify(parts) + ";\n" +
+  "window.ENGINE_KITS = " + JSON.stringify(kitsOut) + ";\n" +
+  "window.ENGINE_OPTS = " + JSON.stringify(optNames) + ";\n");
 console.log("data/engine_parts.js — комплектность: " + Object.keys(out).length +
-  " номеров (не поставляются отдельно: " + notSold + ", входят в комплекты: " + inKits + ")");
-console.log("  состав двигателей: " + Object.keys(parts).length + " номеров, " +
+  " номеров (поставляются отдельно: " + sold + ", не поставляются: " + notSold +
+  ", входят в комплекты: " + inKits + ")");
+console.log("  состав двигателей: " + Object.keys(parts).length + " номеров");
+console.log("  ремкомплекты: " + Object.keys(kitsOut).length +
+  " номеров, узлы: " + Object.keys(optNames).length);
+console.log("  размер: " +
   (fs.statSync(path.join(ROOT, "data", "engine_parts.js")).size / 1024).toFixed(0) + " КБ");
