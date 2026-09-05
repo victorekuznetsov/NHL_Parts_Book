@@ -851,15 +851,34 @@ function viewEngine(esn) {
      семейства. Если это не сам этот двигатель — говорим об этом прямо, иначе
      чужие руководства читаются как «руководства этого ДВС». */
   var src = (window.KB_DOC_SOURCE || {})[esn];
-  if (src && src.esn !== esn) {
-    h.push('<div class="kb-note">Документы и руководства ниже выгружены из QuickServe ' +
-      'по серийному номеру <b>' + esc(src.esn) + "</b> (" + esc(src.model) +
-      ") — это общий набор семейства <b>" + esc(src.family) + "</b>. " +
-      "Документы, которые по названию относятся к другим моделям семейства, к этому " +
-      "двигателю не привязаны. Собственный набор документов ESN " + esc(esn) +
-      ' в песочницу не выгружался — смотрите его на <a class="lnk" ' +
-      'href="https://quickserve.cummins.com/qs3/pubsys2/xml/en/index.html" target="_blank" ' +
-      'rel="noopener">QuickServe ↗</a>.</div>');
+  if (src) {
+    var own = 0, fam = 0, ctrl = 0;
+    ids.forEach(function (id) {
+      if (DOCS[id].qs_esn) { own++; if (DOCS[id].kind === "ctrl") ctrl++; } else fam++;
+    });
+    var bits = [];
+    if (src.own && own) {
+      bits.push("<b>" + own + "</b> — собственные документы QSK60, выгружены по серийным " +
+        "номерам <b>" + esc([].concat(src.own.esn).join(", ")) + "</b> (" + esc(src.own.model) +
+        "). Базовый двигатель у них с этим общий, поэтому механическая часть применима " +
+        "как есть; " + (ctrl ? "<b>" + ctrl + "</b> из них" : "документы") +
+        " про систему управления CM500 / CENSE — на этом двигателе стоит CM2150 MCRS, " +
+        "такие страницы помечены отдельно");
+    }
+    if (fam && src.esn !== esn) {
+      bits.push("<b>" + fam + "</b> — общий набор семейства <b>" + esc(src.family) +
+        "</b>, выгружен по серийному номеру <b>" + esc(src.esn) + "</b> (" + esc(src.model) +
+        "). Документы, которые по названию относятся к другим моделям семейства, " +
+        "к этому двигателю не привязаны");
+    } else if (fam && !bits.length && src.esn !== esn) {
+      bits.push("выгружены по серийному номеру <b>" + esc(src.esn) + "</b>");
+    }
+    if (bits.length) {
+      h.push('<div class="kb-note">Откуда документы: ' + bits.join(". ") + ". " +
+        'Чего нет в песочнице — смотрите на <a class="lnk" ' +
+        'href="https://quickserve.cummins.com/qs3/pubsys2/xml/en/index.html" target="_blank" ' +
+        'rel="noopener">QuickServe ↗</a>.</div>');
+    }
   }
 
   if (byCat.manual) {

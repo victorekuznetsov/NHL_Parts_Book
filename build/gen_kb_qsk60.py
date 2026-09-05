@@ -66,6 +66,8 @@ CHUNK = 100                            # документов в одном фа
 QS_IMG = "https://quickserve.cummins.com/rtgraphics/english/service/{a}/{b}/{name}"
 # PDF переносим для всех категорий, кроме процедур: их текст с рисунками уже в базе
 PDF_CATS = {"manual", "tsb", "bulletin", "sti", "install_inst", "outlines"}
+# служебная заглушка QuickServe: ни текста, ни PDF — в базу не берём
+STUB = {"refno"}
 
 # Руководства QSK60 из сырого обхода и применимость их содержимого к CM2150 MCRS.
 # «ctrl» — документы про другую систему управления (CM500 / CENSE / судовая).
@@ -144,6 +146,8 @@ def manual_toc():
                 if not a:
                     continue
                 pid = a.get_text(strip=True)
+                if pid in STUB:
+                    continue
                 cat = "manual" if "/manual/" in (a.get("href") or "") else "procedures"
                 sec = re.sub(r"\s+", " ", tds[1].get_text(" ", strip=True))
                 rows.append([pid, re.sub(r"\s+", " ", tds[3].get_text(" ", strip=True)),
@@ -177,7 +181,7 @@ def main():
             rec["e"] = sorted(set(rec.get("e", [])) | {ESN})
             added_esn += 1
 
-    todo = [d for d in group if d["id"] not in docs and
+    todo = [d for d in group if d["id"] not in docs and d["id"] not in STUB and
             d.get("html") and os.path.exists(raw_path(d["html"]))]
     print("документов группы QSK60: %d | уже были в базе: %d | к разбору: %d"
           % (len(group), len(group) - len(todo), len(todo)))
@@ -339,10 +343,14 @@ def main():
     write_js("data/kb_manuals.js", "KB_MANUALS", manuals)
     write_js("data/kb_search.js", "KB_SEARCH", search)
     write_js("data/kb_parts.js", "KB_PARTS", parts)
-    doc_source[ESN] = {
-        "esn": SRC_ESN[0], "model": "QSK60 CM500",
-        "family": "QSK45/QSK60",
-        "note": "базовый двигатель тот же, система управления другая (CM500 против CM2150 MCRS)",
+    # у QSK60 два источника документов: общий набор семейства (по ESN QSK50) и
+    # собственный, снятый с QSK60 CM500 — записываем оба, чтобы страница
+    # двигателя могла честно сказать, что откуда
+    src = doc_source.setdefault(ESN, {})
+    src["own"] = {
+        "esn": SRC_ESN, "model": "QSK60 CM500",
+        "note": "базовый двигатель тот же, система управления другая "
+                "(CM500 / CENSE против CM2150 MCRS)",
     }
     write_js("data/kb_doc_source.js", "KB_DOC_SOURCE", doc_source)
 

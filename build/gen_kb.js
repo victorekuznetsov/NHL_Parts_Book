@@ -193,9 +193,13 @@ function esnByTitle(list, title, kind) {
 }
 
 /* ============================================================ документы */
+/* "refno" — служебная заглушка QuickServe: ни текста, ни PDF, но она стоит
+   первой строкой в оглавлении девяти руководств и выглядит как битая ссылка */
+var STUB = { refno: 1 };
 var DOCS = loadVar("data/kb_docs.js", "KB_DOCS");
 var docs = {};
 Object.keys(DOCS).forEach(function (id) {
+  if (STUB[id]) return;
   var d = DOCS[id];
   var e = (d.e || []).filter(function (x) { return ESN_SET[x]; });
   if (!e.length) return;
@@ -225,6 +229,10 @@ Object.keys(MAN).forEach(function (id) {
   e = esnByTitle(e, m.t, "manuals");
   if (!e.length) return;
   m.e = e;
+  m.s = (m.s || []).map(function (pair) {
+    return [pair[0], (pair[1] || []).filter(function (it) { return !STUB[it[0]]; })];
+  }).filter(function (pair) { return pair[1].length; });
+  m.n = m.s.reduce(function (a, pair) { return a + pair[1].length; }, 0);
   man[id] = m;
 });
 
