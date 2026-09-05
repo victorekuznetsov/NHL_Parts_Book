@@ -35,6 +35,21 @@ var ROOT = path.resolve(__dirname, "..");
 var DST = path.join(ROOT, "cummins");
 var SRC = path.resolve(process.argv[2] || process.env.CUMMINS_KB_SRC ||
                        path.join(ROOT, "..", "Cummins_Parts_Book"));
+/* Второй источник — база знаний по машинам (инструкции по ремонту NTE240 /
+   NTE200 / TR100A, их детали и медиа). Документы двигателей и база машин
+   живут в песочнице на разных ветках: выгрузка QuickServe по каждому ESN
+   отдельно (в т.ч. своя для 33239746, QSK60 CM2150 MCRS) сделана в ветке
+   claude/cummins-catalog-nhl-improvements-9e7gto, а kb_mparts / kb_machines /
+   kb_media / kb/machine_*.js есть только в main. Файл ищется сначала в SRC,
+   потом в SRC2. */
+var SRC2 = path.resolve(process.argv[3] || process.env.CUMMINS_KB_SRC2 ||
+                        path.join(ROOT, "..", "cummins_kb_machines"));
+function srcOf(rel) {
+  var a = path.join(SRC, rel);
+  if (fs.existsSync(a)) return SRC;
+  return fs.existsSync(path.join(SRC2, rel)) ? SRC2 : SRC;
+}
+function has(rel) { return fs.existsSync(path.join(srcOf(rel), rel)); }
 
 /* двигатели и машины NHL */
 var ESN = ["33239746", "33239899", "37295879"];
@@ -63,7 +78,7 @@ function loadFrom(base, rel, name) {
   vm.runInContext(fs.readFileSync(file, "utf8"), ctx, { filename: file });
   return ctx.window[name];
 }
-function loadVar(rel, name) { return loadFrom(SRC, rel, name); }
+function loadVar(rel, name) { return loadFrom(srcOf(rel), rel, name); }
 function writeVar(rel, name, value) {
   var file = path.join(DST, rel);
   fs.mkdirSync(path.dirname(file), { recursive: true });
@@ -112,7 +127,8 @@ function localMedia(machine, file) {
   if (stem.indexOf(machine + "_") === 0) stem = stem.slice(machine.length + 1);
   var cand = (mediaIndex[machine] || {})[stem];
   if (!cand || !cand.length) { mediaMissing.push(machine + "/" + base); return ""; }
-  var src = path.join(SRC, "assets", "machines", machine, base);
+  var rel = path.join("assets", "machines", machine, base);
+  var src = path.join(srcOf(rel), rel);
   var size = fs.existsSync(src) ? fs.statSync(src).size : -1;
   var same = cand.filter(function (c) { return c.size === size; });
   var list = same.length ? same : cand;
@@ -133,20 +149,29 @@ function localMedia(machine, file) {
    заголовок документа перечисляет модели двигателей, оставляем документ
    только тем ESN, чья модель в этом перечне есть. Если модели не названы —
    документ общий для семейства, оставляем как есть. */
-/* откуда взялись документы каждого ДВС: в QuickServe их выкачивали по
-   «документальному» серийному номеру семейства. Пишем это в данные, чтобы
-   страница двигателя говорила прямо, а не выдавала чужие документы за свои. */
+/* Откуда у каждого ДВС документы. В песочнице выгрузка QuickServe делается по
+   серийному номеру; для NTE240 и NTE200 она своя (DOC_ESN на ветке с
+   довыгрузкой: "33239746" -> ["33239746"], "33239899" -> ["33239899"]), а у
+   TR100A документы по-прежнему берутся от 37292556 — тот же QST30 CM552, но
+   другой CPL. Пишем это в данные, чтобы страница двигателя говорила прямо. */
 var DOC_SOURCE = {
-  "33239746": { esn: "33239899", model: "QSK50 CM2150 MCRS", cpl: "3379",
+  "33239746": { esn: "33239746", model: "QSK60 CM2150 MCRS", cpl: "3451",
                 own_model: "QSK60 CM2150 MCRS", own_cpl: "3451",
-                family: "K38/K50 · QSK38, QSK50, QSK60" },
+                family: "QSK60 CM2150 MCRS" },
   "33239899": { esn: "33239899", model: "QSK50 CM2150 MCRS", cpl: "3379",
                 own_model: "QSK50 CM2150 MCRS", own_cpl: "3379",
-                family: "K38/K50 · QSK38, QSK50, QSK60" },
+                family: "K38/K50 · QSK38, QSK50" },
   "37295879": { esn: "37292556", model: "QST30 CM552", cpl: "1244",
                 own_model: "QST30 CM552", own_cpl: "2139",
                 family: "QST30" }
 };
+/* Фильтр по моделям в заголовке нужен только там, где документы унаследованы
+   от чужого серийного номера: где выгрузка своя, применимость заявлена самим
+   QuickServe и додумывать за него нечего. */
+var INHERITED = {};
+Object.keys(DOC_SOURCE).forEach(function (e) {
+  if (DOC_SOURCE[e].esn !== e) INHERITED[e] = 1;
+});
 var ESN_MODEL = { "33239746": "QSK60", "33239899": "QSK50", "37295879": "QST30" };
 /* серия двигателя по префиксу модели: K38/K50/KTA/QSK — одна серия, и заголовок
    вроде «K38, K50, QSK38 and QSK50» перечисляет её целиком */
@@ -180,6 +205,7 @@ function esnByTitle(list, title, kind) {
   var mods = titleModels(title);
   if (!mods.length) return list;
   var keep = list.filter(function (x) {
+    if (!INHERITED[x]) return true;      /* своя выгрузка — верим QuickServe */
     var mdl = ESN_MODEL[x];
     if (!mdl) return true;
     var series = MODEL_SERIES[mdl.replace(/\d.*$/, "")] || "";
@@ -330,7 +356,7 @@ var bodyBytes = 0, bodyFiles = 0;
 Object.keys(byChunk).forEach(function (ch) {
   ["", "_ru"].forEach(function (suf) {
     var rel = "data/kb/body" + suf + "_" + ch + ".js";
-    if (!fs.existsSync(path.join(SRC, rel))) return;
+    if (!has(rel)) return;
     var store = loadVar(rel, suf ? "KB_BODY_RU" : "KB_BODY");
     var src = store[ch] || {}, out = {};
     byChunk[ch].forEach(function (id) {
@@ -443,7 +469,7 @@ docIds.forEach(function (id) {
 var machineFiles = 0, machineBytes = 0;
 Object.keys(MACHINES).forEach(function (m) {
   var rel = "data/kb/machine_" + m + ".js";
-  if (!fs.existsSync(path.join(SRC, rel))) return;
+  if (!has(rel)) return;
   var data = loadVar(rel, "KB_MACHINE")[m];
   /* прямые ссылки на картинки в текстах инструкций — на файлы машины */
   data = JSON.parse(JSON.stringify(data)
@@ -496,7 +522,8 @@ idxBytes += writeVar("data/kb_media.js", "KB_MEDIA", media);
 /* ==================================================== рисунки процедур */
 var figNames = Object.keys(figs), figBytes = 0, figMissing = 0;
 figNames.forEach(function (f) {
-  var from = path.join(SRC, "assets", "figures", f);
+  var fr = path.join("assets", "figures", f);
+  var from = path.join(srcOf(fr), fr);
   if (!fs.existsSync(from)) { figMissing++; return; }
   figBytes += copyFile(from, path.join(DST, "assets", "figures", f));
 });
@@ -512,7 +539,8 @@ docIds.forEach(function (id) {
     pdfNoBody++;
   }
   var rel = String(d.pdf).replace(/\\/g, "/");
-  var from = path.join(SRC, "bulletins", rel);
+  var br = path.join("bulletins", rel);
+  var from = path.join(srcOf(br), br);
   if (!fs.existsSync(from)) { pdfMissing++; delete d.pdf; return; }
   pdfBytes += copyFile(from, path.join(DST, "bulletins", rel));
   pdfCount++;
