@@ -137,11 +137,15 @@ function localMedia(machine, file) {
    «документальному» серийному номеру семейства. Пишем это в данные, чтобы
    страница двигателя говорила прямо, а не выдавала чужие документы за свои. */
 var DOC_SOURCE = {
-  "33239746": { esn: "33239899", model: "QSK50 CM2150 MCRS",
+  "33239746": { esn: "33239899", model: "QSK50 CM2150 MCRS", cpl: "3379",
+                own_model: "QSK60 CM2150 MCRS", own_cpl: "3451",
                 family: "K38/K50 · QSK38, QSK50, QSK60" },
-  "33239899": { esn: "33239899", model: "QSK50 CM2150 MCRS",
+  "33239899": { esn: "33239899", model: "QSK50 CM2150 MCRS", cpl: "3379",
+                own_model: "QSK50 CM2150 MCRS", own_cpl: "3379",
                 family: "K38/K50 · QSK38, QSK50, QSK60" },
-  "37295879": { esn: "37292556", model: "QST30", family: "QST30" }
+  "37295879": { esn: "37292556", model: "QST30 CM552", cpl: "1244",
+                own_model: "QST30 CM552", own_cpl: "2139",
+                family: "QST30" }
 };
 var ESN_MODEL = { "33239746": "QSK60", "33239899": "QSK50", "37295879": "QST30" };
 /* серия двигателя по префиксу модели: K38/K50/KTA/QSK — одна серия, и заголовок

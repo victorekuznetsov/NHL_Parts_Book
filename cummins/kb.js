@@ -341,18 +341,6 @@ function viewDoc(id) {
     "</div>");
   h.push("</header>");
 
-  /* документы QSK60 сняты с двигателей QSK60 CM500: базовый двигатель тот же,
-     система управления другая — про это надо предупреждать, а не молчать */
-  if (d.qs_esn) {
-    h.push('<div class="kb-note">Документ выгружен из QuickServe по серийному номеру <b>' +
-      esc(d.qs_esn) + "</b> (QSK60 CM500). " +
-      (d.kind === "ctrl"
-        ? "Он про <b>систему управления CM500 / CENSE</b>, а на NTE240 стоит " +
-          "<b>CM2150 MCRS</b> — коды неисправностей, разъёмы и жгуты там другие. " +
-          "Для CM2150 смотрите «QSK38/50/60 CM2150: руководство по диагностике и ремонту»."
-        : "Базовый двигатель у QSK60 CM500 и QSK60 CM2150 MCRS общий, поэтому " +
-          "механическая часть применима к NTE240 как есть.") + "</div>");
-  }
   if (!d.ok) {
     h.push('<div class="callout missing"><div class="callout-head">' +
       '<span class="callout-ico">—</span>Документа нет в выгрузке</div><div class="callout-body">' +
@@ -452,15 +440,6 @@ function viewManual(mid) {
     '" target="_blank" rel="noopener">История изменений в QuickServe ↗</a>' +
     (m.pdf ? ' <a class="btn-mini" href="' + PDF_BASE + esc(String(m.pdf).replace(/\\/g, "/")) +
              '" target="_blank" rel="noopener">PDF ↗</a>' : "") + "</div></header>");
-  if (m.qs_esn) {
-    h.push('<div class="kb-note">Руководство выгружено из QuickServe по серийному номеру <b>' +
-      esc(m.qs_esn) + "</b> (QSK60 CM500). " +
-      (m.kind === "ctrl"
-        ? "Оно про <b>систему управления CM500 / CENSE</b>, а на NTE240 стоит " +
-          "<b>CM2150 MCRS</b> — коды неисправностей и жгуты там другие."
-        : "Базовый двигатель у QSK60 CM500 и QSK60 CM2150 MCRS общий, поэтому " +
-          "механическая часть применима к NTE240 как есть.") + "</div>");
-  }
 
   h.push('<div class="doc-body">');
   m.s.forEach(function (pair) {
@@ -850,35 +829,21 @@ function viewEngine(esn) {
   /* Документы в QuickServe выкачаны по «документальному» серийному номеру
      семейства. Если это не сам этот двигатель — говорим об этом прямо, иначе
      чужие руководства читаются как «руководства этого ДВС». */
+  /* Документы в QuickServe привязаны к серийному номеру. Для этого двигателя
+     свой набор не выгружался — показываем набор семейства и честно пишем, по
+     какому ESN и CPL он собран, чтобы чужое не читалось как своё. */
   var src = (window.KB_DOC_SOURCE || {})[esn];
-  if (src) {
-    var own = 0, fam = 0, ctrl = 0;
-    ids.forEach(function (id) {
-      if (DOCS[id].qs_esn) { own++; if (DOCS[id].kind === "ctrl") ctrl++; } else fam++;
-    });
-    var bits = [];
-    if (src.own && own) {
-      bits.push("<b>" + own + "</b> — собственные документы QSK60, выгружены по серийным " +
-        "номерам <b>" + esc([].concat(src.own.esn).join(", ")) + "</b> (" + esc(src.own.model) +
-        "). Базовый двигатель у них с этим общий, поэтому механическая часть применима " +
-        "как есть; " + (ctrl ? "<b>" + ctrl + "</b> из них" : "документы") +
-        " про систему управления CM500 / CENSE — на этом двигателе стоит CM2150 MCRS, " +
-        "такие страницы помечены отдельно");
-    }
-    if (fam && src.esn !== esn) {
-      bits.push("<b>" + fam + "</b> — общий набор семейства <b>" + esc(src.family) +
-        "</b>, выгружен по серийному номеру <b>" + esc(src.esn) + "</b> (" + esc(src.model) +
-        "). Документы, которые по названию относятся к другим моделям семейства, " +
-        "к этому двигателю не привязаны");
-    } else if (fam && !bits.length && src.esn !== esn) {
-      bits.push("выгружены по серийному номеру <b>" + esc(src.esn) + "</b>");
-    }
-    if (bits.length) {
-      h.push('<div class="kb-note">Откуда документы: ' + bits.join(". ") + ". " +
-        'Чего нет в песочнице — смотрите на <a class="lnk" ' +
-        'href="https://quickserve.cummins.com/qs3/pubsys2/xml/en/index.html" target="_blank" ' +
-        'rel="noopener">QuickServe ↗</a>.</div>');
-    }
+  if (src && src.esn !== esn) {
+    h.push('<div class="kb-note">Собственного набора документов QuickServe для ' +
+      "этого двигателя (<b>" + esc(src.own_model || (cat && cat.model) || "") +
+      "</b>, ESN <b>" + esc(esn) + "</b>, CPL <b>" + esc(src.own_cpl || (cat && cat.cpl) || "—") +
+      "</b>) в песочнице нет. Ниже — общий набор семейства <b>" + esc(src.family) +
+      "</b>, выгруженный по серийному номеру <b>" + esc(src.esn) + "</b> (" +
+      esc(src.model) + ", CPL " + esc(src.cpl) + "). Документы, которые по названию " +
+      "относятся к другим моделям семейства, к этому двигателю не привязаны. " +
+      'Точный набор по своему ESN смотрите на <a class="lnk" ' +
+      'href="https://quickserve.cummins.com/qs3/pubsys2/xml/en/index.html" target="_blank" ' +
+      'rel="noopener">QuickServe ↗</a>.</div>');
   }
 
   if (byCat.manual) {
