@@ -341,6 +341,18 @@ function viewDoc(id) {
     "</div>");
   h.push("</header>");
 
+  /* документы QSK60 сняты с двигателей QSK60 CM500: базовый двигатель тот же,
+     система управления другая — про это надо предупреждать, а не молчать */
+  if (d.qs_esn) {
+    h.push('<div class="kb-note">Документ выгружен из QuickServe по серийному номеру <b>' +
+      esc(d.qs_esn) + "</b> (QSK60 CM500). " +
+      (d.kind === "ctrl"
+        ? "Он про <b>систему управления CM500 / CENSE</b>, а на NTE240 стоит " +
+          "<b>CM2150 MCRS</b> — коды неисправностей, разъёмы и жгуты там другие. " +
+          "Для CM2150 смотрите «QSK38/50/60 CM2150: руководство по диагностике и ремонту»."
+        : "Базовый двигатель у QSK60 CM500 и QSK60 CM2150 MCRS общий, поэтому " +
+          "механическая часть применима к NTE240 как есть.") + "</div>");
+  }
   if (!d.ok) {
     h.push('<div class="callout missing"><div class="callout-head">' +
       '<span class="callout-ico">—</span>Документа нет в выгрузке</div><div class="callout-body">' +
@@ -437,7 +449,18 @@ function viewManual(mid) {
   h.push('<div class="doc-meta">' + badge("manual") + '<span class="num">' + esc(mid) + "</span>" +
     '<span class="mi">процедур: ' + m.n + "</span></div>");
   h.push('<div class="doc-links"><a class="btn-mini" href="' + esc(m.u) +
-    '" target="_blank" rel="noopener">История изменений в QuickServe ↗</a></div></header>');
+    '" target="_blank" rel="noopener">История изменений в QuickServe ↗</a>' +
+    (m.pdf ? ' <a class="btn-mini" href="' + PDF_BASE + esc(String(m.pdf).replace(/\\/g, "/")) +
+             '" target="_blank" rel="noopener">PDF ↗</a>' : "") + "</div></header>");
+  if (m.qs_esn) {
+    h.push('<div class="kb-note">Руководство выгружено из QuickServe по серийному номеру <b>' +
+      esc(m.qs_esn) + "</b> (QSK60 CM500). " +
+      (m.kind === "ctrl"
+        ? "Оно про <b>систему управления CM500 / CENSE</b>, а на NTE240 стоит " +
+          "<b>CM2150 MCRS</b> — коды неисправностей и жгуты там другие."
+        : "Базовый двигатель у QSK60 CM500 и QSK60 CM2150 MCRS общий, поэтому " +
+          "механическая часть применима к NTE240 как есть.") + "</div>");
+  }
 
   h.push('<div class="doc-body">');
   m.s.forEach(function (pair) {
