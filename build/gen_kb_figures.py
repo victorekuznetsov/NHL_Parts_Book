@@ -35,6 +35,9 @@ FIG_DIR = os.path.join(DST, "assets", "figures")
 SKIP_IMG = re.compile(r"/graphics/common/|cookielaw|logo|arrow\d*\.png|spacer", re.I)
 FIG_REF = re.compile(r"assets/figures/([^\"'\s)]+)")
 IMG_SRC = re.compile(r'<img[^>]+src="([^"]+)"', re.I)
+# блок, который сборщик песочницы ставит вместо картинки, которую не смог достать
+FIG_MISSING = re.compile(
+    r'<div class="fig-missing">[^<]*<code>([^<]+)</code>.*?</div>', re.S)
 
 
 def load_figures_module():
@@ -138,6 +141,130 @@ def main():
     left = {n for s in missing_by_doc.values() for n in s} - have
     print("  добавлено: %d | без PDF: %d | не сопоставилось: %d | осталось без файла: %d"
           % (added, no_pdf, no_match, len(left)))
+    fix_missing_blocks(figures, docs, store, have)
+
+
+def fix_missing_blocks(figures, docs, store, have):
+    """Блоки «иллюстрация не выгружена» — пробуем достать картинку и вернуть её.
+
+    Сборщик песочницы ставит такой блок, когда не смог сопоставить ссылку из
+    HTML с картинкой из PDF. Пробуем ещё раз по тому же PDF; что удалось —
+    подменяем на обычный <img>, остальное оставляем как есть (ссылка на
+    QuickServe в блоке продолжает работать)."""
+    kb = os.path.join(DST, "data", "kb")
+    files = [f for f in sorted(os.listdir(kb)) if re.match(r"^body_(ru_)?\d+\.js$", f)]
+    want = {}                       # id документа -> имена картинок в блоках
+    for fn in files:
+        text = open(os.path.join(kb, fn), encoding="utf-8").read()
+        m = re.search(r"window\.KB_BODY(?:_RU)?\[\d+\]=", text)
+        if not m:
+            continue
+        for did, html in json.loads(text[m.end():text.rindex(";")]).items():
+            for name in FIG_MISSING.findall(html):
+                want.setdefault(did, set()).add(name)
+    total = {n for s in want.values() for n in s}
+    if not total:
+        return
+    got = set()
+    for did, names in want.items():
+        need = names - have
+        if not need:
+            got |= names & have
+            continue
+        cat = (docs.get(did) or {}).get("c", "procedures")
+        pdf = os.path.join(SRC, "bulletins", cat, did + ".pdf")
+        html = os.path.join(SRC, "bulletins", cat, did + ".html")
+        if not (os.path.exists(pdf) and os.path.exists(html)):
+            continue
+        refs = html_figures(html)
+        if not refs:
+            continue
+        pairs, _ok = figures.map_document(refs, pdf)
+        for name, raw in pairs:
+            if name in need and name not in have and store.add(name, raw):
+                have.add(name)
+                got.add(name)
+
+    def repl(m):
+        name = m.group(1)
+        if name not in have:
+            return m.group(0)
+        return ('<figure class="fig"><img loading="lazy" src="assets/figures/'
+                + name + '" alt="' + name + '"></figure>')
+
+    changed = 0
+    for fn in files:
+        path = os.path.join(kb, fn)
+        text = open(path, encoding="utf-8").read()
+        m = re.search(r"window\.KB_BODY(?:_RU)?\[\d+\]=", text)
+        if not m:
+            continue
+        obj = json.loads(text[m.end():text.rindex(";")])
+        hit = False
+        for did, html in obj.items():
+            new = FIG_MISSING.sub(repl, html)
+            if new != html:
+                obj[did] = new
+                hit = True
+        if hit:
+            changed += 1
+            with open(path, "w", encoding="utf-8") as fh:
+                fh.write(text[:m.end()] +
+                         json.dumps(obj, ensure_ascii=False, separators=(",", ":")) + ";\n")
+    print("  блоков «не выгружена»: %d картинок в %d документах, восстановлено %d, "
+          "переписано файлов тел: %d" % (len(total), len(want), len(got), changed))
+    mark_absent(have)
+
+
+FIG_IMG = re.compile(
+    r'<figure class="fig"><img[^>]+src="assets/figures/([^"]+)"[^>]*></figure>')
+
+
+def mark_absent(have):
+    """Картинки, которых достать так и не удалось, не должны ломаться в вёрстке.
+
+    Заменяем <img> на тот же блок «иллюстрация не выгружена» со ссылкой на
+    QuickServe, который ставит сборщик песочницы."""
+    kb = os.path.join(DST, "data", "kb")
+    changed = fixed = 0
+
+    def repl(m):
+        nonlocal fixed
+        name = m.group(1)
+        if name in have:
+            return m.group(0)
+        fixed += 1
+        base = os.path.splitext(name)[0]
+        url = ("https://quickserve.cummins.com/rtgraphics/english/service/%s/%s/%s"
+               % (base[:2].lower(), base[2:3].lower(), name)) if len(base) >= 3 else ""
+        return ('<div class="fig-missing">Иллюстрация <code>' + name +
+                '</code> не выгружена' +
+                (' — <a href="' + url + '" target="_blank" rel="noopener">'
+                 'открыть на QuickServe ↗</a>' if url else "") + "</div>")
+
+    for fn in sorted(os.listdir(kb)):
+        if not re.match(r"^body_(ru_)?\d+\.js$", fn):
+            continue
+        path = os.path.join(kb, fn)
+        text = open(path, encoding="utf-8").read()
+        m = re.search(r"window\.KB_BODY(?:_RU)?\[\d+\]=", text)
+        if not m:
+            continue
+        obj = json.loads(text[m.end():text.rindex(";")])
+        hit = False
+        for did, html in obj.items():
+            new = FIG_IMG.sub(repl, html)
+            if new != html:
+                obj[did] = new
+                hit = True
+        if hit:
+            changed += 1
+            with open(path, "w", encoding="utf-8") as fh:
+                fh.write(text[:m.end()] +
+                         json.dumps(obj, ensure_ascii=False, separators=(",", ":")) + ";\n")
+    if fixed:
+        print("  битых <img> заменено блоком со ссылкой: %d в %d файлах тел"
+              % (fixed, changed))
 
 
 if __name__ == "__main__":
