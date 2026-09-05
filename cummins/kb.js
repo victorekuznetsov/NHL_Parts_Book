@@ -824,6 +824,21 @@ function viewEngine(esn) {
   h.push('<div class="doc-links"><a class="btn-mini" href="#" data-open-engine="' + esc(esn) +
     '">Открыть каталог этого двигателя</a></div></div>');
 
+  /* Документы в QuickServe выкачаны по «документальному» серийному номеру
+     семейства. Если это не сам этот двигатель — говорим об этом прямо, иначе
+     чужие руководства читаются как «руководства этого ДВС». */
+  var src = (window.KB_DOC_SOURCE || {})[esn];
+  if (src && src.esn !== esn) {
+    h.push('<div class="kb-note">Документы и руководства ниже выгружены из QuickServe ' +
+      'по серийному номеру <b>' + esc(src.esn) + "</b> (" + esc(src.model) +
+      ") — это общий набор семейства <b>" + esc(src.family) + "</b>. " +
+      "Документы, которые по названию относятся к другим моделям семейства, к этому " +
+      "двигателю не привязаны. Собственный набор документов ESN " + esc(esn) +
+      ' в песочницу не выгружался — смотрите его на <a class="lnk" ' +
+      'href="https://quickserve.cummins.com/qs3/pubsys2/xml/en/index.html" target="_blank" ' +
+      'rel="noopener">QuickServe ↗</a>.</div>');
+  }
+
   if (byCat.manual) {
     h.push('<section class="kb-card wide"><h2>Руководства</h2><ul class="kb-list">');
     byCat.manual.forEach(function (id) {

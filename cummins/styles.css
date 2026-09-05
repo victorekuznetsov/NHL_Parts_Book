@@ -760,3 +760,12 @@ table.spec td.n{
 table.tbl caption,table.spec caption{
   caption-side:top; text-align:left; font-weight:700; padding:0 0 6px;
 }
+
+/* честная подпись о происхождении документов двигателя */
+.kb-note {
+  margin: 12px 0 4px; padding: 10px 13px; border-radius: 9px;
+  border: 1px solid #f0c9a0; background: #fffaf3; color: #8a5a12;
+  font-size: 13px; line-height: 1.55; max-width: 900px;
+}
+.kb-note b { color: #b45309; }
+.kb-note a { color: #b45309; font-weight: 600; }

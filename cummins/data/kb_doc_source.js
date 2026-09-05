@@ -1,0 +1,1 @@
+window.KB_DOC_SOURCE={"33239746":{"esn":"33239899","model":"QSK50 CM2150 MCRS","family":"K38/K50 · QSK38, QSK50, QSK60"},"33239899":{"esn":"33239899","model":"QSK50 CM2150 MCRS","family":"K38/K50 · QSK38, QSK50, QSK60"},"37295879":{"esn":"37292556","model":"QST30","family":"QST30"}};

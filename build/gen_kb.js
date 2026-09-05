@@ -120,12 +120,88 @@ function localMedia(machine, file) {
   return list[0].rel;
 }
 
+/* -------------------------------------------- применимость по модели ДВС
+   В исходной базе документы QuickServe выкачаны по одному «документальному»
+   серийному номеру на семейство и затем размножены на все ESN семейства
+   (см. DOC_ESN в Cummins_Parts_Book/obsidian-vault/_build/common.py):
+
+     33239899 (QSK50) -> 33239899 + 33239746 (QSK60)
+     37292556 (QST30) -> 37292556 + 37295879 (QST30)
+
+   Из-за этого QSK60 получал документы QSK50 — в том числе руководства
+   «K38, K50, QSK38 and QSK50», которые QSK60 прямо не покрывают. Если
+   заголовок документа перечисляет модели двигателей, оставляем документ
+   только тем ESN, чья модель в этом перечне есть. Если модели не названы —
+   документ общий для семейства, оставляем как есть. */
+/* откуда взялись документы каждого ДВС: в QuickServe их выкачивали по
+   «документальному» серийному номеру семейства. Пишем это в данные, чтобы
+   страница двигателя говорила прямо, а не выдавала чужие документы за свои. */
+var DOC_SOURCE = {
+  "33239746": { esn: "33239899", model: "QSK50 CM2150 MCRS",
+                family: "K38/K50 · QSK38, QSK50, QSK60" },
+  "33239899": { esn: "33239899", model: "QSK50 CM2150 MCRS",
+                family: "K38/K50 · QSK38, QSK50, QSK60" },
+  "37295879": { esn: "37292556", model: "QST30", family: "QST30" }
+};
+var ESN_MODEL = { "33239746": "QSK60", "33239899": "QSK50", "37295879": "QST30" };
+/* серия двигателя по префиксу модели: K38/K50/KTA/QSK — одна серия, и заголовок
+   вроде «K38, K50, QSK38 and QSK50» перечисляет её целиком */
+var MODEL_SERIES = {
+  QSK: "K", K: "K", KTA: "K", KTTA: "K",
+  QST: "QST", QSX: "QSX", QSB: "QSB", QSL: "QSL",
+  QSM: "QSM", ISM: "QSM", ISX: "ISX", NT: "NT", NTA: "NT"
+};
+/* «QSK19/38/50/60» и «QSX15/QSK23/45/60/78» — номера через дробь наследуют
+   префикс, иначе QSK60 терялся в списке, где он на самом деле назван */
+var MODEL_RE = /\b(QSK|KTTA|KTA|QST|QSX|QSB|QSL|QSM|ISX|ISM|NTA|NT|K)\s?(\d{2,3})\b((?:\s*\/\s*\d{2,3}\b)*)/gi;
+function titleModels(t) {
+  var out = [], m;
+  MODEL_RE.lastIndex = 0;
+  while ((m = MODEL_RE.exec(String(t || "")))) {
+    var pre = m[1].toUpperCase(), series = MODEL_SERIES[pre] || pre;
+    out.push({ s: series, m: pre + m[2] });
+    (m[3] || "").split("/").forEach(function (x) {
+      x = x.trim();
+      if (x) out.push({ s: series, m: pre + x });
+    });
+  }
+  return out;
+}
+var modelDropped = { docs: 0, manuals: 0 }, modelDroppedBy = {};
+/* Оставляем у документа только те ESN, чья модель не исключена заголовком.
+   Отвязываем, только если заголовок называет модели ТОЙ ЖЕ серии, а нашей
+   среди них нет: «K19, K38 and K50» ничего не говорит про QSK-модели, а
+   «K38, K50, QSK38 and QSK50» — говорит, и QSK60 туда не входит. */
+function esnByTitle(list, title, kind) {
+  var mods = titleModels(title);
+  if (!mods.length) return list;
+  var keep = list.filter(function (x) {
+    var mdl = ESN_MODEL[x];
+    if (!mdl) return true;
+    var series = MODEL_SERIES[mdl.replace(/\d.*$/, "")] || "";
+    var named = mods.filter(function (o) { return o.s === series; });
+    if (!named.length) return true;
+    return named.some(function (o) { return o.m === mdl; });
+  });
+  if (keep.length !== list.length) {
+    modelDropped[kind]++;
+    list.forEach(function (x) {
+      if (keep.indexOf(x) < 0) modelDroppedBy[x] = (modelDroppedBy[x] || 0) + 1;
+    });
+  }
+  return keep;
+}
+
 /* ============================================================ документы */
 var DOCS = loadVar("data/kb_docs.js", "KB_DOCS");
 var docs = {};
 Object.keys(DOCS).forEach(function (id) {
   var d = DOCS[id];
-  if (!(d.e || []).some(function (e) { return ESN_SET[e]; })) return;
+  var e = (d.e || []).filter(function (x) { return ESN_SET[x]; });
+  if (!e.length) return;
+  e = esnByTitle(e, d.t, "docs");
+  if (!e.length) return;
+  d.e = e;
   docs[id] = d;
 });
 var docIds = Object.keys(docs);
@@ -144,8 +220,11 @@ var MAN = loadVar("data/kb_manuals.js", "KB_MANUALS");
 var man = {};
 Object.keys(MAN).forEach(function (id) {
   var m = MAN[id];
-  if (!(m.e || []).some(function (e) { return ESN_SET[e]; })) return;
-  m.e = m.e.filter(function (e) { return ESN_SET[e]; });
+  var e = (m.e || []).filter(function (x) { return ESN_SET[x]; });
+  if (!e.length) return;
+  e = esnByTitle(e, m.t, "manuals");
+  if (!e.length) return;
+  m.e = e;
   man[id] = m;
 });
 
@@ -393,6 +472,7 @@ Object.keys(MACHINES).forEach(function (m) {
 var idxBytes = 0;
 idxBytes += writeVar("data/kb_docs.js", "KB_DOCS", docs);
 idxBytes += writeVar("data/kb_manuals.js", "KB_MANUALS", man);
+idxBytes += writeVar("data/kb_doc_source.js", "KB_DOC_SOURCE", DOC_SOURCE);
 idxBytes += writeVar("data/kb_parts.js", "KB_PARTS", parts);
 idxBytes += writeVar("data/kb_mparts.js", "KB_MPARTS", mparts);
 idxBytes += writeVar("data/kb_names.js", "KB_NAMES", names);
@@ -437,6 +517,13 @@ function byCat(list) {
 console.log("База знаний для " + ESN.join(", "));
 console.log("  документов      " + docIds.length + "  (" + byCat(docIds) + ")");
 console.log("  руководств      " + Object.keys(man).length);
+console.log("  по модели ДВС отвязано: документов " + modelDropped.docs +
+  ", руководств " + modelDropped.manuals +
+  (Object.keys(modelDroppedBy).length
+    ? " (" + Object.keys(modelDroppedBy).sort().map(function (e) {
+        return e + " \u2014 " + modelDroppedBy[e];
+      }).join(", ") + ")"
+    : ""));
 console.log("  деталей Cummins " + Object.keys(parts).length);
 console.log("  деталей машин   " + Object.keys(mparts).length);
 console.log("  тем             " + TOPICS.length + ", строк поиска " + SEARCH.length);
