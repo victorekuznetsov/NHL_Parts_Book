@@ -149,91 +149,79 @@ function localMedia(machine, file) {
    заголовок документа перечисляет модели двигателей, оставляем документ
    только тем ESN, чья модель в этом перечне есть. Если модели не названы —
    документ общий для семейства, оставляем как есть. */
-/* Откуда у каждого ДВС документы. В песочнице выгрузка QuickServe делается по
-   серийному номеру; для NTE240 и NTE200 она своя (DOC_ESN на ветке с
-   довыгрузкой: "33239746" -> ["33239746"], "33239899" -> ["33239899"]), а у
-   TR100A документы по-прежнему берутся от 37292556 — тот же QST30 CM552, но
-   другой CPL. Пишем это в данные, чтобы страница двигателя говорила прямо. */
-var DOC_SOURCE = {
-  "33239746": { esn: "33239746", model: "QSK60 CM2150 MCRS", cpl: "3451",
-                own_model: "QSK60 CM2150 MCRS", own_cpl: "3451",
-                family: "QSK60 CM2150 MCRS" },
-  "33239899": { esn: "33239899", model: "QSK50 CM2150 MCRS", cpl: "3379",
-                own_model: "QSK50 CM2150 MCRS", own_cpl: "3379",
-                family: "K38/K50 · QSK38, QSK50" },
-  "37295879": { esn: "37292556", model: "QST30 CM552", cpl: "1244",
-                own_model: "QST30 CM552", own_cpl: "2139",
-                family: "QST30" }
-};
-/* Фильтр по моделям в заголовке нужен только там, где документы унаследованы
-   от чужого серийного номера: где выгрузка своя, применимость заявлена самим
-   QuickServe и додумывать за него нечего. */
-var INHERITED = {};
-Object.keys(DOC_SOURCE).forEach(function (e) {
-  if (DOC_SOURCE[e].esn !== e) INHERITED[e] = 1;
-});
-var ESN_MODEL = { "33239746": "QSK60", "33239899": "QSK50", "37295879": "QST30" };
-/* серия двигателя по префиксу модели: K38/K50/KTA/QSK — одна серия, и заголовок
-   вроде «K38, K50, QSK38 and QSK50» перечисляет её целиком */
-var MODEL_SERIES = {
-  QSK: "K", K: "K", KTA: "K", KTTA: "K",
-  QST: "QST", QSX: "QSX", QSB: "QSB", QSL: "QSL",
-  QSM: "QSM", ISM: "QSM", ISX: "ISX", NT: "NT", NTA: "NT"
-};
-/* «QSK19/38/50/60» и «QSX15/QSK23/45/60/78» — номера через дробь наследуют
-   префикс, иначе QSK60 терялся в списке, где он на самом деле назван */
-var MODEL_RE = /\b(QSK|KTTA|KTA|QST|QSX|QSB|QSL|QSM|ISX|ISM|NTA|NT|K)\s?(\d{2,3})\b((?:\s*\/\s*\d{2,3}\b)*)/gi;
-function titleModels(t) {
-  var out = [], m;
-  MODEL_RE.lastIndex = 0;
-  while ((m = MODEL_RE.exec(String(t || "")))) {
-    var pre = m[1].toUpperCase(), series = MODEL_SERIES[pre] || pre;
-    out.push({ s: series, m: pre + m[2] });
-    (m[3] || "").split("/").forEach(function (x) {
-      x = x.trim();
-      if (x) out.push({ s: series, m: pre + x });
-    });
-  }
+/* ------------------------------------- привязка документов к двигателям
+   QuickServe раздаёт документы по серийному номеру, и обход песочницы
+   записывает эту привязку в bulletins/index.json (поле engines). Раньше
+   сборка шла через ручную карту DOC_ESN, которая размножала документы одного
+   ESN на всё семейство — отсюда документы QSK50 у QSK60 и документы
+   37292556 (CPL 1244) у 37295879 (CPL 2139). Теперь привязку берём прямо из
+   обхода:
+
+     документ принадлежит двигателю, если так говорит обход, либо если это
+     процедура из оглавления руководства, которое обход отдал этому двигателю
+     (в QuickServe процедуры и живут внутри руководств).
+
+   Ручных допущений о применимости больше нет, поэтому и фильтр по моделям в
+   заголовке не нужен. */
+var CRAWL = (function () {
+  var rel = "bulletins/index.json";
+  var file = path.join(srcOf(rel), rel);
+  if (!fs.existsSync(file)) return null;
+  var idx = JSON.parse(fs.readFileSync(file, "utf8"));
+  var byDoc = {};
+  idx.forEach(function (r) {
+    var mine = (r.engines || []).map(String).filter(function (e) { return ESN_SET[e]; });
+    if (mine.length) byDoc[r.id] = mine;
+  });
+  return byDoc;
+})();
+
+/* какие руководства обход отдал каждому двигателю */
+function manualsByEsn(DOCS) {
+  var out = {};
+  Object.keys(CRAWL || {}).forEach(function (id) {
+    if ((DOCS[id] || {}).c !== "manual") return;
+    var mid = id.replace(/-history$/, "");
+    CRAWL[id].forEach(function (e) { (out[e] = out[e] || {})[mid] = 1; });
+  });
   return out;
 }
-var modelDropped = { docs: 0, manuals: 0 }, modelDroppedBy = {};
-/* Оставляем у документа только те ESN, чья модель не исключена заголовком.
-   Отвязываем, только если заголовок называет модели ТОЙ ЖЕ серии, а нашей
-   среди них нет: «K19, K38 and K50» ничего не говорит про QSK-модели, а
-   «K38, K50, QSK38 and QSK50» — говорит, и QSK60 туда не входит. */
-function esnByTitle(list, title, kind) {
-  var mods = titleModels(title);
-  if (!mods.length) return list;
-  var keep = list.filter(function (x) {
-    if (!INHERITED[x]) return true;      /* своя выгрузка — верим QuickServe */
-    var mdl = ESN_MODEL[x];
-    if (!mdl) return true;
-    var series = MODEL_SERIES[mdl.replace(/\d.*$/, "")] || "";
-    var named = mods.filter(function (o) { return o.s === series; });
-    if (!named.length) return true;
-    return named.some(function (o) { return o.m === mdl; });
-  });
-  if (keep.length !== list.length) {
-    modelDropped[kind]++;
-    list.forEach(function (x) {
-      if (keep.indexOf(x) < 0) modelDroppedBy[x] = (modelDroppedBy[x] || 0) + 1;
+
+/* окончательный список ESN документа */
+function esnOf(id, d, mans) {
+  var set = {};
+  (CRAWL[id] || []).forEach(function (e) { set[e] = 1; });
+  if (d.c !== "manual") {
+    (d.mn || []).forEach(function (mid) {
+      Object.keys(mans).forEach(function (e) { if (mans[e][mid]) set[e] = 1; });
     });
   }
-  return keep;
+  return Object.keys(set).sort();
 }
+
+/* откуда у двигателя документы — для подписи на его странице */
+var DOC_SOURCE = {
+  "33239746": { esn: "33239746", model: "QSK60 CM2150 MCRS", cpl: "3451" },
+  "33239899": { esn: "33239899", model: "QSK50 CM2150 MCRS", cpl: "3379" },
+  "37295879": { esn: "37295879", model: "QST30 CM552", cpl: "2139" }
+};
 
 /* ============================================================ документы */
 /* "refno" — служебная заглушка QuickServe: ни текста, ни PDF, но она стоит
    первой строкой в оглавлении девяти руководств и выглядит как битая ссылка */
 var STUB = { refno: 1 };
 var DOCS = loadVar("data/kb_docs.js", "KB_DOCS");
+if (!CRAWL) {
+  console.error("Не найден bulletins/index.json — по нему берётся привязка " +
+    "документов к серийным номерам");
+  process.exit(1);
+}
+var MANS = manualsByEsn(DOCS);
 var docs = {};
 Object.keys(DOCS).forEach(function (id) {
   if (STUB[id]) return;
   var d = DOCS[id];
-  var e = (d.e || []).filter(function (x) { return ESN_SET[x]; });
-  if (!e.length) return;
-  e = esnByTitle(e, d.t, "docs");
+  var e = esnOf(id, d, MANS);
   if (!e.length) return;
   d.e = e;
   docs[id] = d;
@@ -254,11 +242,9 @@ var MAN = loadVar("data/kb_manuals.js", "KB_MANUALS");
 var man = {};
 Object.keys(MAN).forEach(function (id) {
   var m = MAN[id];
-  var e = (m.e || []).filter(function (x) { return ESN_SET[x]; });
+  var e = (docs[id + "-history"] || {}).e || [];
   if (!e.length) return;
-  e = esnByTitle(e, m.t, "manuals");
-  if (!e.length) return;
-  m.e = e;
+  m.e = e.slice();
   m.s = (m.s || []).map(function (pair) {
     return [pair[0], (pair[1] || []).filter(function (it) { return !STUB[it[0]]; })];
   }).filter(function (pair) { return pair[1].length; });
@@ -511,6 +497,15 @@ var idxBytes = 0;
 idxBytes += writeVar("data/kb_docs.js", "KB_DOCS", docs);
 idxBytes += writeVar("data/kb_manuals.js", "KB_MANUALS", man);
 idxBytes += writeVar("data/kb_doc_source.js", "KB_DOC_SOURCE", DOC_SOURCE);
+
+/* коды неисправностей SPN/FMI — таблица из руководства машины, отдельный экран */
+var FAULTS = has("data/kb_fault_codes.js")
+  ? loadVar("data/kb_fault_codes.js", "KB_FAULT_CODES") : null;
+var faults = {};
+Object.keys(FAULTS || {}).forEach(function (e) { if (ESN_SET[e]) faults[e] = FAULTS[e]; });
+if (Object.keys(faults).length) {
+  idxBytes += writeVar("data/kb_fault_codes.js", "KB_FAULT_CODES", faults);
+}
 idxBytes += writeVar("data/kb_parts.js", "KB_PARTS", parts);
 idxBytes += writeVar("data/kb_mparts.js", "KB_MPARTS", mparts);
 idxBytes += writeVar("data/kb_names.js", "KB_NAMES", names);
@@ -557,13 +552,20 @@ function byCat(list) {
 console.log("База знаний для " + ESN.join(", "));
 console.log("  документов      " + docIds.length + "  (" + byCat(docIds) + ")");
 console.log("  руководств      " + Object.keys(man).length);
-console.log("  по модели ДВС отвязано: документов " + modelDropped.docs +
-  ", руководств " + modelDropped.manuals +
-  (Object.keys(modelDroppedBy).length
-    ? " (" + Object.keys(modelDroppedBy).sort().map(function (e) {
-        return e + " \u2014 " + modelDroppedBy[e];
-      }).join(", ") + ")"
-    : ""));
+console.log("  коды неисправностей: " + (Object.keys(faults).length
+  ? Object.keys(faults).map(function (e) {
+      return e + " \u2014 " + (faults[e].rows || []).length + " строк";
+    }).join(", ")
+  : "нет"));
+ESN.forEach(function (e) {
+  var own = 0, viaMan = 0;
+  docIds.forEach(function (id) {
+    if (docs[id].e.indexOf(e) < 0) return;
+    if ((CRAWL[id] || []).indexOf(e) >= 0) own++; else viaMan++;
+  });
+  console.log("  " + e + ": " + (own + viaMan) + " документов (по своему номеру " +
+    own + ", процедур из своих руководств " + viaMan + ")");
+});
 console.log("  деталей Cummins " + Object.keys(parts).length);
 console.log("  деталей машин   " + Object.keys(mparts).length);
 console.log("  тем             " + TOPICS.length + ", строк поиска " + SEARCH.length);

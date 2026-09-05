@@ -301,7 +301,12 @@
         '<div class="mcard-sub">' + esc(m.subtitle || "") + "</div>" +
         '<div class="mcard-cats">' + btns + "</div>" +
         '<a class="mcard-full" href="' + esc(m.id) + '/index.html" target="_blank" rel="noopener">' +
-        "📚 Полный родной каталог (руководства, ремонт) ↗</a>";
+        "📚 Полный родной каталог (руководства, ремонт) ↗</a>" +
+        (m.faultCodes
+          ? '<a class="mcard-full faults" href="' + esc(m.faultCodesUrl) +
+            '" target="_blank" rel="noopener">⚠ Коды неисправностей двигателя (' +
+            m.faultCodes + ") ↗</a>"
+          : "");
       grid.appendChild(card);
     });
     wrap.appendChild(grid);

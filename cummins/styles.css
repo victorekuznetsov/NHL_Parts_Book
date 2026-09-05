@@ -769,3 +769,18 @@ table.tbl caption,table.spec caption{
 }
 .kb-note b { color: #b45309; }
 .kb-note a { color: #b45309; font-weight: 600; }
+
+/* экран кодов неисправностей: поиск по коду с дисплея и таблица SPN/FMI */
+.fc-search { display: flex; align-items: center; gap: 12px; margin: 14px 0 10px; }
+.fc-search input {
+  flex: 1 1 auto; max-width: 620px; padding: 9px 13px; font: inherit;
+  border: 1px solid var(--line-strong); border-radius: 9px; background: var(--surface);
+  color: var(--ink);
+}
+.fc-search input:focus { outline: none; border-color: var(--accent-strong); }
+.fc-count { color: var(--muted); font-size: 12.5px; white-space: nowrap; }
+.fc-table td, .fc-table th { vertical-align: top; }
+.fc-table .fc-c0 { width: 44px; color: var(--muted); text-align: right; }
+.fc-table .fc-c1 { width: 72px; font-weight: 700; font-family: "Cascadia Code", Consolas, monospace; }
+.fc-table .fc-c2, .fc-table .fc-c3 { width: 62px; font-family: "Cascadia Code", Consolas, monospace; }
+.fc-table .fc-c5 { color: var(--ink-soft); }

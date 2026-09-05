@@ -498,3 +498,7 @@ table.parts tr.jumpable:hover > td { background: rgba(62,240,175,.08); }
 
 /* ссылка на инструкцию по ремонту узла рядом с «полным каталогом машины» */
 .xref-link.toservice { border-color: var(--accent-strong); }
+
+/* ссылка на экран кодов неисправностей двигателя с карточки машины */
+.mcard-full.faults { color: #b45309; }
+.mcard-full.faults:hover { border-color: #e08a2b; background: #fff3e4; }

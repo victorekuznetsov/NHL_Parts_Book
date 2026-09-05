@@ -216,6 +216,13 @@ function rewriteImages(catalog, base) {
   return catalog;
 }
 
+/* таблицы кодов неисправностей (см. build/gen_kb.js) — нужны, чтобы на карточке
+   машины стояла ссылка на отдельный экран кодов её двигателя */
+var FAULT_CODES = (function () {
+  var f = path.join(ROOT, "cummins", "data", "kb_fault_codes.js");
+  return fs.existsSync(f) ? (loadGlobal(f, "KB_FAULT_CODES") || {}) : {};
+})();
+
 var CATALOGS = {};
 var PRICES_BY = {};
 var stats = [];
@@ -226,6 +233,12 @@ MACHINES.forEach(function (m) {
   rewriteImages(cat, m.id);
   m.title_en = cat.title_en || m.name;
   m.title_zh = cat.title_zh || "";
+  /* коды неисправностей двигателя — если для его ESN есть таблица SPN/FMI */
+  var fcEsn = (/[?&]esn=(\d+)/.exec(m.engineSite || "") || [])[1];
+  if (fcEsn && FAULT_CODES[fcEsn]) {
+    m.faultCodes = (FAULT_CODES[fcEsn].rows || []).length;
+    m.faultCodesUrl = "cummins/index.html#/faults/" + fcEsn;
+  }
   var cls = classifyChapters(cat.chapters || []);
   m.driveChapters = cls.drive;
   m.enginePdfChapters = cls.enginePdf;
@@ -274,7 +287,8 @@ var machinesOut = MACHINES.map(function (m) {
     hashPrefix: m.hashPrefix, hasEngine: m.hasEngine, hasService: m.hasService,
     title_en: m.title_en, title_zh: m.title_zh,
     driveChapters: m.driveChapters, enginePdfChapters: m.enginePdfChapters,
-    engineEpcChapters: m.engineEpcChapters, engineSite: m.engineSite, engineLabel: m.engineLabel
+    engineEpcChapters: m.engineEpcChapters, engineSite: m.engineSite, engineLabel: m.engineLabel,
+    faultCodes: m.faultCodes, faultCodesUrl: m.faultCodesUrl
   };
 });
 

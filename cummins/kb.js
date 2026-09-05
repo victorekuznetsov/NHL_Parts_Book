@@ -220,6 +220,19 @@ function viewHome() {
   });
   h.push("</ul></section>");
 
+  /* коды неисправностей с дисплея — отдельным блоком, это не документ QuickServe */
+  var fcList = Object.keys(window.KB_FAULT_CODES || {});
+  if (fcList.length) {
+    h.push('<section class="kb-card"><h2>Коды неисправностей</h2><ul class="kb-list">');
+    fcList.forEach(function (e) {
+      var cat = (window.CATALOGS || {})[e], fc = window.KB_FAULT_CODES[e];
+      h.push('<li><a href="#/faults/' + esc(e) + '">' + esc(e) +
+        (cat ? " · " + esc(cat.model) : "") + '</a> <span class="cnt">' +
+        (fc.rows || []).length + "</span></li>");
+    });
+    h.push("</ul></section>");
+  }
+
   h.push('<section class="kb-card"><h2>Темы</h2><ul class="kb-list">');
   TOPICS.forEach(function (t, i) {
     h.push('<li><a href="#/topic/' + i + '">' + esc(t.t) + '</a> <span class="cnt">' +
@@ -824,7 +837,10 @@ function viewEngine(esn) {
       " · комплектов " + (cat.kits || []).length + "</p>");
   }
   h.push('<div class="doc-links"><a class="btn-mini" href="#" data-open-engine="' + esc(esn) +
-    '">Открыть каталог этого двигателя</a></div></div>');
+    '">Открыть каталог этого двигателя</a>' +
+    (faultsOf(esn) ? ' <a class="btn-mini" href="#/faults/' + esc(esn) +
+      '">Коды неисправностей (' + (faultsOf(esn).rows || []).length + ")</a>" : "") +
+    "</div></div>");
 
   /* Документы в QuickServe выкачаны по «документальному» серийному номеру
      семейства. Если это не сам этот двигатель — говорим об этом прямо, иначе
@@ -1041,6 +1057,88 @@ function notFound(what) {
 }
 
 /* ============================================================ маршруты */
+/* ================================================== коды неисправностей
+   Таблица SPN/FMI из руководства машины: код на дисплее -> что он значит.
+   Живёт отдельным экраном, потому что это не документ QuickServe, а
+   приложение к руководству по эксплуатации самосвала. */
+function faultsOf(esn) { return (window.KB_FAULT_CODES || {})[esn] || null; }
+
+function viewFaults(esn, q) {
+  var fc = faultsOf(esn);
+  if (!fc) { notFound("Коды неисправностей " + (esn || "")); return; }
+  var cat = (window.CATALOGS || {})[esn];
+  var rows = fc.rows || [], cols = fc.cols || [];
+  var query = String(q || "").trim().toLowerCase();
+  var shown = rows;
+  if (query) {
+    var terms = query.split(/\s+/);
+    shown = rows.filter(function (r) {
+      var hay = r.join(" ").toLowerCase();
+      return terms.every(function (t) { return hay.indexOf(t) >= 0; });
+    });
+  }
+  var h = [crumbs([{ t: "База знаний", href: "#/kb" },
+                   { t: "Двигатель " + esn, href: "#/engine/" + esn },
+                   { t: "Коды неисправностей" }])];
+  h.push('<div class="kb-head"><h1>Коды неисправностей ' + esc(esn) +
+    (cat ? " — " + esc(cat.model) : "") + "</h1>");
+  h.push('<p class="lead">' + rows.length + " кодов · SPN/FMI. " +
+    "Введите номер кода с дисплея, SPN, FMI или слово из описания.</p>");
+  if (fc.source) {
+    h.push('<div class="kb-note"><b>Источник:</b> ' + esc(fc.source) +
+      (fc.note ? ". " + esc(fc.note) : "") + "</div>");
+  }
+  h.push("</div>");
+  h.push('<div class="fc-search"><input id="fcq" type="search" value="' + esc(q || "") +
+    '" placeholder="Например: 115, SPN 612, датчик давления, Intake Manifold" ' +
+    'autocomplete="off"><span class="fc-count" id="fccount">' +
+    (query ? "найдено: " + shown.length + " из " + rows.length : "всего: " + rows.length) +
+    "</span></div>");
+  h.push('<section class="kb-card wide"><div class="tw"><table class="doc-table fc-table">' +
+    "<thead><tr>" + cols.map(function (c, i) {
+      return '<th class="fc-c' + i + '">' + esc(c) + "</th>";
+    }).join("") + "</tr></thead><tbody id=\"fcbody\">" +
+    faultRows(shown) + "</tbody></table></div></section>");
+  render(h.join(""));
+
+  var inp = document.getElementById("fcq");
+  if (!inp) return;
+  var t = null;
+  inp.addEventListener("input", function () {
+    clearTimeout(t);
+    t = setTimeout(function () {
+      var v = inp.value.trim().toLowerCase();
+      var list = rows;
+      if (v) {
+        var ts = v.split(/\s+/);
+        list = rows.filter(function (r) {
+          var hay = r.join(" ").toLowerCase();
+          return ts.every(function (x) { return hay.indexOf(x) >= 0; });
+        });
+      }
+      document.getElementById("fcbody").innerHTML = faultRows(list);
+      document.getElementById("fccount").textContent =
+        v ? "найдено: " + list.length + " из " + rows.length : "всего: " + rows.length;
+      /* адрес держим в актуальном виде — чтобы найденное можно было переслать */
+      var want = "#/faults/" + esn + (v ? "/" + encodeURIComponent(inp.value.trim()) : "");
+      if (location.hash !== want) history.replaceState(null, "", want);
+    }, 120);
+  });
+  inp.focus();
+  inp.setSelectionRange(inp.value.length, inp.value.length);
+}
+
+function faultRows(list) {
+  if (!list.length) {
+    return '<tr><td colspan="6" class="sub">Ничего не найдено.</td></tr>';
+  }
+  return list.map(function (r) {
+    return "<tr>" + r.map(function (v, i) {
+      return '<td class="fc-c' + i + '">' + esc(v) + "</td>";
+    }).join("") + "</tr>";
+  }).join("");
+}
+
 function route() {
   var hash = location.hash || "";
   if (!hash || hash === "#" || hash.indexOf("#/catalog") === 0) { setMode(false); return; }
@@ -1061,6 +1159,7 @@ function route() {
   if (head === "msec") return viewMachineSection(parts[1], parts[2], false);
   if (head === "mesec") return viewMachineSection(parts[1], parts[2], true);
   if (head === "msvc") return viewMachineService(parts[1], parts[2]);
+  if (head === "faults") return viewFaults(parts[1], parts.slice(2).join("/"));
   if (head === "engine") return viewEngine(parts[1]);
   if (head === "engines") return viewEngines();
   if (head === "search") return viewSearch(parts.slice(1).join("/"));
